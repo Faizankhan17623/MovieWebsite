@@ -1,0 +1,15 @@
+const mongoose = require('mongoose')
+
+require('dotenv').config()
+const DatabaseConnection = async ()=>{
+    mongoose.connect(process.env.DATABASE_URL)
+    .then(()=>{
+        console.log("The databse connection is been done")
+    })
+    .catch((error)=>{
+        console.log("There is an error in the code",error)
+        console.log(error.message)
+    });
+}
+
+module.exports = DatabaseConnection;
