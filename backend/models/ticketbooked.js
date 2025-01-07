@@ -1,9 +1,14 @@
 const mongoose = require('mongoose')
 const ticketBookingSchema = new mongoose.Schema({
-    ticketid:[{
-        type:String,
-        required:true
+    tickets: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ticket",
+        required: true,
     }],
+    // ticketid:[{
+    //     type:String,
+    //     required:true
+    // }],
     ticketbooked:{
         type:String,
         required:true,
@@ -15,5 +20,5 @@ const ticketBookingSchema = new mongoose.Schema({
         type:String
     }
 
-})
+},{timestamps:true})
 module.exports = mongoose.model('ticketboooking',ticketBookingSchema)

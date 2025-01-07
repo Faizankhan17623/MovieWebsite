@@ -22,9 +22,10 @@ const TicketBookingschema = new mongoose.Schema({
         type:String
     },
     ticketsId:{
-        type:String,
-        required:true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ticketbooking",
+        required: true,
     }
-})
+},{timestamps:true})
 
 module.exports = mongoose.model("ticket",TicketBookingschema)

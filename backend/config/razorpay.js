@@ -5,7 +5,7 @@ const instance = new Razorpay({
     key_secret:process.env.RAZORPAY_KEY_SECRETS,
 })
 .then(()=>{
-    console.log("The razorpay is been connected",instance)
+    console.log("The razorpay is been connected")
 })
 .catch((error)=>{
     console.log(error)

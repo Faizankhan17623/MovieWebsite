@@ -1,7 +1,7 @@
 const mongoose  = require("mongoose");
 
 const showschema = new mongoose.Schema({
-    image:{
+    banner:{
         type:String,
         required:true
     },
@@ -14,7 +14,7 @@ const showschema = new mongoose.Schema({
         required:true,
     },
     cast:{
-        type:String,
+        type:[String],
         required:true
     },
     showtype:{
@@ -27,8 +27,8 @@ const showschema = new mongoose.Schema({
         ref:"onlinesection"
     },
     categories:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"categories"
     },
     date:{
         type:Date,
@@ -38,5 +38,5 @@ const showschema = new mongoose.Schema({
         type:String,
         required:true
     }
-})
+},{timestamps:true})
 module.exports = mongoose.model('shows',showschema)

@@ -1,8 +1,7 @@
 require('dotenv')
-const clodinary = require('cloudinary')
-
+const cloudinary  = require('cloudinary').v2
 const CloudConnection = async ()=>{
-    await clodinary.v2.config({
+    cloudinary.v2.config({
         cloud_name:"",
         api_key:"",
         api_secret:"",

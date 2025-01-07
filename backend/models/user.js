@@ -6,15 +6,14 @@ const userSchema =  new mongoose.Schema({
         maxlength :20,
         unique:true
     },
-    password :{
+    password:{
         type:String,
         required:true,
-        maxlength:15
+        minlength:5
     },
     confirmpass:{
         type:String,
         required:true,
-        maxlength:15
     },
     token:{
         type:String
@@ -24,7 +23,9 @@ const userSchema =  new mongoose.Schema({
     },
     email:{
         type:String,
-        required:true
+        required:true,
+        unique: true,
+        match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
     usertype:{
         type:String,
@@ -34,11 +35,12 @@ const userSchema =  new mongoose.Schema({
     },
     verified:{
         type:Boolean,
-        // required:true
+        default:false
     },
     number:{
         type:String,
-        required:true
+        required:true,
+        match: [/^\d{10}$/, "Invalid phone number"],
     },
     showscreated:{
         type:mongoose.Schema.Types.ObjectId,
@@ -51,6 +53,10 @@ const userSchema =  new mongoose.Schema({
     ticketBooked:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"ticketboooking"
+    },
+    image:{
+        type:String,
+        required:true
     }
-})
+},{timestamps:true})
 module.exports = mongoose.model('user',userSchema)

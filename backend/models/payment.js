@@ -12,5 +12,14 @@ const paymentSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-})
+    amount: {
+        type: Number,
+        required: true,
+    },
+    status: {
+        type: String,
+        enum: ["success", "failure", "pending"],
+        default: "pending",
+    },
+},{timestamps:true})
 module.exports = mongoose.model("payment",paymentSchema)

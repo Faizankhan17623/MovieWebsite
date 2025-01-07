@@ -12,6 +12,5 @@ const onlineschema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"onlinesubsection"
     }
-
-})
+},{timestamps:true})
 module.exports = mongoose.model('onlinesection',onlineschema)
