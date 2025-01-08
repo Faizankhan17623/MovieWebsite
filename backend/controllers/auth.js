@@ -177,7 +177,7 @@ exports.login = async(req,res)=>{
 }
 
 
-
+// This is the code to get all the data
 exports.GetAllUsers = async(req,res)=>{
     try {
         const allusers= await USER.find()

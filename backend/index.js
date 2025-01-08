@@ -9,6 +9,9 @@ const port = process.env.DEFAULT_PORT_NUMBER || process.env.SECOND_NUMBER || 400
 
 const DatabaseConnection  = require('./config/database')
 const auth = require('./routes/auth')
+const orgainezer = require('./routes/Orgainezer')
+const Admin = require('./routes/Admin')
+
 app.use(express.json())
 app.use(cookieParser ())
 app.use(cors(
@@ -25,6 +28,8 @@ cloudinary.config({
 
 // This are going to be the main urls 
 app.use('/api/v1/createAccount',auth)
+app.use('/api/v1/orgainezer',orgainezer)
+app.use('/api/v1/Admins',Admin)
 
 app.use('/',(req,res)=>{
     res.json({
