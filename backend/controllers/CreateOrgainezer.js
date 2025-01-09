@@ -1,8 +1,12 @@
 const USER  =  require('../models/user')
 const OTP = require('../models/otp')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const cookie = require('cookie-parser')
+
 exports.Createorgainezer = async(req,res)=>{
     try {
-        const {userName,password,confirmpass,email,usertype="Organizer",number,otp} = req.body
+        const {userName,password,confirmpass,email,usertype="Organizer",number} = req.body
                 if(!userName || !password || !email || !number){
                     return res.status(400).json({
                         message:"The input Fields are required",
@@ -76,11 +80,12 @@ exports.OrgainezerLogin = async(req,res)=>{
                         success:false
                     })
                 }
-        
-                const {userName,number,_id} = Finding
                 const compare =  await bcrypt.compare(password,Finding.confirmpass)
+                // console.log("This is hte compare from th org login",compare)
+                console.log("This is thee finding from th org login",Finding)
+                const {verified} = Finding
                 if(compare === true){
-                    const jwtCreation = jwt.sign({email,password,userName,number,VerifyUpdate},process.env.JWT_ORGAINEZER_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
+                    const jwtCreation = jwt.sign({email:Finding.email,password:Finding.password,userName:Finding.userName,number:Finding.number,id:Finding._id,usertype:Finding.usertype,verified:Finding.verified},process.env.JWT_ORGAINEZER_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
                     console.log("This is the created jwt",jwtCreation)
                     USER.token = jwtCreation
                     USER.id = Finding._id
@@ -93,7 +98,8 @@ exports.OrgainezerLogin = async(req,res)=>{
                     res.cookie('token',jwtCreation,options).status(200).json({
                         message:"the user is been logged in ",
                         success:true,
-                        token:jwtCreation    
+                        token:jwtCreation,
+                        verify:verified    
                     })
         
                     // return res.status(200).json({

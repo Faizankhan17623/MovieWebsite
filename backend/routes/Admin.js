@@ -2,7 +2,7 @@
 const express = require('express')
 const route = express.Router()
 const {AdminController,VerifyOrgaineser} = require('../controllers/Admin')
-const {IsAdmin} = require("../middlewares/verification")
-route.get('/FindOrganizer',IsAdmin,AdminController)
-route.put('/VerifyOrganizer',IsAdmin,VerifyOrgaineser)
+const {IsAdmin,auth} = require("../middlewares/verification")
+route.get('/FindOrganizer',auth,IsAdmin,AdminController)
+route.put('/VerifyOrganizer',auth,IsAdmin,VerifyOrgaineser)
 module.exports = route

@@ -30,7 +30,7 @@ const userSchema =  new mongoose.Schema({
     usertype:{
         type:String,
         required:true,
-        enum:["Viewer","Organizer","administrator"],
+        enum:["Viewer","Organizer","Administrator"],
         default:"Viewer"
     },
     verified:{

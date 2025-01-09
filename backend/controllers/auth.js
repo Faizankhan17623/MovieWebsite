@@ -12,7 +12,7 @@ exports.Createuser = async(req,res)=>{
     try {
         // console.log("This is the https",http) please keep This line in the code base it is important like an extra requirement 
         const {userName,password,confirmpass,email,usertype="Viewer",number,otp} = req.body
-        if(!userName || !password || !email || !number){
+        if(!userName || !password || !email || !number || !otp){
             return res.status(400).json({
                 message:"The input Fields are required",
                 success:false
@@ -42,6 +42,19 @@ exports.Createuser = async(req,res)=>{
         }
 
         const otpCreation = await OTP.findOne({email}).sort({createdAt:-1}).limit(1)
+        if(!otpCreation){
+            return res.status(404).json({
+                message:"The otp is not beeen found or is been expired create a new one",
+                success:false
+            })
+        }
+        console.log("This is thee otpcrations from th createduser code",otpCreation)
+        if(otpCreation.otp !== otp){
+            return res.status(400).json({
+                message:"the otp is not created or is beeen expired",
+                success:false
+            })
+        }
         // now we will hash the password 
         const hasing =  await bcrypt.hash(password,10)
 
@@ -104,7 +117,7 @@ exports.CreateOtp = async(req,res)=>{
 
         console.log("This is the generated otp",generate)
 
-        const saving = await OTP.create({otp:generate})
+        const saving = await OTP.create({otp:generate,email})
         console.log("The otp is been saved in the databse",saving)
 
         return res.status(200).json({
@@ -134,14 +147,14 @@ exports.login = async(req,res)=>{
                 success:false
             })
         }
-
-        const {userName,number,_id} = Finding
+        
         const compare =  await bcrypt.compare(password,Finding.confirmpass)
+        const {_id} = Finding
         if(compare === true){
             // now we will create jwt token here 
-            const VerifyUpdate = await USER.findByIdAndUpdate(_id,{verified:true})
+            const VerifyUpdate = await USER.findByIdAndUpdate(_id,{verified:true},{new:true})
             console.log("This is the verifies update",VerifyUpdate)
-            const jwtCreation = jwt.sign({email,password,userName,number,VerifyUpdate},process.env.JWT_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
+            const jwtCreation = jwt.sign({email:Finding.email,password:Finding.password,userName:Finding.userName,number:Finding.number,_id:Finding._id,usertype:Finding.usertype,verified:Finding.verified},process.env.JWT_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
             console.log("This is the created jwt",jwtCreation)
             USER.token = jwtCreation
             USER.id = Finding._id
@@ -150,16 +163,15 @@ exports.login = async(req,res)=>{
                 httpOnly: true,
                 secure:true
             }
+
+            // This is thee headeer that is ben used to set it up
             // res.setHeader('Authorization', `Bearer ${jwtCreation}`);
+            
             res.cookie('token',jwtCreation,options).status(200).json({
                 message:"the user is been logged in ",
                 success:true,
                 token:jwtCreation    
             })
-
-            // return res.status(200).json({
-            //     message:"The user is been loge in enjoy "
-            // })
         }else{
             return res.status(401).json({
                 message: "Invalid credentials.",
@@ -180,11 +192,20 @@ exports.login = async(req,res)=>{
 // This is the code to get all the data
 exports.GetAllUsers = async(req,res)=>{
     try {
-        const allusers= await USER.find()
-        console.log("These are all the usres",allusers)
-         return res.status(200).json({
-                message:"The user is been loge in enjoy "
+        const allusers = await USER.find()
+        if(allusers.length === 0){
+            return res.status(400).json({
+                message:"There are no users created",
+                success:false
             })
+        }else{
+            console.log("These are all the usres",allusers)
+            return res.status(200).json({
+                message:"These are all the users",
+                success:true,
+                data:allusers
+            })
+        }
     } catch (error) {
         console.log(error)
         console.log("This is the error message",error.message)

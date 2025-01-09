@@ -26,7 +26,7 @@ cloudinary.config({
 
 
 
-// This are going to be the main urls 
+// This are going tof be the main urls 
 app.use('/api/v1/createAccount',auth)
 app.use('/api/v1/orgainezer',orgainezer)
 app.use('/api/v1/Admins',Admin)

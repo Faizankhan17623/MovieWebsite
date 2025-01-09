@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const USER = require('../models/user')
 exports.auth = async(req,res,next)=>{
     try {
-        const token = req.body.token || req.cookies.token || req.headers('token')
+        const token = req.body.token || req.cookies.token || req.headers(token)
         // console.log("This is the user toekn",token)
         if(!token){
             return res.status(404).json({
@@ -15,6 +15,7 @@ exports.auth = async(req,res,next)=>{
 
         const decode = jwt.verify(token,process.env.JWT_PRIVATE_KEY)
         req.USER = decode
+        console.log("This is the decode toekn frm the auth middle",decode)
         next()
     } catch (error) {
         console.log(error)
