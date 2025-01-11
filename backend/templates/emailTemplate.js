@@ -1,7 +1,6 @@
 const otpTemplate = (otp) => {
 	return `<!DOCTYPE html>
-	<html>
-	
+	<html>	
 	<head>
 		<meta charset="UTF-8">
 		<title>OTP Verification Email</title>
@@ -61,9 +60,7 @@ const otpTemplate = (otp) => {
 				font-weight: bold;
 			}
 		</style>
-	
 	</head>
-	
 	<body>
 		<div class="container">
 			<div class="message">OTP Verification Email</div>
@@ -75,11 +72,10 @@ const otpTemplate = (otp) => {
 				<p>This OTP is valid for 1 minutes. If you did not request this verification, please disregard this email.
 				Once your account is verified, you will have access to our platform and its features.</p>
 			</div>
-			<div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a
-					href="mailto:faizankhan901152@gmail.com">faizankhan901152@gmail.com</a>. We are here to help!</div>
+			<div class="support">If you have any questions or need assistance, please feel free to reach out to us via the contact support  <a
+					href="mailto:faizankhan901152@gmail.com">Contact us </a>. We are here to help!</div>
 		</div>
 	</body>
-
 	</html>`;
 };
 module.exports = otpTemplate 

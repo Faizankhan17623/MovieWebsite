@@ -154,7 +154,7 @@ exports.login = async(req,res)=>{
             // now we will create jwt token here 
             const VerifyUpdate = await USER.findByIdAndUpdate(_id,{verified:true},{new:true})
             console.log("This is the verifies update",VerifyUpdate)
-            const jwtCreation = jwt.sign({email:Finding.email,password:Finding.password,userName:Finding.userName,number:Finding.number,_id:Finding._id,usertype:Finding.usertype,verified:Finding.verified},process.env.JWT_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
+            const jwtCreation = jwt.sign({email:Finding.email,userName:Finding.userName,_id:Finding._id,usertype:Finding.usertype,verified:Finding.verified},process.env.JWT_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
             console.log("This is the created jwt",jwtCreation)
             USER.token = jwtCreation
             USER.id = Finding._id

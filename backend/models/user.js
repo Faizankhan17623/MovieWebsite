@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+
 const userSchema =  new mongoose.Schema({
     userName:{
         type:String,
@@ -42,21 +43,28 @@ const userSchema =  new mongoose.Schema({
         required:true,
         match: [/^\d{10}$/, "Invalid phone number"],
     },
+    image:{
+        type:String,
+        required:true
+    },
+
     showscreated:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"shows"
     },
+
     ticketcreated:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"ticket"
     },
+    
     ticketBooked:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"ticketboooking"
     },
-    image:{
-        type:String,
-        required:true
+    categoriesCreated:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"categories"
     }
 },{timestamps:true})
 module.exports = mongoose.model('user',userSchema)

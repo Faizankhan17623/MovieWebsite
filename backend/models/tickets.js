@@ -5,6 +5,10 @@ const TicketBookingschema = new mongoose.Schema({
         required:true,
         type:String
     },
+    ticketsRemaining:{
+        required:true,
+        type:String
+    },
     premiumtickets:{
         required:true,
         type:String

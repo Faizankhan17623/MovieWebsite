@@ -6,7 +6,7 @@ const categories = new mongoose.Schema({
     },
     subCategoreyname:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"shows"
+        ref:"subcategorey"
     }
 },{timestamps:true})
 module.exports = mongoose.model('categories',categories)

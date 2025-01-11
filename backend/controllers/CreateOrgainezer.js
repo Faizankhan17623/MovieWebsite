@@ -85,7 +85,8 @@ exports.OrgainezerLogin = async(req,res)=>{
                 console.log("This is thee finding from th org login",Finding)
                 const {verified} = Finding
                 if(compare === true){
-                    const jwtCreation = jwt.sign({email:Finding.email,password:Finding.password,userName:Finding.userName,number:Finding.number,id:Finding._id,usertype:Finding.usertype,verified:Finding.verified},process.env.JWT_ORGAINEZER_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
+                    const jwtCreation = jwt.sign({email:Finding.email,userName:Finding.userName,id:Finding._id,usertype:Finding.usertype,verified:Finding.verified},
+                        process.env.JWT_ORGAINEZER_PRIVATE_KEY,{expiresIn:'24h'}, { algorithm: 'HS256' })
                     console.log("This is the created jwt",jwtCreation)
                     USER.token = jwtCreation
                     USER.id = Finding._id
@@ -120,4 +121,3 @@ exports.OrgainezerLogin = async(req,res)=>{
         })
     }
 }
-
