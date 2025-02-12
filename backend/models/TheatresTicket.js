@@ -1,0 +1,45 @@
+    const mongoose = require('mongoose')
+
+const createTicketSchema = new mongoose.Schema({
+    pricefromtheorg:{
+        type:String,
+        required:true
+    },
+    totalticketsavailable:{
+        type:String,
+        required:true   
+    },
+    StandardTicketAvailable:{
+        type:String,
+        required:true
+    },
+    PremiumTicketAvailable:{
+        type:String,
+        required:true
+    },
+    VipTicketAvailable:{
+        type:String,
+        required:true
+    },
+    FamilyTicketAvailable:{
+        type:String,
+        required:true
+    },
+    LoyalteyTicketAvailable:{
+        type:String,
+        required:true
+    },
+    movieTimings:[{
+        type:String,
+        required:true
+    }],
+    moviedate:[{
+        type:String,
+        required:true
+    }],
+    totalticketRemaining:{
+        type:Number,
+        required:true
+    }
+},{timestamps:true})
+module.exports = mongoose.model("CreateTicket",createTicketSchema)

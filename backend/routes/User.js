@@ -1,0 +1,10 @@
+const express = require('express')
+const route = express.Router()
+const {auth,IsAdmin,IsOrganizer,IsViewer} = require('../middlewares/verification')
+const {Createuser,CreateOtp,Currentuser} = require('../controllers/user/Createuser.')
+const {login} = require('../controllers/user/auth')
+route.post('/CreateUser',Createuser)
+route.post('/Login',login)
+route.post('/SendOtp',CreateOtp)
+route.get('/User',auth,Currentuser)
+module.exports = route

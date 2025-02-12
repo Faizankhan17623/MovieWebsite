@@ -1,16 +1,23 @@
-const mongoose  = require("mongoose");
-const onlineschema = new mongoose.Schema({
-    title:{
+const mongoose = require('mongoose')
+const CreateOnlineSection = new mongoose.Schema({
+    Sectioname:{
         type:String,
-        required:true
+        required:true,
+        unique:true
     },
-    description:{
+    sectionimageurl:{
         type:String,
-        required:true
+        // required:true
     },
-    subsections:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"onlinesubsection"
+    uploaded:{
+        type:Boolean,
+        required:true,
+        default:false
+    },
+    reviewed:{
+        type:Boolean,
+        required:true,
+        default:false
     }
-},{timestamps:true})
-module.exports = mongoose.model('onlinesection',onlineschema)
+},{timeseries:true})
+module.exports = mongoose.model("OnlineSection",CreateOnlineSection)

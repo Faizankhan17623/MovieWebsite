@@ -1,0 +1,37 @@
+const mongoose = require('mongoose')
+const CreateLanguageSchema =  new mongoose.Schema({
+    Theatrename:{
+        type:String,
+        required:true
+    },
+    locationname:{
+        type:String,
+        required:true,
+        unique:true,
+        maxlength:100
+    },
+    locationurl:[{
+        type:String,
+        required:true
+    }],
+    locationimagesurl:[{
+        type:String,
+        required:true
+    }],
+    languagesavailable:[{
+        type:String,
+        required:true
+    }],
+    theatreformat:{
+        type:[String],
+        required:true
+    },
+    tickets:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'CreateTicket'
+    }],
+    CreationDate:{
+        type:String,
+    }
+},{timestamps:true})
+module.exports = mongoose.model('Theatrees',CreateLanguageSchema)

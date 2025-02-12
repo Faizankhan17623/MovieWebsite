@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const USER = require('../models/user')
 exports.auth = async(req,res,next)=>{
     try {
-        const token = req.body.token || req.cookies.token || req.headers(token)
+        const token = req.body.token || req.cookies.token || req.headers(token) || req.headers.authorization?.split(" ")[1];
         // console.log("This is the user toekn",token)
         if(!token){
             return res.status(404).json({
@@ -15,6 +15,7 @@ exports.auth = async(req,res,next)=>{
 
         const decode = jwt.verify(token,process.env.JWT_PRIVATE_KEY)
         req.USER = decode
+        req.USER.id = decode.id
         console.log("This is the decode toekn frm the auth middle",decode)
         next()
     } catch (error) {
@@ -34,7 +35,7 @@ exports.IsAdmin = async(req,res,next)=>{
         if(Finding.usertype !== 'Viewer' && Finding.usertype !== 'Organizer'){
             console.log('allowed')
             next()
-            console.log("This are all the Finding from thr is admin",Finding)
+            // console.log("This are all the Finding from thr is admin",Finding)
         }else{
             console.log('not allowed')
             return res.status(404).json({
@@ -58,7 +59,34 @@ exports.IsOrganizer = async(req,res,next)=>{
         if(Finding.usertype !== 'Viewer' && Finding.usertype !== 'administrator'){
             console.log('allowed')
             next()
-            console.log("This are all the Finding from the orgsinezer",Finding)
+            // console.log("This are all the Finding from the orgsinezer",Finding)
+        }else{
+            console.log('not allowed')
+            return res.status(404).json({
+                message:"you are not allowed to enter This route",
+                success:false
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        console.log("This is the error message",error.message)
+        return res.status(500).json({
+            message:"there is an error in the isOrgainezer middleware",
+            success:false
+        })
+    }    
+}
+
+
+
+
+exports.IsViewer = async(req,res,next)=>{
+    try {
+        const Finding = await USER.findOne({email:req.USER.email})
+        if(Finding.usertype !== 'Organizer' && Finding.usertype !== 'administrator'){
+            console.log('allowed')
+            next()
+            // console.log("This are all the Finding from the orgsinezer",Finding)
         }else{
             console.log('not allowed')
             return res.status(404).json({

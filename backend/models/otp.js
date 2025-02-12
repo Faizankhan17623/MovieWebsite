@@ -1,6 +1,6 @@
 const mongoose  = require("mongoose");
 const mailSenders = require("../utils/mailsender");
-const sendingOtpTeemplate = require('../templates/emailTemplate')
+const sendingOtpTeemplate = require('../templates/userTemplates/emailTemplate')
 const otpschema = new mongoose.Schema({
     otp:{
         type:String,
@@ -36,4 +36,4 @@ otpschema.pre("save", async function (next) {
        next() 
     }
 });
-module.exports =mongoose.model("otp",otpschema) 
+module.exports =mongoose.model("OTP",otpschema) 

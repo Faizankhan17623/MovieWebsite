@@ -1,13 +1,21 @@
-const mongoose  = require("mongoose");
-const subsectionsschema = new mongoose.Schema({
-    title:[{
+const mongoose = require('mongoose')
+const CreateOnlineSubSection = new mongoose.Schema({
+    SubSectioname:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    sectionvideourl:{
         type:String,
         required:true
-    }],
-    video:[
-        {
-            type:String
-        }
-    ]
-},{timestamps:true})
-module.exports = mongoose.model('onlinesubsection',subsectionsschema)
+    },
+    totalvideotime:{
+        type:String
+    },
+    uploaded:{
+        type:Boolean,
+        required:true,
+        default:false
+    },
+},{timeseries:true})
+module.exports = mongoose.model("OnlineSubSection",CreateOnlineSubSection)

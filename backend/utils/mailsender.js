@@ -10,12 +10,12 @@ const mailSenders = async(email,title,body)=>{
       html:body,
       // text:`testings`
     })  
-    console.log("THis is the message send to thee mail",info)
+    console.log("THis is the message send to thee mail",info.bgGreen)
     return info
   } catch (error) {
     console.log(error)
     console.log("This is the error message",error.message)
-    throw new Error("There is an  error in the sending veerifcation email")
+    throw new Error("There is an  error in the sending the  email")
   }
 }
 module.exports = mailSenders

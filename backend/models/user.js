@@ -1,16 +1,14 @@
 const mongoose = require('mongoose')
-
 const userSchema =  new mongoose.Schema({
     userName:{
         type:String,
         required:true,
-        maxlength :20,
         unique:true
     },
     password:{
         type:String,
         required:true,
-        minlength:5
+        minlength:8
     },
     confirmpass:{
         type:String,
@@ -26,6 +24,7 @@ const userSchema =  new mongoose.Schema({
         type:String,
         required:true,
         unique: true,
+        lowercase:true,
         match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
     usertype:{
@@ -47,24 +46,56 @@ const userSchema =  new mongoose.Schema({
         type:String,
         required:true
     },
-
-    showscreated:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"shows"
+    resetPasswordExpires:{
+        type:Date,
+        index:{expires:'120'}
     },
-
-    ticketcreated:{
+    theatresCreated:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"ticket"
+        ref:'Theatrees'
     },
-    
-    ticketBooked:{
+    ticketCreated:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"ticketboooking"
+        ref:"Ticket"
     },
-    categoriesCreated:{
+    languagesCreated:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"categories"
-    }
+        ref:"Languages"
+    },
+    showsCreated:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"show"
+    },
+    Casttaken:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Cast"
+    },
+    currentlocation:{
+        latitude:{
+            type:String,
+        },
+        longitude:{
+            type:String,
+        },
+        name:{
+            type:String,
+        }
+    },
+    createdAt:{
+        type:String,
+        required:true
+    },
+    lastlogin:[{
+        type:String,
+        required:true
+    }],
+    Bannerliked:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Show'
+    }],
+    Bannerhated:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Show'
+    }]
 },{timestamps:true})
-module.exports = mongoose.model('user',userSchema)
+module.exports = mongoose.model('User',userSchema)
