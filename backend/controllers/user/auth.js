@@ -1,9 +1,11 @@
 require('dotenv').config()
+
 const date = require('date-and-time')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const cookieParser  = require('cookie-parser')
-const user = require('../../models/user')
+const USER = require('../../models/user')
+
 exports.login = async(req,res)=>{
     try{
         const {email,password} = req.body
@@ -14,9 +16,9 @@ exports.login = async(req,res)=>{
             })
         }
 
-        const Finding = await user.findOne({email}).populate('resetPasswordExpires','Bannerliked','Bannerhated')
+        const Finding = await USER.findOne({email:email}).populate('resetPasswordExpires')
         if(!Finding){
-            return res.statu(404).json({
+            return res.status(404).json({
                 message:"The email is not been found",
                 success:false
             })
@@ -29,9 +31,10 @@ exports.login = async(req,res)=>{
             const pattern = date.compile('DD/MM/YYYY HH:mm:ss');
             let lastLoginTime = date.format(now, pattern);
             // console.log("This is the id",_id)
-            const login = await user.findByIdAndUpdate(_id,{verified:true},{new:true})
-            await user.updateOne({$push:{lastlogin:lastLoginTime}})
-            user.id = _id
+            const login = await USER.findByIdAndUpdate(_id,{verified:true},{new:true})
+            // await USER.updateOne({$push:{lastlogin:lastLoginTime}})
+            await USER.findByIdAndUpdate(_id,{$push:{lastlogin:lastLoginTime}},{new:true})
+            USER.id = _id
             console.log("This is the login code",login)
             const jwtCreation = jwt.sign({email:email,userName:userName,usertype:usertype,verified:verified,number:number,id:_id},process.env.JWT_PRIVATE_KEY,{ expiresIn: '24h', algorithm: 'HS256' })
             const options = {
@@ -46,6 +49,7 @@ exports.login = async(req,res)=>{
                 data:jwtCreation
             })
         }
+
     }catch(error){
         console.log(error)
         console.log(error.message)
@@ -53,5 +57,6 @@ exports.login = async(req,res)=>{
             message:"error in the login code",
             success:false
         })
+        
     }
 }

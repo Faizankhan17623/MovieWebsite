@@ -9,7 +9,7 @@ const CreateTicket = new mongoose.Schema({
         required:true
     },
     overallTicketCreated:{
-        type:Number,
+        type:String,
         required:true
     },
     priceoftheticket:{
@@ -20,13 +20,13 @@ const CreateTicket = new mongoose.Schema({
         type:String,
         required:true
     },
-    showtime:{
-        type:String,
-        required:true
-    },
     showDate:{
         type:String,
         required:true
-    }
+    },
+    allotedToTheatres:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Theatrees"
+    }]
 },{timestamps:true})
 module.exports = mongoose.model('Ticket',CreateTicket)

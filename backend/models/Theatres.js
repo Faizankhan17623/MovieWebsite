@@ -32,6 +32,10 @@ const CreateLanguageSchema =  new mongoose.Schema({
     }],
     CreationDate:{
         type:String,
-    }
+    },
+    TheatreallloteToshows:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Show'
+    }]
 },{timestamps:true})
 module.exports = mongoose.model('Theatrees',CreateLanguageSchema)

@@ -5,12 +5,12 @@ const subgenre = require('../../models/subgenre')
 const language = require('../../models/CreateLanguage')
 const hashtags = require('../../models/CreateHashtags')
 const cast = require('../../models/Createcast')
-const user = require('../../models/user')
+const USER = require('../../models/user')
 const message = require('../../models/Createmessage')
 const mongoose = require('mongoose')
 const date = require('date-and-time')
 const cookie = require('cookie-parser')
-
+const Theatres = require('../../models/Theatres')
 // Helper function to convert total seconds to the duration format
 function convertSecondsToDuration(totalSeconds) {
     const hours = Math.floor(totalSeconds / 3600)
@@ -482,12 +482,11 @@ exports.UpdateTitletrailer = async(req,res)=>{
     }
 }
 
-
 exports.SendCustomMessage = async(req,res)=>{
     try {
         const id = req.params.id
         const messages = req.body
-        const Finding = await user.findOne({_id:id})
+        const Finding = await USER.findOne({_id:id})
         if(!Finding){
             return res.status(400).json({
                 message:"This user is not present please recheck your id",
@@ -517,41 +516,50 @@ exports.SendCustomMessage = async(req,res)=>{
 
 exports.PosterLike = async(req,res)=>{
     try{
-        const id = req.query.id
 
+        const id = req.query.id
+        const userId = req.USER.id
+        // console.log("This is the user id",userId)
         if(!id){
             return res.status(400).json({
                 message:"The input is been required",
                 success:false
             })
         }
-
-        const Finding = await CreateShow.findOne({_id:id})
-        const revise = await user.findOne({Bannerliked:id})
-        if(revise){
-            return res.status(400).json({
-                message:"you have already liked this show",
-                success:false
-            })
-        }
-        const {BannerLiked,BannerDisLiked} = Finding
+        
+        const Finding = await CreateShow.findById(id)
         if(!Finding){
             return res.status(400).json({
                 message:"The show is not been found please check the inputs",
                 success:false
             })
         }
-        let liked
-        if(Finding.BannerLiked < 0){
-            liked = await CreateShow.findByIdAndUpdate(id,{$inc:{BannerLiked:0}},{new:true}) 
+        const revise = await USER.findOne({UserBannerliked:id})
+        if(revise){
+            return res.status(400).json({
+                message:"you have already liked this show",
+                success:false
+            })
         }
-        const Dislikng = await user.deleteOne({Bannerhated:id})
-        await user.deleteOne({BannerDisLiked:id})
-        liked = await CreateShow.findByIdAndUpdate(id,{$inc:{BannerLiked:BannerLiked+1}},{new:true})
-        await user.updateOne({Bannerliked:id})
 
+        let liking ;
+
+        if(Finding.BannerLiked < 0){
+            liking = await CreateShow.findByIdAndUpdate(id,{BannerLiked:0},{new:true})
+        }
+
+        if(Finding.BannerDisLiked < 0){
+            liking = await CreateShow.findByIdAndUpdate(id,{BannerDisLiked:0},{new:true})
+        }
+
+        liking = await CreateShow.findByIdAndUpdate(id,{$inc:{BannerLiked:1}},{new:true})
+        await USER.updateOne({$push:{UserBannerliked:id}})
+
+        const FindingFromuserDislike = await USER.findByIdAndUpdate(userId,{$pull:{UserBannerhated:id}},{new:true})
+        await CreateShow.findByIdAndUpdate(id,{$inc:{BannerDisLiked:-1}},{new:true})
+        console.log(FindingFromuserDislike)
         return res.status(200).json({
-            message:"The liked is been done",
+            message:"you have liked the banner",
             success:true
         })
     }catch(error){
@@ -568,32 +576,175 @@ exports.PosterLike = async(req,res)=>{
 exports.BannerDisliked = async(req,res)=>{
     try{
         const id = req.query.id
+        const userId = req.USER.id
         if(!id){
-            return res.status(400).json({
-                message:"The input is been required",
+            return res.status(404).json({
+                message:"The input fields are been required",
                 success:false
             })
         }
+
         const Finding = await CreateShow.findOne({_id:id})
         if(!Finding){
-            return res.status(400).json({
-                message:"The show is not been found please check the inputs",
+            return res.status(404).json({
+                message:"The show with this id is not present please re-check your inputs",
                 success:false
             })
         }
-        const revise = await user.findOne({Bannerhated:id})
+
+        const revise = await USER.findOne({UserBannerhated:id})
         if(revise){
             return res.status(400).json({
-                message:"you have already disliked this show",
+                message:"you have already hated this show",
                 success:false
             })
         }
-        await user.findByIdAndDelete(id,{$push:{Bannerliked:id}},{new:true})
+
+        let liking ;
+
+        if(Finding.BannerLiked < 0){
+            liking = await CreateShow.findByIdAndUpdate(id,{BannerLiked:0},{new:true})
+        }
+
+        if(Finding.BannerDisLiked < 0){
+            liking = await CreateShow.findByIdAndUpdate(id,{BannerDisLiked:0},{new:true})
+        }
+
+
+        liking = await CreateShow.findByIdAndUpdate(id,{$inc:{BannerDisLiked:1}},{new:true})
+        await USER.updateOne({$push:{UserBannerhated:id}})
+
+        const FindingFromuserDislike = await USER.findByIdAndUpdate(userId,{$pull:{UserBannerliked:id}},{new:true})
+        await CreateShow.findByIdAndUpdate(id,{$inc:{BannerLiked:-1}},{new:true})
+        console.log(FindingFromuserDislike)
+
+        return res.status(200).json({
+            message:"you have disliked this show",
+            success:true
+        })
     }catch(error){
         console.log(error)
         console.log(error.message)
         return res.status(500).json({
             message:"There is an error in the banner disliked code",
+            success:false
+        })
+    }
+}
+
+
+
+exports.AllotedToTheatres = async(req,res)=>{
+    try {
+        const showid =  req.query.showid.toString()
+        const Theatreid = req.query.Theatreid.toString()
+
+        if(!showid || !Theatreid){
+            return res.status(404).json({
+                message:"The input id is been required",
+                success:false
+            })
+        }
+
+        const Finding = await CreateShow.findById(showid)
+        const TheatreFinding = await Theatres.findById(Theatreid)
+
+        const TheatreShowChecking = await Theatres.findOne({TheatreallloteToshows:showid})
+        if(TheatreShowChecking){
+            return res.status(400).json({
+                message:"you have already alloted this theatre to this show",
+                success:false
+            })
+        }
+
+        const showTheatreChecking = await CreateShow.findOne({AllotedToTheNumberOfTheatres:Theatreid})
+        if(showTheatreChecking){
+            return res.status(400).json({
+                message:"you have already alloted the show to this theatre please recheck you inputs",
+                success:false
+            })
+        }
+
+        if(!Finding){
+            return res.status(400).json({
+                message:"The show is not been Found please re-check the input",
+                success:false
+            })
+        }
+        if(!TheatreFinding){
+            return res.status(400).json({
+                message:"The Theatre is not been Found please re-check the input",
+                success:false
+            })
+        }
+
+        if(Finding.uploaded === true && Finding.VerifiedByTheAdmin === true){
+            return res.status(500).json({
+                message:"you cannot allot the theatre after the show is verified by the admin",
+                success:false
+            })
+        }
+
+        const updating  = await CreateShow.findByIdAndUpdate(showid,{$push:{AllotedToTheNumberOfTheatres:TheatreFinding._id}},{new:true})
+        await Theatres.updateOne({$push:{TheatreallloteToshows:Finding._id}})
+        return res.status(200).json({
+            message:'The theatre is been selected for the show',
+            success:true,
+            data:updating
+        })
+    } catch (error) {
+        console.log(error)
+        console.log(error.message)
+        return res.status(500).json({
+            message:"There is an error in the Alloted to the theatre code",
+            success:false
+        })
+    }
+}
+
+
+exports.uploadtheshow = async(req,res)=>{
+    try {
+        const id = req.query.id
+
+        if(!id){
+            return res.status(404).json({
+                message:"The id is not been found",
+                success:false
+            })
+        }
+
+        const Finding = await CreateShow.findById(id)
+
+        if(!Finding){
+            return res.status(400).json({
+                message:"The show is not been found please check inputs",
+                success:false
+            })
+        }
+
+        if(Finding.VerifiedByTheAdmin === false){
+            return res.status(400).json({
+                message:"you canot upload the show untill it is verified by the admin",
+                success:false
+            })
+        }
+
+        if(Finding.VerifiedByTheAdmin === true){
+            const updating = await CreateShow.findByIdAndUpdate(id,{uploaded:true},{new:true})
+            console.log("This is the updatedd result",updating)
+            return res.status(200).json({
+                message:"you show is been uploaded",
+                success:true
+            })
+        }
+        
+
+    } catch (error) {
+        console.log(error)
+        console.log(error.message)
+        return res.status(500).json({
+            message:"There is an error in the upload the show  code",
             success:false
         })
     }

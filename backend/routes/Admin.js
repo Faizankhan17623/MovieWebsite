@@ -6,6 +6,7 @@ const {CreateTheatre} = require('../controllers/Administrator/CreateTheatres')
 const {Createtags} = require('../controllers/Orgainezer/CreateHashtags')
 const {Creategenre} = require('../controllers/Administrator/CreateGenre')
 const {CreateSubgenre} = require('../controllers/Administrator/CreateSubGenre')
+const {VerifyShow} = require('../controllers/Administrator/ShowVerify')
 // This are the special routes to create the languages 
 route.post('/CreateLanguages',auth,IsAdmin,CreateLanguage)
 
@@ -24,5 +25,5 @@ route.post('/Creategenre',auth,IsAdmin,Creategenre)
 // This is the route that is kept reserved fro creating the sub genre 
 route.post('/CreateSubGenre',auth,IsAdmin,CreateSubgenre)
 
-
+route.put('/verify',auth,VerifyShow,IsAdmin)
 module.exports = route

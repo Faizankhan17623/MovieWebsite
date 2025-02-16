@@ -74,7 +74,7 @@
             const now = new Date()
             const pattern = date.compile('ddd, YYYY/MM/DD HH:mm:ss');
             let ps = date.format(now, pattern);
-            // const nameChnages = name.split(' ')
+            const nameChnages = name.split(' ')
             // console.log("This is the name",nameChnages) 
             const Creation = new USER({
                 userName:name,
@@ -88,7 +88,7 @@
                 image:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
             }) 
             await Creation.save()
-            // nameChnages.join()
+            nameChnages.join()
             USER.id = Creation._id
             console.log("This is the user that is been created",Creation)
             return res.status(200).json({
@@ -226,6 +226,13 @@ exports.updatePassword= async(req,res)=>{
 exports.UpdateImage= async(req,res)=>{
     try {
         const displayPicture = req.files.displayPicture
+        if(!displayPicture || !req.files || !req.filesdisplayPicture){
+            return res.status(400).json({
+                message:"The input image IS been required",
+                success:false
+            })
+        }
+
         const image = await uploadDatatoCloudinary(displayPicture,process.env.CLOUDINARY_FOLDER_NAME,1000,1000)
         console.log(image)
         const updatinUser = await USER.findByIdAndUpdate(req.USER.id,{image:image.secure_url},{new:true})
@@ -277,27 +284,24 @@ exports.updateNUmber= async(req,res)=>{
     }
 }
 
-// exports.= async(req,res)=>{
-//     try {
-        
-//     } catch (error) {
-//         console.log(error)
-//         console.log("This is the error message",error.message)
-//         return res.status(500).json({
-//             message:"there is an error ",
-//             success:false
-//         })
-//     }
-// }
 
-
-
-
-exports.Currentuser = async(req,res)=>{
+exports.CurrentLoginUser = async(req,res)=>{
     try {
 
         const userId = req.USER.id
+        if(!userId){
+            return res.status(404).json({
+                message:"The user is not loged in",
+                success:false
+            })
+        }
         const Finding = await USER.findOne({_id:userId})
+        if(!Finding){
+            return res.status(404).json({
+                message:"The user is not been found",
+                success:false
+            })
+        }
         console.log(Finding)
 
         return res.status(200).json({

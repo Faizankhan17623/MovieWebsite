@@ -1,12 +1,12 @@
 const express = require('express')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
-const users = require('../../models/user')
+const USER = require('../../models/user')
 const bcrypt = require('bcrypt')
 exports.LinkSend = async(req,res)=>{
     try {
         const {email} = req.body
-        const Finding = await users.findOne({email:email})
+        const Finding = await USER.findOne({email:email})
         if(!Finding){
             return res.status(400).json({
                 message:`This email id${email} is not present please is create it`,
@@ -16,7 +16,7 @@ exports.LinkSend = async(req,res)=>{
 
         const cryptoToken = crypto.randomBytes(20).toString('hex')
 
-        const updateDetails = await users.findOneAndUpdate(
+        const updateDetails = await USER.findOneAndUpdate(
             {email:email},
             {
                 token:cryptoToken,
@@ -47,7 +47,7 @@ exports.LinkSend = async(req,res)=>{
 exports.ResetPassword = async(req,res)=>{
     try {
         const {password,token} = req.body
-        const TokenFinding = await users.findOne({token:token})
+        const TokenFinding = await USER.findOne({token:token})
         if(!TokenFinding){
             return res.status(400).json({
                 message:"The token is not presnet or has been expired",
@@ -63,7 +63,7 @@ exports.ResetPassword = async(req,res)=>{
         }
 
         const encryptinPassword = await bcrypt.hash(password,PASSWORD_CHANGING_HASH_ROUNDS)
-        const PasswordChanging = await users.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword},{new:true})
+        const PasswordChanging = await USER.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword},{new:true})
         return res.status(200).json({
             message:"The password is been updated",
             success:true

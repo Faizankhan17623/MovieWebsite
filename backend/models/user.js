@@ -3,7 +3,8 @@ const userSchema =  new mongoose.Schema({
     userName:{
         type:String,
         required:true,
-        unique:true
+        unique:true,
+        split:true
     },
     password:{
         type:String,
@@ -30,7 +31,7 @@ const userSchema =  new mongoose.Schema({
     usertype:{
         type:String,
         required:true,
-        enum:["Viewer","Organizer","Administrator"],
+        enum:["Viewer","Organizer","Administrator","Theatrer"],
         default:"Viewer"
     },
     verified:{
@@ -54,10 +55,10 @@ const userSchema =  new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'Theatrees'
     },
-    ticketCreated:{
+    ticketCreated:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Ticket"
-    },
+    }],
     languagesCreated:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Languages"
@@ -89,13 +90,21 @@ const userSchema =  new mongoose.Schema({
         type:String,
         required:true
     }],
-    Bannerliked:[{
+    UserBannerliked:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Show'
     }],
-    Bannerhated:[{
+    UserBannerhated:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Show'
+    }],
+    MessageReceivedPersonal:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Message"
+    },
+    comment:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Comment"
     }]
 },{timestamps:true})
 module.exports = mongoose.model('User',userSchema)

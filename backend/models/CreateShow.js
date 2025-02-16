@@ -49,7 +49,6 @@ const CreateShowSchema = new mongoose.Schema({
         type:String,
         required:true,
         space:true
-        // default:Date.now
     },
     castName:{
         type:mongoose.Schema.Types.ObjectId,
@@ -72,6 +71,10 @@ const CreateShowSchema = new mongoose.Schema({
         type:Number,
         default:0
     },
+    Comment:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Comment"
+    }],
     BannerDisLiked:{
         type:Number,
         default:0
