@@ -10,12 +10,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Faizankhan17623/Movie_webiste/tree/master/backend"
+    "url": ""
   },
   "author": "Faizan khan",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Faizankhan17623/Movie_webiste/tree/master/backend/bugs"
+    "url": ""
   },
   "homepage": "",
   "dependencies": {
