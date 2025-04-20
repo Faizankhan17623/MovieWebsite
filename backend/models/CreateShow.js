@@ -4,7 +4,6 @@ const CreateShowSchema = new mongoose.Schema({
         type:String,
         required:true,
         maxlength:100,
-        trim:true
     },
     tagline:{
         type:String,
@@ -16,9 +15,13 @@ const CreateShowSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    genre:[{
+    genre:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Genre',
+    },
+    SUbGenre:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'SubGeneres',
     }],
     language:[{
         type:mongoose.Schema.Types.ObjectId,
@@ -57,6 +60,19 @@ const CreateShowSchema = new mongoose.Schema({
     uploaded:{
         type:Boolean,
         default:false,
+        required:true
+    },
+    uploadingTime:{
+        type:String,
+        required:true,
+    },
+    VerificationTime:{
+        type:Date,
+    },
+    movieStatus: {
+        type: String,
+        enum: ["Upcoming", "Released", "Expired"],
+        default: "Upcoming",
         required:true
     },
     VerifiedByTheAdmin:{
@@ -100,9 +116,13 @@ const CreateShowSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    hashtags:{
+    hashtags:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Hashtags',
+    }],
+    movieDuration:{
+        type:String,
+        required:true
     }
 },{timestamps:true})
 module.exports = mongoose.model('Show',CreateShowSchema)

@@ -4,10 +4,10 @@ const CreateCastSchema = new mongoose.Schema({
     name:{
         type:String,
         required:true,
-        // unique:true
+        unique:true
     },
     images:{
-        type:[String],
+        type:String,
     }
 },{timestamps:true})
 module.exports = mongoose.model("Cast",CreateCastSchema)

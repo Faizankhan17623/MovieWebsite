@@ -1,29 +1,83 @@
 const express = require('express')
 const route = express.Router()
-const {auth,IsAdmin,IsOrganizer,IsViewer} = require('../middlewares/verification')
-const{CreateLanguage} = require('../controllers/Orgainezer/CreateLanguage')
-const {CreateTheatre} = require('../controllers/Administrator/CreateTheatres')
-const {Createtags} = require('../controllers/Orgainezer/CreateHashtags')
-const {Creategenre} = require('../controllers/Administrator/CreateGenre')
-const {CreateSubgenre} = require('../controllers/Administrator/CreateSubGenre')
-const {VerifyShow} = require('../controllers/Administrator/ShowVerify')
-// This are the special routes to create the languages 
-route.post('/CreateLanguages',auth,IsAdmin,CreateLanguage)
+const {auth,IsAdmin} = require('../middlewares/verification')
+const {Creategenre,Updategenre,deletegenre,deleteAllgenre,getAllGenres} = require('../controllers/Administrator/CreateGenre')
+const {GetAllTheatres,TheatreCreationRequest,CreateTheatres} = require('../controllers/Administrator/CreateTheatres')
+const {CreateSubgenre,UpdateSubGenre,deletesubgenre,deleteAllsubGenres,getAllgenre} = require('../controllers/Administrator/CreateSubGenre')
+const{VerifyOrgainezer,GetAllorg,deleteOrgainezer,DeleteAllOrgainezers} = require('../controllers/Administrator/AdminVerification')
+const {VerifyShow,GetAllShows,verifiedSHows,AllShows} = require('../controllers/Administrator/ShowVerify')
+
+const{CreateLanguage,updateLanguage,deleteLanguage,Getalllanguage,deleteallanguage,GetSingleLanguage} = require('../controllers/Orgainezer/CreateLanguage')
+const {OrgainesersVerifylength,Theatrelength,GetAllUsersDetailsVerified,GetAllUsersDetailsVerifiedfalse,GetAllOrganizerDetailsVerified,GetAllOrganizerDetailsVerifiedfalse,GetAllTheatrerDetailsVerified,GetAllTheatrerDetailsVerifiedfalse} = require('../controllers/Dashboard/AdminDashboard')
+
+// This one will work for all the orgaineser 
+// DONE
+route.put("/Org-Verification",auth,IsAdmin,VerifyOrgainezer)
+route.delete("/delete-Org",auth,IsAdmin,deleteOrgainezer)
+route.delete("/delete-allOrg",auth,IsAdmin,DeleteAllOrgainezers)
+route.get("/All-Orgainesers",auth,IsAdmin,GetAllorg)
+// DONE all the four are rpresetnt in the admin foldeer in the admin verification file
+
+// This is the one that will work to create the genre 
+// DONE
+route.post("/Create-Genre",auth,IsAdmin,Creategenre)
+route.put("/Update-Genre",auth,IsAdmin,Updategenre)
+route.delete("/delete-Genre",auth,IsAdmin,deletegenre)
+route.delete("/remove-AllGenre",auth,IsAdmin,deleteAllgenre)
+route.get("/Get-AllGenre",auth,IsAdmin,getAllGenres)
+// DONE all present from 23 to 27 in the create genre file in the admin folder
 
 
-// THis is the route or the admin to create hashtags 
-route.post('/Createhashtags',auth,IsAdmin,Createtags)
+// This are the route that are going to create all the sub genre
+// DONE
+route.post("/Create-SubGenre",auth,IsAdmin,CreateSubgenre)
+route.put("/Update-SubGenre",auth,IsAdmin,UpdateSubGenre)
+route.delete("/delete-SubGenre",auth,IsAdmin,deletesubgenre)
+route.delete("/remove-All-SubGenre",auth,IsAdmin,deleteAllsubGenres)
+route.get("/Get-AllSubGenre",auth,IsAdmin,getAllgenre)
+// DONE this all are presnt in the sub genre file
 
-// This is the route for the admins to create theatre
-route.post('/Createtheatres',auth,IsAdmin,CreateTheatre)
 
 
-// This is the route that is only kept for creating the genre 
-route.post('/Creategenre',auth,IsAdmin,Creategenre)
+// DONE 
+// This is the route that is going to create the theatres
+route.get("/Theatre-Request",auth,IsAdmin,TheatreCreationRequest)
+// ya wo route hain jo ke saare thatre ka data show karena 
+route.get("/Get-AllTheatres",auth,IsAdmin,GetAllTheatres)
+// 3 This is the third step for creating the theatre and the fianl step for creating the theatre
+route.post("/Theatre-FormData",auth,IsAdmin,CreateTheatres)
+// This is the route using which you can forcefully delete a theatre  ... Thinking of it as of now 
+// DONE This are all the routes that are present in the create theatres file in the admin folder
 
+// DOne 
+// This is the route that is gonng to verify the show
+route.put("/Verify-Show",auth,IsAdmin,VerifyShow)
+route.get("/Unverified-Shows",auth,IsAdmin,GetAllShows)
+route.get("/Verified-Shows",auth,IsAdmin,verifiedSHows)
+route.get("/All-Shows",auth,IsAdmin,AllShows)
+// DONE this are all the routes that are present in the show verify file in the admin folder
 
-// This is the route that is kept reserved fro creating the sub genre 
-route.post('/CreateSubGenre',auth,IsAdmin,CreateSubgenre)
+// DONE
+// This are going to be the routes that are been going  to be used for creating the languages
+route.post("/Create-Language",auth,IsAdmin,CreateLanguage)
+route.put("/Update-Language",auth,IsAdmin,updateLanguage)
+route.delete("/delete-Language",auth,IsAdmin,deleteLanguage)
+route.get("/All-Languages",auth,IsAdmin,Getalllanguage)
+route.delete("/delete-AllLanguage",auth,IsAdmin,deleteallanguage)
+route.get("/Single-Languages",auth,IsAdmin,GetSingleLanguage)
+// DONE
+// This are all the routes that are present in the create language file in the orgaineser folder
 
-route.put('/verify',auth,VerifyShow,IsAdmin)
+// DONE
+// THis will be all the routes that are going to be used for the Admin dashboard
+route.get("/Orgaineser-Request",auth,IsAdmin,OrgainesersVerifylength)
+route.get("/Theatre-Request",auth,IsAdmin,Theatrelength)
+route.get("/Verified-Users",auth,IsAdmin,GetAllUsersDetailsVerified)
+route.get("/Unverified-Users",auth,IsAdmin,GetAllUsersDetailsVerifiedfalse)
+route.get("/Verified-Orgainesers",auth,IsAdmin,GetAllOrganizerDetailsVerified)
+route.get("/Unverified-Orgainesers",auth,IsAdmin,GetAllOrganizerDetailsVerifiedfalse)
+route.get("/Verified-Theatres",auth,IsAdmin,GetAllTheatrerDetailsVerified)
+route.get("/Unverified-Theatres",auth,IsAdmin,GetAllTheatrerDetailsVerifiedfalse)
+// DONE this are all the routes that are present in the admin dashboard file in the dashboard folder
+
 module.exports = route

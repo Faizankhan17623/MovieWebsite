@@ -12,22 +12,12 @@ const CreateMessageSchema = new mongoose.Schema({
     typeOfmessage:{
         type:String,
         required:true,
-        enum:['Personal','Professional','enquiry'],
-        default:'Professional'
-    },
-    personalMessage:{
-        type:Boolean,
-        required:true,
-        default:false
-    },
-    professionalMessage:{
-        type:Boolean,
-        required:true,
-        default:false
+        enum:['Chat','enquiry','Personal'],
+        default:'Chat'
     },
     showid:{
-        type:String,
-        required:true
+        type:String
+        // required:true
     }
 },{timestamps:true})
 module.exports = mongoose.model("Message",CreateMessageSchema)

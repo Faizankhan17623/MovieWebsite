@@ -1,135 +1,108 @@
 const USER = require('../../models/user')
 const SendMessage = require('../../models/Createmessage')
 const CreateShow = require('../../models/CreateShow')
-exports.SendPersonalMessage = async(req,res)=>{
+
+// Done
+// tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE PAYMENT ROUTE AND IT IS PRESENTED ON LINIE NO 6
+exports.SendMessage = async(req,res)=>{
     try{
+        const userId = req.USER.id
+        // inside the to of the body you are requested to pass the used id to whom you want to send the message
+        const{to,message,type} = req.body
 
-        const {to,message,type} = req.body 
+        const Finding = await USER.findOne({_id:userId})
+        // const ShowFinding = await CreateShow.findOne({_id:showid})
+        const UserFinding = await USER.findOne({userName:to})
+        
+        const Types = ['Chat','enquiry','Personal']
 
-        const Types = ['Personal']
-
-        if(!Types.includes(type)){
-            return res.status(400).json({
-                message: "The input type is not valid. Please check your types.",
-                success: false
-            });
+        if(!to || !message || !type){
+            return res.status(500).json({
+                message:"The input Fields are been required",
+                success:false
+            })
         }
-
-        // console.log("Thesea are the checked types",TypeChecking)
-
-        const nameFinding = await USER.findOne({_id:to})
-
-        console.log("This is the name Finding",nameFinding)
-        if(!nameFinding){
+        if(!Finding){
             return res.status(400).json({
-                message:"This user name is not been found",
+                message:"The user is not loged in ",
                 success:false
             })
         }
 
-        const {userName} = nameFinding
 
-
-        let Creation;
-        if(type === 'Personal'){
-            if(!to || !message || !type){
-                return res.status(400).json({
-                    message:"The inputs are been required",
-                    success:false
-                })
-            }
-            Creation = await SendMessage.create({
-                to:to,
-                message:message,
-                typeOfmessage:type,
-                personalMessage:true,
-                professionalMessage:false,
-                showid:false
-            })
-
-            await USER.updateOne({_id:to},{$push:{MessageReceivedPersonal:Creation._id}})
-
-            return res.status(200).json({
-                message:`The Personal message is been send to the username ${userName}`,
-                success:true,
-                data:Creation
+        if(!UserFinding){
+            return res.status(400).json({
+                message:"The user is not present",
+                success:false
             })
         }
+
+        if(!Types.includes(type)){
+            return res.status(400).json({
+                message:"The type that you are using is not valid",
+                success:false
+            })
+        }
+
+        const Creationg = await SendMessage.create({
+            to:to,
+            message:message,
+            typeOfmessage:type,
+        })
+
+        return res.status(200).json({
+            message:"the messaged is been send succesfully",
+            success:true,
+            data:Creationg
+        })
+
     }catch(error){
         console.log(error)
         console.log(error.message)
         return res.status(500).json({
-            message:"There is an error in the personal message sending code",
+            message:"There is an error in the send message code",
             success:false
         })
     }
 }
 
+// tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE PAYMENT ROUTE AND IT IS PRESENTED ON LINIE NO 7
+exports.Updatemessage = async (req,res)=>{
+    try{
 
-exports.SendProfessionalMessage = async(req,res)=>{
-    try {
-
-        const {to,message,type,id} = req.body 
-
-        const Types = ['Professional']
-
-        if(!Types.includes(type)){
-            return res.status(400).json({
-                message: "The input type is not valid. Please check your types.",
-                success: false
-            });
-        }
-
-        const nameFinding = await USER.findOne({_id:to})
-        const Finding = await CreateShow.findOne({_id:id})
-        
-        if(!Finding){
-            return res.status(400).json({
-                message:"This id is not valid or please re-check it",
-                success:false
-            })
-        }
-        // console.log("This is the name Finding",nameFinding)
-        if(!nameFinding){
-            return res.status(400).json({
-                message:"This user name is not been found",
+        const MessageId = req.body
+        const {newMesage} = req.body
+        if(!MessageId){
+            return res.status(500).json({
+                message:"The input Fields are been required",
                 success:false
             })
         }
 
-        const {userName} = nameFinding
+        const Finding = await SendMessage.findOne({message:newMesage})
 
-        let Creation;
-        if(type === 'Professional'){
-            if(!to || !message || !type ||!id ){
-                return res.status(400).json({
-                    message:"The inputs are been required",
-                    success:false
-                })
-            }
-            Creation = await SendMessage.create({
-                to:to,
-                message:message,
-                typeOfmessage:type,
-                personalMessage:false,
-                professionalMessage:true,
-                showid:id
-            })
-
-            await CreateShow.updateOne({_id:to},{$push:{customeMessage:Creation._id}})
-
-            return res.status(200).json({
-                message:`The Personal message is been send to the username ${userName}`,
-                success:true,
-                data:Creation
+        if(Finding){
+            return res.status(400).json({
+                message:"The old and the new messages are the same",
+                success:false
             })
         }
 
-    } catch (error) {
+
+        const Updating = await SendMessage.findByIdAndUpdate(MessageId,{message:newMesage},{new:true})
+
+        return res.status(200).json({
+            message:"the messaged is been updated succesfully",
+            success:true,
+            data:Updating
+        })
+
+
+    }catch(error){
         console.log(error)
         console.log(error.message)
         return res.status(500).json({
-            message:"There is an error in the professional message sending code",
+            message:"There is an error in the  update message code",
             success:false
         })
     }

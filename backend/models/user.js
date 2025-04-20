@@ -4,7 +4,6 @@ const userSchema =  new mongoose.Schema({
         type:String,
         required:true,
         unique:true,
-        split:true
     },
     password:{
         type:String,
@@ -49,7 +48,7 @@ const userSchema =  new mongoose.Schema({
     },
     resetPasswordExpires:{
         type:Date,
-        index:{expires:'120'}
+        expires:'120'
     },
     theatresCreated:{
         type:mongoose.Schema.Types.ObjectId,
@@ -63,14 +62,14 @@ const userSchema =  new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"Languages"
     },
-    showsCreated:{
+    showsCreated:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"show"
-    },
-    Casttaken:{
+        ref:"Show"
+    }],
+    Casttaken:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Cast"
-    },
+    }],
     currentlocation:{
         latitude:{
             type:String,
@@ -98,13 +97,38 @@ const userSchema =  new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'Show'
     }],
-    MessageReceivedPersonal:{
+    messageReceived:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Message"
-    },
+    }],
     comment:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Comment"
-    }]
+    }],
+    
+    lastUsernameUpdate: {
+        type: String,
+    },
+    lastPasswordUpdate: {
+        type: String
+    },
+    lastImageUpdate: {
+        type: String
+    },
+    lastNumberUpdate: {
+        type: String
+    },
+    theatreCreated:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Theatrees"
+    },
+    PaymentId:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"payment"
+    }],
+    TheatreDataSend:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"TheatreRequests"
+    }
 },{timestamps:true})
 module.exports = mongoose.model('User',userSchema)

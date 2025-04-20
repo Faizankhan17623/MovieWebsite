@@ -1,31 +1,35 @@
 const express = require('express')
-const nodemailer = require('nodemailer')
 const crypto = require('crypto')
 const USER = require('../../models/user')
 const bcrypt = require('bcrypt')
+const mailSenders = require('../../utils/mailsender')
+
+// Done
+// tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 32
 exports.LinkSend = async(req,res)=>{
     try {
-        const {email} = req.body
+        const email = req.body.email
         const Finding = await USER.findOne({email:email})
         if(!Finding){
             return res.status(400).json({
-                message:`This email id${email} is not present please is create it`,
+                message:`This email id ${email} is not present please is create it`,
                 success:false
             })
         }
 
-        const cryptoToken = crypto.randomBytes(20).toString('hex')
-
+        const token = crypto.randomBytes(20).toString('hex')
+        // console.log("This is the crypto token generatdd",cryptoToken)
         const updateDetails = await USER.findOneAndUpdate(
             {email:email},
             {
-                token:cryptoToken,
-                resetPasswordExpires:Date.now() + 3*60
+                token:token,
+                resetPasswordExpires:Date.now() + 3600000,
             },{new:true})
             console.log("This is the updated details",updateDetails)
 
-            const url = `http://localhost:5173/password-update/${cryptoToken}`
-            await nodemailer(email,
+            const url = `http://localhost:5173/password-update/${token}`
+            
+            await mailSenders(email,
                 'password reset',
                 `your link in the email is ${url} This is the link to change the password`
             )
@@ -43,7 +47,8 @@ exports.LinkSend = async(req,res)=>{
           })
     }
 }
-
+// Done
+// tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 34
 exports.ResetPassword = async(req,res)=>{
     try {
         const {password,token} = req.body
@@ -62,11 +67,12 @@ exports.ResetPassword = async(req,res)=>{
             })
         }
 
-        const encryptinPassword = await bcrypt.hash(password,PASSWORD_CHANGING_HASH_ROUNDS)
+        const encryptinPassword = await bcrypt.hash(password,10)
         const PasswordChanging = await USER.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword},{new:true})
         return res.status(200).json({
             message:"The password is been updated",
-            success:true
+            success:true,
+            data:PasswordChanging
         })
         
     } catch (error) {
@@ -77,10 +83,3 @@ exports.ResetPassword = async(req,res)=>{
         })        
     }
 }
-
-
-
-
-
-
-

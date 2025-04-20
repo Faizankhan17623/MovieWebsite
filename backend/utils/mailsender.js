@@ -8,9 +8,8 @@ const mailSenders = async(email,title,body)=>{
       to:`${email}`,
       subject:`${title}`,
       html:body,
-      // text:`testings`
     })  
-    console.log("THis is the message send to thee mail",info.bgGreen)
+    // console.log("THis is the message send to thee mail",info)
     return info
   } catch (error) {
     console.log(error)

@@ -10,6 +10,7 @@ const message = require('../../models/Createmessage')
 const mongoose = require('mongoose')
 const date = require('date-and-time')
 const cookie = require('cookie-parser')
+const cron = require('node-cron')
 const Theatres = require('../../models/Theatres')
 // Helper function to convert total seconds to the duration format
 function convertSecondsToDuration(totalSeconds) {
@@ -25,15 +26,27 @@ function convertSecondsToDuration(totalSeconds) {
       return `${seconds}s`
     }
 }  
+// This is the function that is present in the create show route on line noe 40
 exports.CreateShow = async(req,res)=>{
     try {
-        const {title,tagline,releasedate,genreid,subgenereid,languagename,showType="Theatre",castid,directorname,producername,writersname,totalbudget,hashid} = req.body
+        const userid = req.USER.id
+
+        const {title,tagline,releasedate,genreid,subgenereid,languagename,castid,directorname,producername,writersname,totalbudget,hashid,Duration} = req.body
         const image = req.files.image
         const trailer = req.files.trailer
         // console.log('THis is the image ',image.size)
         // console.log("This is the trailer",trailer.size)
+
+        const UserVerify = await USER.findOne({_id:userid})
+
+        if(UserVerify.verified === false){
+            return res.status(400).json({
+                message:"The user is not verified you cannot create a show",
+                success:false
+            })
+        }
         const max_upload_size = 100
-        if(!title || !tagline || !releasedate || !genreid || !subgenereid || !languagename  || !castid || !directorname ||!producername||!writersname || !totalbudget || !hashid ){
+        if(!title || !tagline || !releasedate || !genreid || !subgenereid || !languagename  || !castid || !directorname ||!producername||!writersname || !totalbudget || !hashid ||!Duration    ){
             return res.status(400).json({
                 message:"This input fields are been required",
                 success:false
@@ -83,11 +96,6 @@ exports.CreateShow = async(req,res)=>{
         const findingsubGenreid  = await subgenre.findOne({_id:subgenereid})
         const FindingLanguage = await language.findOne({name:languagename})
         const castFinding = await cast.findOne({_id:castid})
-
-        // const directorFinding = await  CreateShow.findOne({directorname})
-        // const producerFinding  = await  CreateShow.findOne({producername})
-        // const writerFinding  = await  CreateShow.findOne({writersname})
-
         const haahsFinding = await hashtags.findOne({hashid})
 
         if(FindingTitle){
@@ -138,7 +146,7 @@ exports.CreateShow = async(req,res)=>{
             })
         }
         
-        const now = new Date()
+        const now = new Date(Date.now())
         const pattern = date.compile('ddd, DD/MM/YYYY HH:mm:ss');
         let ps = date.format(now, pattern);
         const releasingDate =   date.parse(releasedate,'DD/MM/YYYY')
@@ -167,7 +175,7 @@ exports.CreateShow = async(req,res)=>{
         }
 
         const diff = releasingDate.getTime() - now.getTime()
-        const uploadingAfter = 2 * 24 * 60 * 60 * 1000
+        const uploadingAfter = 60 * 60 * 1000
 
 
         let uploadingAfterDays = now.getTime() + uploadingAfter
@@ -200,7 +208,6 @@ exports.CreateShow = async(req,res)=>{
             });
         }
 
-
         let conversion =  convertSecondsToDuration(trailerSending.duration)
         // console.log("This is the whole conversion",conversion)
         const Creation = await CreateShow.create({
@@ -208,8 +215,8 @@ exports.CreateShow = async(req,res)=>{
             tagline:tagline,
             Posterurl:postersending.secure_url,
             trailerurl:trailerSending.secure_url,
-            showType:showType,
-            createdAt:ps,
+            showType:"Theatre",
+            createdAt:now,
             uploaded:false,
             VerifiedByTheAdmin:false,
             directorname:directorname,
@@ -218,13 +225,15 @@ exports.CreateShow = async(req,res)=>{
             totalbudget:totalbudget,
             releasedate:formattedReleaseDate,
             genre:genreid,
+            SUbGenre:subgenereid,
             language:FindingLanguage._id,
             TotalDuration:conversion,
-            hashtags:hashid
+            hashtags:hashid,
+            uploadingTime:ps,
+            movieDuration:Duration,
+            movieStatus:'Upcoming'
         })
-
-        // const updatinGGenreid = await 
-        // console.log("This is the created show",Creation)
+        await USER.updateOne({_id:req.USER.id},{$push:{showsCreated:Creation._id}})
         return res.status(200).json({
             message:"The show is been created",
             success:true,
@@ -240,7 +249,7 @@ exports.CreateShow = async(req,res)=>{
     }
 }
 
-
+// This is the function that is present in the create show route on line 41
 exports.UpdateShowtitle = async(req,res)=>{
     try {
         const id = req.params.id
@@ -282,7 +291,7 @@ exports.UpdateShowtitle = async(req,res)=>{
     }
 }
 
-
+// This is the function that is present in the create show route on line 42
 exports.UpdateShowtagline = async(req,res)=>{
     try {
         const id = req.params.id
@@ -324,59 +333,13 @@ exports.UpdateShowtagline = async(req,res)=>{
     }
 }
 
-
-// we will Think about it later 
-// exports.UpdateGenreAndSubGenre = async(req,res)=>{
-//     try {
-//         const id = req.params.id
-//         const {newGenreId,newSubGenreId} = req.body
-//         let updating = id.toString()
-//         const Finding = await CreateShow.findOne({_id:updating})
-//         if(!Finding){
-//             return res.status(400).json({
-//                 message:"This show is not present please rechek the id",
-//                 success:false
-//             })
-//         }
-
-//         const GenreFinding = await genre.findOne({_id:newGenreId})
-//         const SubGenreFinding = await subgenre.findOne({_id:newSubGenreId})
-
-//         if(newGenreId === Finding.genre.toString()){
-//             return res.status(400).json({
-//                 message:"The old and the new genre both are the same ",
-//                 success:false
-//             })
-//         }
-//         if(Finding.VerifiedByTheAdmin === false && Finding.uploaded === false){
-//             const Updating = await CreateShow.findByIdAndUpdate(id,{title:newTagline},{new:true})
-//             return res.status(200).json({
-//                 message:"The title is been updated",
-//                 success:true,
-//                 data:Updating
-//             })
-//         }
-//         return res.status(400).json({
-//             message:"The show is already been verified and cannot update it's tagline",
-//             success:false
-//         })
-//     } catch (error) {
-//         console.log(error)
-//         console.log(error.message)
-//         return res.status(500).json({
-//             message:"There is an error in the update show title code",
-//             success:false
-//         })
-//     }
-// }
-
-
+// This is the function that is present in the create show route on line 43
 exports.UpdateTitleImage = async(req,res)=>{
     try {
         const newImage = req.files.newImage
         const id = req.params.id
 
-        if(!req.files || req.files.newImage || !req.files){
+        if(!req.files || !req.files.newImage || !req.files){
             return res.status(400).json({
                 message:"The input fields are required",
                 success:false
@@ -426,12 +389,13 @@ exports.UpdateTitleImage = async(req,res)=>{
     }
 }
 
+// This is the function that is present in the create show route on line 44
 exports.UpdateTitletrailer = async(req,res)=>{
     try {
         const newTrailer = req.files.newTrailer
         const id = req.params.id
 
-        if(!req.files || req.files.newTrailer || !req.files){
+        if(!req.files || !req.files.newTrailer || !req.files){
             return res.status(400).json({
                 message:"The input fields are required",
                 success:false
@@ -451,7 +415,7 @@ exports.UpdateTitletrailer = async(req,res)=>{
         if(Finding.VerifiedByTheAdmin === false && Finding.uploaded === false){
             let imageUpdating
             try {
-                imageUpdating = await uploadDatatoCloudinary(newImage,process.env.CLOUDINARY_FOLDER_NAME)
+                imageUpdating = await uploadDatatoCloudinary(newTrailer,process.env.CLOUDINARY_FOLDER_NAME)
                 let conversion =  convertSecondsToDuration(imageUpdating.duration)
                 const updating = await CreateShow.findByIdAndUpdate(id,{trailerurl:imageUpdating.secure_url,TotalDuration:conversion},{new:true})
                 return res.json({
@@ -481,6 +445,153 @@ exports.UpdateTitletrailer = async(req,res)=>{
         })
     }
 }
+
+// This is the function that is present in the create show route on line 45
+exports.deleteShow = async(req,res)=>{
+    try {
+        // This code will delete only one single show 
+        const showId = req.query.showId
+        if(!showId){
+            return res.status(400).json({
+                message:"The show id is been required",
+                success:false
+            })
+        }
+
+        const Deetion = await CreateShow.findByIdAndDelete(showId)
+        if(!Deetion){
+            return res.status(400).json({
+                message:"The show is not been found",
+                success:false
+            })
+        }
+        return res.status(200).json({
+            message:"The show is been deleted",
+            success:true,
+            data:Deetion
+        })
+    } catch (error) {
+        console.log(error)
+        console.log(error.message)
+        return res.status(500).json({
+            message:"There is an error in the delete show  code",
+            success:false
+        })
+    }
+}
+
+// This is the function that is present in the create show route on line 46
+exports.DeleteAllShow = async(req,res)=>{
+    try {
+        // const DeleteAll = await CreateShow.findOne()
+        const userId = req.USER.id
+        if(!userId){
+            return res.status(400).json({
+                message:"The user id is not present please log in",
+                success:false
+            })
+        }
+        
+        const Deletion = await CreateShow.deleteMany({_id:{$in:userId.showsCreated}})    
+        if(!Deletion){
+            return res.status(400).json({
+                message:"There are no shows to  deleted",
+                success:false
+            })
+        }
+        if(Deletion.length === 0){
+            return res.status(400).json({
+                message:"There are no shows present to delete"
+            })
+        }
+        return res.status(200).json({
+            message:"all the shows are been deleted",
+            success:true,
+            data:Deletion
+        }) 
+    } catch (error) {
+        console.log(error)
+        console.log(error.message)
+        return res.status(500).json({
+            message:"There is an error in the delete  all show  code",
+            success:false
+        })
+    }
+}
+
+
+
+
+
+// THis are not for now but for after wards 
+
+// These all are of the users not of the orgainzer
+exports.updateUpcomingToReleased = async () => {
+    try {
+        const currentDate = new Date(Date.now());
+        currentDate.setHours(0, 0, 0, 0);
+        // console.log('Printing the current date',currentDate)
+        const upcomingMovies = await CreateShow.updateMany(
+            { 
+                movieStatus: "Upcoming", 
+                releasedate: { $lte: currentDate } 
+            },
+            { 
+                $set: { 
+                    movieStatus: "Released", 
+                    lastUpdated: new Date() 
+                } 
+            }
+        );
+
+        console.log(`🎬 Updated ${upcomingMovies.modifiedCount} movies from Upcoming to Released`);
+        return {
+            success: true
+        };
+    } catch(error) {
+        console.error("Error updating Upcoming to Released:", error);
+        throw error;
+    }
+}
+
+exports.updateReleasedToExpired = async () => {
+    try {
+        const CurrentDate = new Date();
+        CurrentDate.setHours(0, 0, 0, 0);
+
+
+        const releasedMovies = await CreateShow.find({ movieStatus: "Released" });
+
+        for(const movies of releasedMovies){
+            const releaseDate = new Date(movies.releasedate);
+            releaseDate.setHours(0, 0, 0, 0);
+
+            const expiryDate = new Date(releaseDate);
+            expiryDate.setDate(expiryDate.getDate() + 30); // Add 30 days to the release date
+
+            if(CurrentDate >= expiryDate){
+                await CreateShow.findByIdAndUpdate(
+                    movies._id,
+                    {
+                        $set: {
+                            movieStatus: "Expired",
+                            lastUpdated: CurrentDate
+                        }
+                    },{new:true}
+                );
+                console.log(`📅 Updated movie ${movies.title} from Released to Expired`);
+            }
+        }
+        return {
+            success: true,
+             message: "Movie status update completed"
+        };
+    } catch(error) {
+        console.error("Error updating Released to Expired:", error);
+        throw error;
+    }
+}
+
 
 exports.SendCustomMessage = async(req,res)=>{
     try {
@@ -513,7 +624,8 @@ exports.SendCustomMessage = async(req,res)=>{
     }
 }
 
-
+// Done
+// tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 42
 exports.PosterLike = async(req,res)=>{
     try{
 
@@ -572,7 +684,8 @@ exports.PosterLike = async(req,res)=>{
     }
 }
 
-
+// Done
+// tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 43
 exports.BannerDisliked = async(req,res)=>{
     try{
         const id = req.query.id
@@ -627,124 +740,6 @@ exports.BannerDisliked = async(req,res)=>{
         console.log(error.message)
         return res.status(500).json({
             message:"There is an error in the banner disliked code",
-            success:false
-        })
-    }
-}
-
-
-
-exports.AllotedToTheatres = async(req,res)=>{
-    try {
-        const showid =  req.query.showid.toString()
-        const Theatreid = req.query.Theatreid.toString()
-
-        if(!showid || !Theatreid){
-            return res.status(404).json({
-                message:"The input id is been required",
-                success:false
-            })
-        }
-
-        const Finding = await CreateShow.findById(showid)
-        const TheatreFinding = await Theatres.findById(Theatreid)
-
-        const TheatreShowChecking = await Theatres.findOne({TheatreallloteToshows:showid})
-        if(TheatreShowChecking){
-            return res.status(400).json({
-                message:"you have already alloted this theatre to this show",
-                success:false
-            })
-        }
-
-        const showTheatreChecking = await CreateShow.findOne({AllotedToTheNumberOfTheatres:Theatreid})
-        if(showTheatreChecking){
-            return res.status(400).json({
-                message:"you have already alloted the show to this theatre please recheck you inputs",
-                success:false
-            })
-        }
-
-        if(!Finding){
-            return res.status(400).json({
-                message:"The show is not been Found please re-check the input",
-                success:false
-            })
-        }
-        if(!TheatreFinding){
-            return res.status(400).json({
-                message:"The Theatre is not been Found please re-check the input",
-                success:false
-            })
-        }
-
-        if(Finding.uploaded === true && Finding.VerifiedByTheAdmin === true){
-            return res.status(500).json({
-                message:"you cannot allot the theatre after the show is verified by the admin",
-                success:false
-            })
-        }
-
-        const updating  = await CreateShow.findByIdAndUpdate(showid,{$push:{AllotedToTheNumberOfTheatres:TheatreFinding._id}},{new:true})
-        await Theatres.updateOne({$push:{TheatreallloteToshows:Finding._id}})
-        return res.status(200).json({
-            message:'The theatre is been selected for the show',
-            success:true,
-            data:updating
-        })
-    } catch (error) {
-        console.log(error)
-        console.log(error.message)
-        return res.status(500).json({
-            message:"There is an error in the Alloted to the theatre code",
-            success:false
-        })
-    }
-}
-
-
-exports.uploadtheshow = async(req,res)=>{
-    try {
-        const id = req.query.id
-
-        if(!id){
-            return res.status(404).json({
-                message:"The id is not been found",
-                success:false
-            })
-        }
-
-        const Finding = await CreateShow.findById(id)
-
-        if(!Finding){
-            return res.status(400).json({
-                message:"The show is not been found please check inputs",
-                success:false
-            })
-        }
-
-        if(Finding.VerifiedByTheAdmin === false){
-            return res.status(400).json({
-                message:"you canot upload the show untill it is verified by the admin",
-                success:false
-            })
-        }
-
-        if(Finding.VerifiedByTheAdmin === true){
-            const updating = await CreateShow.findByIdAndUpdate(id,{uploaded:true},{new:true})
-            console.log("This is the updatedd result",updating)
-            return res.status(200).json({
-                message:"you show is been uploaded",
-                success:true
-            })
-        }
-        
-
-    } catch (error) {
-        console.log(error)
-        console.log(error.message)
-        return res.status(500).json({
-            message:"There is an error in the upload the show  code",
             success:false
         })
     }

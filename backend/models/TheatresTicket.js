@@ -1,44 +1,81 @@
-const mongoose = require('mongoose')
-const createTicketSchema = new mongoose.Schema({
-    pricefromtheorg:{
-        type:String,
-        required:true
-    },
-    totalticketsavailable:{
-        type:String,
-        required:true   
-    },
-    StandardTicketAvailable:{
-        type:String,
-        required:true
-    },
-    PremiumTicketAvailable:{
-        type:String,
-        required:true
-    },
-    VipTicketAvailable:{
-        type:String,
-        required:true
-    },
-    FamilyTicketAvailable:{
-        type:String,
-        required:true
-    },
-    LoyalteyTicketAvailable:{
-        type:String,
-        required:true
-    },
-    movieTimings:[{
-        type:String,
-        required:true
-    }],
-    moviedate:[{
-        type:String,
-        required:true
-    }],
-    totalticketRemaining:{
-        type:Number,
-        required:true
-    }
-},{timestamps:true})
-module.exports = mongoose.model("CreateTicket",createTicketSchema)
+        const mongoose = require('mongoose')
+        const createTicketSchema = new mongoose.Schema({
+            showId:{
+                type:String,
+                required:true
+            },
+            userId:{
+                type:String,
+                required:true
+            },
+            theatreId:{
+                type:String,
+                required:true
+            },
+            pricefromtheorg:{
+                type:Number,
+                required:true
+            },
+            totalticketfromorg:{
+                type:String,
+                required:true   
+            },
+            ticketsCategory:[{
+                category: {
+                    type: String,
+                    enum: ["Standard", "Premium", "VIP", "Family", "Loyalty"],
+                    required: true
+                },
+                ticketsCreated:{
+                    type: Number
+                },
+                ticketsPurchaseafterRemaining:{
+                    type: Number
+                    // required: true
+                },
+                price: {
+                    type: Number,
+                    required: true
+                }
+            }],
+            Date:{
+                type:String,
+                required:true
+            },
+            TicketsRemaining: {
+                type: String
+            },
+            timings:[{
+                type:String
+            }],
+            Owner:{
+                type:mongoose.Schema.Types.ObjectId,
+                ref:'User'
+            },
+            Status:{
+                type:String,
+                required:true,
+                enum:["Upcoming","Released","Expired"]
+            },
+            ticketsReceivingTime:{
+                type:String,
+                required:true
+            },
+            ticketsPurchased:[{
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"payment"
+            }],
+            unsoldTickets:[{
+                date:{
+                    type:String,
+                },
+                totalTickets:{
+                    type:String,
+                },
+                time:{
+                    type:String
+                },
+            }]
+        },{timestamps:true})
+        module.exports = mongoose.model("CreateTicket",createTicketSchema)
+

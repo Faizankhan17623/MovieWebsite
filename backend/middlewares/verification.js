@@ -1,103 +1,155 @@
-require('dotenv')
-// This middleware will only check for theif the usertype is administrator
-const jwt = require('jsonwebtoken')
-const USER = require('../models/user')
-exports.auth = async(req,res,next)=>{
+require('dotenv').config()
+const jwt = require('jsonwebtoken');
+const USER = require('../models/user');
+
+exports.auth = async (req, res, next) => {
     try {
-        const token = req.body.token || req.cookies.token || req.headers(token) || req.headers.authorization?.split(" ")[1];
-        // console.log("This is the user token",token)
-        if(!token){
-            return res.status(404).json({
-                message:"you are not log in please log in",
-                success:false
-            })
+        const token = req.body.token || req.cookies.token || req.headers('token')
+        // console.log(token)
+        if (!token) {
+            return res.status(401).json({
+                message: "You are not logged in. Please log in.",
+                success: false
+            });
         }
 
-        const decode = jwt.verify(token,process.env.JWT_PRIVATE_KEY)
-        req.USER = decode
-        req.USER.id = decode.id
-        next()
-        
+        // Verify token instead of signing it
+        const decode = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+        // console.log("Decoded Token:", decode);
+        // console.log(decode)
+        if (!decode.email) {
+            return res.status(400).json({
+                message: "Invalid token format",
+                success: false
+            });
+        }
+
+        req.USER = decode; // Attach decoded user to request
+        next();
+
     } catch (error) {
-        console.log(error)
-        console.log("This is the error message",error.message)
+        console.log("Error in auth middleware:", error.message);
         return res.status(500).json({
-            message:"there is an error in the auth middleware",
-            success:false
-        })
+            message: "There is an error in the auth middleware",
+            success: false
+        });
     }
-}
+};
 
+exports.IsAdmin = async (req, res, next) => {
+    try {
+        const Finding = await USER.findOne({ email: req.USER.email });
 
-exports.IsAdmin = async(req,res,next)=>{
-    try{
-        const Finding = await USER.findOne({email:req.USER.email})
-        if(Finding.usertype !== 'Viewer' && Finding.usertype !== 'Organizer'){
-            console.log('done')
-            next()
-            // console.log("This are all the Finding from thr is admin",Finding)
-        }else{
-            console.log('not allowed')
+        if (!Finding) {
             return res.status(404).json({
-                message:"you are not allowed to enter This route",
-                success:false
-            })
+                message: "User not found",
+                success: false
+            });
         }
-    }catch(error){
-        console.log(error)
-        console.log("This is the error message",error.message)
+
+        if (Finding.usertype === 'Administrator') {
+            console.log('Allowed');
+            next();
+        } else {
+            return res.status(403).json({
+                message: "You are not allowed to access this route",
+                success: false
+            });
+        }
+    } catch (error) {
+        console.log("Error in IsAdmin middleware:", error.message);
         return res.status(500).json({
-            message:"there is an error in the isAdmin middleware",
-            success:false
-        })
+            message: "There is an error in the IsAdmin middleware",
+            success: false
+        });
     }
-}
+};
 
-exports.IsOrganizer = async(req,res,next)=>{
+exports.IsOrganizer = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({email:req.USER.email})
-        if(Finding.usertype !== 'Viewer' && Finding.usertype !== 'administrator'){
-            console.log('done')
-            next()
-            // console.log("This are all the Finding from the orgsinezer",Finding)
-        }else{
-            console.log('not allowed')
+        const Finding = await USER.findOne({ email: req.USER.email });
+
+        if (!Finding) {
             return res.status(404).json({
-                message:"you are not allowed to enter This route",
-                success:false
-            })
+                message: "User not found",
+                success: false
+            });
+        }
+
+        if (Finding.usertype === 'Organizer') {
+            console.log('Allowed');
+            next();
+        } else {
+            return res.status(403).json({
+                message: "You are not allowed to access this route",
+                success: false
+            });
         }
     } catch (error) {
-        console.log(error)
-        console.log("This is the error message",error.message)
+        console.log("Error in IsOrganizer middleware:", error.message);
         return res.status(500).json({
-            message:"there is an error in the isOrgainezer middleware",
-            success:false
-        })
-    }    
-}
+            message: "There is an error in the IsOrganizer middleware",
+            success: false
+        });
+    }
+};
 
 
-exports.IsViewer = async(req,res,next)=>{
+
+exports.IsUSER = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({email:req.USER.email})
-        if(Finding.usertype !== 'Organizer' && Finding.usertype !== 'administrator'){
-            console.log('done')
-            next()
-            // console.log("This are all the Finding from the orgsinezer",Finding)
-        }else{
-            console.log('not allowed')
+        const Finding = await USER.findOne({ email: req.USER.email });
+
+        if (!Finding) {
             return res.status(404).json({
-                message:"you are not allowwed to enter This route",
-                success:false
-            })
+                message: "User not found",
+                success: false
+            });
+        }
+
+        if (Finding.usertype === 'Viewer') {
+            console.log('Allowed');
+            next();
+        } else {
+            return res.status(403).json({
+                message: "You are not allowed to access this route ",
+                success: false
+            });
         }
     } catch (error) {
-        console.log(error)
-        console.log("This is the error message",error.message)
+        console.log("Error in IsAdmin middleware:", error.message);
         return res.status(500).json({
-            message:"there is an error in the isOrgainezer middleware",
-            success:false
-        })
-    }    
-}
+            message: "There is an error in the IsAdmin middleware",
+            success: false
+        });
+    }
+};
+
+exports.IsTheatrer = async (req, res, next) => {
+    try {
+        const Finding = await USER.findOne({ email: req.USER.email });
+
+        if (!Finding) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        if (Finding.usertype === 'Theatrer') {
+            console.log('Allowed');
+            next();
+        } else {
+            return res.status(403).json({
+                message: "You are not allowed to access this route",
+                success: false
+            });
+        }
+    } catch (error) {
+        console.log("Error in Theatrer middleware:", error.message);
+        return res.status(500).json({
+            message: "There is an error in the Theatrer middleware",
+            success: false
+        });
+    }
+};

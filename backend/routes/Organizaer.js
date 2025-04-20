@@ -1,21 +1,27 @@
 // This is the orgainezer personal route the Things that the org will do will come here
 const express = require('express')
 const route = express.Router()
-
-const {Createtags} = require('../controllers/Orgainezer/CreateHashtags')
+const {CreateOrgainezer,OrgaineserLogin} = require('../controllers/Orgainezer/CreateOrg')
 const {auth,IsOrganizer} = require('../middlewares/verification')
-const {CreateOrgainezer} = require('../controllers/Orgainezer/CreateOrg')
-const {login} = require('../controllers/user/auth')
+const {AllShows} = require('../controllers/common/Showlist')
+const {AllotTheatre} = require('../controllers/Orgainezer/Allotment')
 const {CreateTicket} = require('../controllers/Orgainezer/CreateTicket')
-// The login route will be the same for both of them we can just create a seperate route but it need to be redirected to the main login page only
-// There is a seperate route to create orgainezer 
-route.post('/CreateOrgainezer',CreateOrgainezer)
+const {GetAllTheatreDetails} = require("../controllers/Dashboard/OrgainezerDashboard")
+// DONE
+route.post('/Create-Orgainezer',CreateOrgainezer)
+route.post('/Orgainezer-login',OrgaineserLogin)
+// DONE
 
-route.post('/OrgainezerLogin',(req,res)=>{
-    res.redirect('/Login')
-},login)
+// DONE
+route.put("/Create-Ticket",auth,IsOrganizer,CreateTicket)
+route.put("/Allot-Theatre",auth,IsOrganizer,AllotTheatre)
+route.get("/All-Shows",auth,IsOrganizer,AllShows)
+// DONE
 
-route.post('/Createhashtags',auth,IsOrganizer,Createtags)
-route.post('/CreateTicket',auth,IsOrganizer,CreateTicket)
+
+
+// new 
+route.get("/Get-All-Theatre-Details",auth,IsOrganizer,GetAllTheatreDetails)
+      
 
 module.exports = route
