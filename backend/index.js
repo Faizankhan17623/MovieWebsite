@@ -7,7 +7,7 @@ const fileUpload = require('express-fileupload')
 const colors = require('colors')
 // var morgan = require('morgan')
 // const VisitorCounter = require('express-visitor-counter')
-/
+
 require('./Background_Process/Shows/movieStatusCronjobs')
 require('./Background_Process/Tickets/Tickets')
 require('./Background_Process/ReturnnsoldTickets')
