@@ -14,6 +14,7 @@ const Footer = () => {
           <button></button>
           <button></button>
         </div>
+        {/* This are thee chaag nes that i need to do */}
         <div></div>
         <div></div>
         <div></div>
