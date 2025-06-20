@@ -1,13 +1,13 @@
-import Org from '../../assets/Logo/org_imaage_indiaa.png'
-// org_imaage_indiaa.png
+import About from '../extra/AboutUs'
 import JoinCard from '../extra/joinCard'
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
- import 'swiper/css/free-mode';
-  import 'swiper/css/pagination';
- import { FreeMode, Pagination,Mousewheel,Autoplay,Keyboard } from 'swiper/modules';
- import Footer from './Footer';
+import 'swiper/css/free-mode';
+import 'swiper/css/pagination';
+import { FreeMode, Pagination,Mousewheel,Autoplay,Keyboard } from 'swiper/modules';
+import Footer from './Footer';
+
 const Listing = () => {
   const slides = [
     {
@@ -73,6 +73,7 @@ const Listing = () => {
   ];
   return (
     <div className='text-white w-full h-fit  flex flex-col items-center justify-around gap-4 '>
+      <JoinCard title={'Become oganizing with us '} subttitle={'Organise your show with us '} btn={'Become An Orgainezer'} imaage={'https://res.cloudinary.com/dp6kj5f6i/image/upload/v1750395465/org_imaage_indiaa_jnsfs1.png'} />
 
       {/* Section 1 */}
       <div className='listing_one w-[92%]  h-[350px]  flex flex-col'>
@@ -253,7 +254,8 @@ const Listing = () => {
         </div>
       </div>
       
-      <JoinCard title={'Try oganizing with us '} subttitle={'Organise your show with us '} btn={'Become An Orgainezer'} imaage={Org} />
+      <JoinCard title={'Register your Theatre with us'} subttitle={'register Your Theatre And get a Chance to earn more With Us'} btn={'Become An Theatrer'} imaage={'https://res.cloudinary.com/dp6kj5f6i/image/upload/v1750395468/theattreer_gfu4wp.png'} />
+      <About/>
       <Footer/>
     </div>
   )

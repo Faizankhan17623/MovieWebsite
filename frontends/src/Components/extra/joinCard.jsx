@@ -12,7 +12,7 @@ const JoinCard = ({title,subttitle,btn,imaage}) => {
         </div>
 
         <div className='w-[60%]  h-[100%] overflow-hidden'>
-            <img src={imaage} alt="This is the baanner image" className='w-full h-full object-cover rounded-3xl' draggable="false"/>
+            <img src={imaage} alt="This is the baanner image" className='w-full h-full object-cover rounded-3xl' draggable="false" loading='lazy'/>
         </div>
         
     </div>

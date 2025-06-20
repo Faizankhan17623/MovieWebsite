@@ -5,11 +5,8 @@
     box-sizing: border-box;
 }
 
-.line{
-  margin-left: 10px;
-}
-
 @theme{
+
     --font-inter: 'Inter', sans-serif;
     --font-mono:'Roboto Mono', 'monospace';
     --font-edu-sa:'Edu SA Beginner', 'cursive';
@@ -21,6 +18,7 @@
 
     /* Color White */
     --color-white-5: #FFFFFF;
+    --color-Black-5 :"#484848";
 
     /* Color Rich Balck */
     --color-richblack-5: #F1F2FF;
@@ -142,6 +140,9 @@
 
     --color-grey-100: #E8EAEC;
     --color-grey-200: #9A9A9A;
+    --color-grey-300: #E0E2E6;
+
+    --color-Orange-100: #FFA500;
 
     /* This is the  break point for the screens */
     --breakpoint-sm: 650px;
@@ -254,4 +255,42 @@
 
 .swiper-container {
   margin-top: 2rem;
+}
+
+
+/* Thi is forr the buttton changes in tthe footerr */
+.BUTTON_DESIGN{
+  padding: 5px 10px 5px 10px;
+}
+
+
+.About_Button{
+  padding: 10px 10px 10px 10px;
+}
+
+.line{
+  margin-left: 10px;
+}
+
+.triangle-up {
+  width: 0; 
+  height: 0; 
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent; 
+  border-bottom: 15px solid ;
+}
+
+
+.lines{
+  padding-bottom: 10px;
+}
+
+
+.Day_Night{
+  padding: 10px 30px 10px 30px;
+}
+
+
+.Contentt{
+  padding: 5px 10px px 10px;
 }
