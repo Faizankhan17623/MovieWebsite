@@ -68,7 +68,7 @@ const Footer = () => {
       {/* Thiis is for thee second section of thee footeer */}
       <div className='w-full h-20 flex justify-around items-center border-t-4'>
         <div className='flex justify-center items-center gap-2'>
-          <FaRegCopyright /> 2025 Cine Circuit Project <span>|</span> All Rights Reserved  With the Developer
+          <FaRegCopyright /> 2025 Cine Circuit <span>|</span> All Rights Reserved With the Developer
         </div>
         |
         <div className='flex justify-center items-center gap-2'>

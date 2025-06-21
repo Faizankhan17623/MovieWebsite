@@ -16,12 +16,10 @@ const store = configureStore({
 
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <Provider store={store}>
     <BrowserRouter>
       <App/>
       <Toaster position="top-right" reverseOrder={true}/>
     </BrowserRouter>
-    </Provider>
-  </StrictMode>,
+    </Provider>,
 )

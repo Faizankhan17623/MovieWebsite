@@ -7,6 +7,7 @@ import 'swiper/css/free-mode';
 import 'swiper/css/pagination';
 import { FreeMode, Pagination,Mousewheel,Autoplay,Keyboard } from 'swiper/modules';
 import Footer from './Footer';
+import Navbar from './Navbar';
 
 const Listing = () => {
   const slides = [
