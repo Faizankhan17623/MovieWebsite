@@ -4,7 +4,7 @@ import Navbar from './Navbar'
 import Image1 from '../../assests/review.png'
 const AboutUs = () => {
   return (
-    <div className='w-full h-[900px] text-white  '>
+    <div className='w-full h-[900px] text-white  overflow-x-hidden'>
         <Navbar/>
         <div className='w-full h-[61%]  flex flex-col justify-center items-center gap-4 bg-richblack-600'>
             <h1 className='text-2xl '>A New Concept for The Future Generations</h1>
@@ -18,7 +18,7 @@ const AboutUs = () => {
         </div>
 
 
-<div className="bg-richblack-800 top-[150px] w-full h-[400px]  flex justify-center items-center flex-col  border-b-4">
+<div className="bg-richblack-800 top-[150px] w-full h-[400px]  flex justify-center items-center flex-col  border-b-2">
   <div className="w-[92%] flex flex-col gap-2 justify-center items-center">
     <p className="font-mono text-2xl">
       We are passionate about how the thingss <span className="text-blue-200">work and we want to bring A change</span> in this industry <br />
@@ -27,15 +27,22 @@ const AboutUs = () => {
     </p>
   </div>
 </div>
-<div className="text-red-700  border w-full h-32"> 
-testeerrs
+<div className="w-full bg-richblack-800 h-[400px]  text-white flex justify-evenly items-center flex-row">
+  <div className="flex justify-evenly items-center w-[50%] flex-col  h-[95%]">
+    <p className="text-orange-500 text-3xl">Our Founding Story</p>
+
+      <p>Our plaatform was sttarrtted in a sharred vision and passion for trranorming thee local movie tickeet selling business and to makee it in aa veery strructured pipeline way and heelp thee makerrs tto ttraack all thee tickeets and all the reevvies that are been coming from thee peoples mouth and usee tthem iin an opportunitted waay to rapidly evolve in an digittal world </p>
+
+      <p>As an MMove enthusiast ourr self we aalways find it veery dificult tto geett thee movvies that are in he ttreendiing istt in tthe rright budgeett and in the rright plaace wheree we can see it so forr eliminaatting that husttle we have laaunched a project that can help you to fiind them and also the ceators tto moniittor all tthee tickeetts and make aa way so thaat thee exxtrra saales do not happen on ttheir tickeet and tthee are not in tthee loss and also heelp them tocraate more and more good thiings in ttheir full potential</p>
+
+  </div>
+      <img src={Image1} alt="logo 1"  loading="lazy" className="w-[400px]"/>
+  {/* <div>
+
+  </div> */}
 </div>
     </div>
   )
 }
 
 export default AboutUs
-
-      // <p>Our Founding Story</p>
-      // <p>Our plaatform was sttarrtted in a sharred vision and passion for trranorming thee local movie tickeet selling business and to makee it in aa veery strructured pipeline way and heelp thee makerrs tto ttraack all thee tickeets and all the reevvies that are been coming from thee peoples mouth and usee tthem iin an opportunitted waay to rapidly evolve in an digittal world </p>
-      // <p>As an MMove enthusiast ourr self we aalways find it veery dificult tto geett thee movvies that are in he ttreendiing istt in tthe rright budgeett and in the rright plaace wheree we can see it so forr eliminaatting that husttle we have laaunched a project that can help you to fiind them and also the ceators tto moniittor all tthee tickeetts and make aa way so thaat thee exxtrra saales do not happen on ttheir tickeet and tthee are not in tthee loss and also heelp them tocraate more and more good thiings in ttheir full potential</p>
