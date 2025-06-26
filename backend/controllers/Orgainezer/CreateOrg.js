@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const cookieParser  = require('cookie-parser')
 const OTP = require('../../models/otp')
 
-// This is the function that is going to create the route in the orgainezer in the line no 10
+// This is the function that is going to create the route in the orgainezer in the line no 10   
 exports.CreateOrgainezer = async(req,res)=>{
     try {
         const {name,password,email,number,otp} = req.body

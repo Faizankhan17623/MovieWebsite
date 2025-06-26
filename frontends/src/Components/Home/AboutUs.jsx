@@ -1,7 +1,11 @@
 import { FaHeart  } from "react-icons/fa";
-
 import Navbar from './Navbar'
 import Image1 from '../../assests/review.png'
+import Counter from '../extra/Counter'
+import Learning from "../extra/Learning";
+import Slider from "../extra/Slider";
+import Footer from "./Footer";
+import FeedbackForm from "./FeedbackForm";
 const AboutUs = () => {
   return (
     <div className='w-full h-[900px] text-white  overflow-x-hidden'>
@@ -18,7 +22,7 @@ const AboutUs = () => {
         </div>
 
 
-<div className="bg-richblack-800 top-[150px] w-full h-[400px]  flex justify-center items-center flex-col  border-b-2">
+<div className="bg-richblack-900 top-[150px] w-full h-[400px]  flex justify-center items-center flex-col  border-b-2">
   <div className="w-[92%] flex flex-col gap-2 justify-center items-center">
     <p className="font-mono text-2xl">
       We are passionate about how the thingss <span className="text-blue-200">work and we want to bring A change</span> in this industry <br />
@@ -41,6 +45,22 @@ const AboutUs = () => {
 
   </div> */}
 </div>
+<div className="w-full h-[290px]  flex items-center justify-around">
+  <div className="w-[40%]  h-[250px] flex justify-around  flex-col">
+    <p className="text-3xl text-Orange-100">Our Vision</p>
+    <p className="text-richblack-200">With the Vision in min we have Created This platform and set out on a Journey to embrace what is next and revolutizined how thee world will change and we work on that functionalitey only and adapt new things that will help us to make a good product in the future our team is working tirelessly to make a platform for the main investors for the movies and help them to get a good results</p>
+  </div>
+  <div className="w-[40%]  h-[250px] flex justify-around flex-col">
+    <p className="text-3xl text-blue-200">Our Mission</p>
+    <p className="text-richblack-300">Our mission goes beyond just delivering Tickets Online. We wanted to create a vibrant community of Orgainezers And Theatres, where They can connect, collaborate, and learn from one another. We believe that knowledge thrives in an environment of sharing and dialogue, and we foster this spirit of collaboration through forums, live sessions, and networking opportunities and many more Things.</p>
+  </div>
+
+</div>
+<Counter/>
+{/* <Learning/> */}
+<FeedbackForm/>
+<Slider />
+<Footer/>
     </div>
   )
 }

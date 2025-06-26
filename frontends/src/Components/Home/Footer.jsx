@@ -57,7 +57,7 @@ const Footer = () => {
             <a href="https://github.com/Faizankhan17623?tab=repositories"><FaGithub className='text-2xl '/></a>
           </div>
           <div className='w-full  h-10 flex justify-evenly items-center group relative'>
-            <span className='absolute -top-15 left-0 w-[250px] h-[50px] border bg-white text-black px-2 py-1 Contentt rounded shadow-lg hidden group-hover:block'>We are Still Working on This Functionaletey this will start soon</span>
+            <span className='absolute -top-15 left-0 w-[250px] h-[50px] border bg-white text-black px-2 py-1 Contentt rounded shadow-lg hidden group-hover:block'>We are Still Working on this it will start soon</span>
             <button className='Day_Night rounded-xl bg-white hover:text-orange-300'><IoIosSunny className='text-Orange-100 text-2xl hover:text-orange-300'/></button>
             <button className='Day_Night rounded-xl bg-richblack-500'><FaMoon className='text-white text-2xl '/></button>
           </div>

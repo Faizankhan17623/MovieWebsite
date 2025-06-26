@@ -299,3 +299,64 @@
 .Aboutus{
   padding-bottom: 100px;
 }
+
+.number_input{
+  margin-top: 14px;
+}
+.number{
+  padding-left: 10px;
+}
+
+.Form_Heading{
+  margin-top: 10px;
+}
+
+.Main_Form{
+  margin-top: 20px;
+}
+
+.form_email{
+  margin-top: 10px;
+}
+
+.Message_Btn{
+  margin-top: 10px;
+}
+
+
+
+.Names{
+  padding-left: 15px;
+}
+
+
+.Messages{
+  padding-left: 10px;
+  padding-top: 20px;
+}
+
+.Btns{
+  margin-top: 10px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+
+
+
+
+
+
+.lable-style {
+  @apply text-[14px] text-richblack-5;
+}
+.form-style {
+  @apply rounded-lg bg-richblack-700 p-3 text-[16px] leading-[24px] text-richblack-5 shadow-[0_1px_0_0] shadow-white/50 placeholder:text-richblack-400 focus:outline-none;
+}
+
+
+
+.Number_inputs{
+  margin-top: 30px;
+  padding-top: 10px;
+}
