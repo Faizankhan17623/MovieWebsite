@@ -54,7 +54,7 @@ const color_change = ()=>{
 }
 // w-full h-26 flex justify-between items-center border-b-3 text-white
   return (
-    <div className='w-screen h-20 flex justify-between items-center border-b-1 text-white'>
+    <div className='w-full h-20 flex justify-between items-center border-b-1 text-white'>
         <div className='py-4 pl-6'>
           <a href="/" className=''>
             <img src={'https://res.cloudinary.com/dp6kj5f6i/image/upload/v1750395467/sd-removebg-preview_hlj26r.png'} alt="Main logo" className='h-18 w-[250px] text-black' loading='lazy'/>
