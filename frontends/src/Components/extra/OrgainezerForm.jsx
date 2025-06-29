@@ -12,6 +12,7 @@ const OrgainezerForm = () => {
       const [loading,setLoading] = useState(false)
   
       useEffect(()=>{
+        setLoading(false)
         if(isSubmitSuccessful){
           reset({
             first:"",
@@ -22,14 +23,13 @@ const OrgainezerForm = () => {
             Messages:""
           })
         }
+        setLoading(true)
       },[reset,isSubmitSuccessful])
 
   return (
     <form onSubmit={handleSubmit(Submitdata)} className='flex flex-col justify-around items-center'>
-      <div className='w-full h-28 border'>
-        Hellos
-      </div>
       <div>
+        
         <label htmlFor="first">
           <input type="text" name='first' placeholder='Enter First name'/>
         </label>
@@ -38,7 +38,7 @@ const OrgainezerForm = () => {
           <input type="text" name='second' placeholder='Enter Second name' />
         </label>
       </div>
-
+      
     </form>
   )
 }

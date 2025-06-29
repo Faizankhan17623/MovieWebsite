@@ -17,7 +17,7 @@ const [delayedShow, setDelayedShow] = useState(false);
     setDelayedShow(false); // reset
     const timer = setTimeout(() => {
       setDelayedShow(true);
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(timer); // cleanup if user switches quickly
   } else {
@@ -71,14 +71,17 @@ const [delayedShow, setDelayedShow] = useState(false);
           </div>
         </div>
         
-        <div className='w-[50%] h-[650px] border border-richblack-600 bg-richblack-800 rounded-lg'>
-          papa 
+        <div className='w-[50%] h-[650px] border border-richblack-600 bg-richblack-800 rounded-lg flex justify-evenly items-center flex-col'>
+          <div  className='flex justify-center items-center flex-col gap-2 COntact_Up'>
+            <h2 className='font-bold text-4xl Main_Data'>Got a Idea? We've got the skills. Let's team up</h2>
+            <p className='text-xl font-mono'>Tell us more about yourself and what you're got in mind.</p> 
+          </div>
           { loading ? (
-    <Loading data=" relative top-[44%] left-78 text-4xl"/>
+    <Loading data="relative z-10"/>
   ) : Switch === 'Organizer' ? (
-    delayedShow ? <OrgainezerForm /> : <Loading data="relative top-[44%] left-78 text-4xl w-[100px] "/>
+    delayedShow ? <OrgainezerForm /> : <Loading data="relative z-10"/>
   ) : Switch === 'Theater' ? (
-    delayedShow ? <TheatrerForm /> : <Loading data=" relative top-[44%] left-78"/>
+    delayedShow ? <TheatrerForm /> : <Loading data="relative z-10"/>
   ) : (
     <div className='relative flex justify-center items-center w-full h-full text-3xl text-yellow-100 '>Please select an option</div>  // fallback
   )
