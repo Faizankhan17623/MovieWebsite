@@ -33,4 +33,6 @@ none (khud sambhal lenga)
 5 main and the last 
 main reason of moving  to the circuit 
 and the common of the address an the image for the confirmation 
- and phot of the org 
+ and phot of the org  
+
+something that we need to do is that on every step of the submit wee need to add a from like move to the next step and the previos step and after full is done then like after every policey is been clikced then clikc on the button to save the use
