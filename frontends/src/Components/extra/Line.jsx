@@ -1,23 +1,39 @@
+import { useEffect, useState } from "react";
+import Loading from "./Loading";
+const Line = ({ part, setPart }) => {
 
-const Line = ({changes,part}) => {
-  
-  console.log(part)
+  const [loading,setLoading] = useState(false)
 
-    return (
-    <div className="border-b-2 border-red-500 ">
-      <div className="flex justify-center gap-2 items-center  mt-8 Line_Head h-14 w-full line_Difference/">
-        <span className="h-9 bg-yellow-200 w-7 flex justify-center items-center text-3xl rounded-2xl text-richblack-900 cursor-pointer">1</span>
-        <p className={`${part === 1?"text-yellow-400":"text-white"}`}>-----------------</p>
-        <span className="h-9 bg-yellow-200 w-7 flex justify-center items-center text-3xl rounded-2xl text-richblack-900 cursor-pointer">2</span>
-        <p className={`${part === 2?"text-yellow-400":"text-white"}`}>-----------------</p>
-        <span className="h-9 bg-yellow-200 w-7 flex justify-center items-center text-3xl rounded-2xl text-richblack-900 cursor-pointer">3</span>
-        <p className={`${part === 3?"text-yellow-400":"text-white"}`}>-----------------</p>
-        <span className="h-9 bg-yellow-200 w-7 flex justify-center items-center text-3xl rounded-2xl text-richblack-900 cursor-pointer">4</span>
-        <p className={`${part === 4?"text-yellow-400":"text-white"}`}>-----------------</p>
-        <span className="h-9 bg-yellow-200 w-7 flex justify-center items-center text-3xl rounded-2xl text-richblack-900 cursor-pointer">5</span>
-      </div> 
+  return (
+    <div className="border-b-2 border-red-500">
+      <div className="flex justify-center gap-2 items-center  h-14 w-full">
+        {[1, 2, 3, 4, 5].map((step) => (
+          <>
+
+            {/* Step number circle */}
+            <span
+              className={`h-9 w-9 flex justify-center items-center text-lg font-bold rounded-full cursor-pointer
+                ${step <= part ? 'bg-yellow-300 text-black' : 'bg-gray-600 text-white'}
+              `}
+              onClick={() => setPart(step)}
+              key={step}
+            >
+              {part && <Loading data="top-50 left-60"/>?step:<Loading data="top-10 left-60"/>}
+            </span>
+
+            {/* Line after the step (except after the last one) */}
+            {step < 5 && (
+              <div
+                className={`w-20 h-1 rounded-full ${
+                  step <= part ? 'bg-yellow-300' : 'bg-gray-500'
+                }`}
+              ></div>
+            )}
+          </>
+        ))}
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Line 
+export default Line;

@@ -6,7 +6,6 @@ import Loading from '../extra/Loading'
 import OrgainezerForm from '../extra/OrgainezerForm';
 import TheatrerForm from '../extra/TheatrerForm';
 import Footer from './Footer';
-import Extra from '../extra/Line'
 const Contact = () => {
   
 const [Switch, setSwitch] = useState('');
@@ -33,6 +32,7 @@ const [delayedShow, setDelayedShow] = useState(false);
         <div className='w-[40%] max-h-fit border border-richblack-600 bg-richblack-800 rounded-lg  flex justify-evenly items-center flex-col'>
           <div className='w-full h-[100px] Options2 flex justify-center items-center '> 
             <div className='flex flex-row items-center justify-center gap-5'>
+              
       <div className='w-fit h-14 flex justify-around items-center gap-1 rounded-3xl bg-richblack-400 '>
         <button
           disabled={loading}
@@ -58,7 +58,7 @@ const [delayedShow, setDelayedShow] = useState(false);
     </div>
           </div>
 
-          <div className='w-full h-[400px]  border-richblack-600 bg-richblack-800 rounded-lg flex flex-col justify-evenly items-center'>
+          <div className='w-full h-[300px]  border-richblack-600 bg-richblack-800 rounded-lg flex flex-col justify-evenly items-center'>
             <div className='w-[80%]'>
                <h1 className='flex gap-3 items-center font-bold text-xl'><IoIosChatboxes className='text-2xl'/>Chat With Us</h1>
                <p className='text-richblack-100'>Our Team Here at Cine Circuit is here to help Your <br /> <a href="mailto:faizankhan901152@gmail.com">Contact Us</a></p>
@@ -75,17 +75,18 @@ const [delayedShow, setDelayedShow] = useState(false);
           </div>
         </div>
         
-        <div className='w-[50%] h-[650px] border border-richblack-600 bg-richblack-800 rounded-lg flex justify-evenly items-center flex-col'>
+        <div className='w-[50%] h-[590px] border border-richblack-600 bg-richblack-800 rounded-lg flex justify-evenly items-center flex-col Heading Bottom'>
           
           <div  className={`flex justify-center items-center flex-col gap-2 COntact_Up ${ Switch ? "hidden" : "flex"}`}>
             <h2 className='font-bold text-4xl Main_Data'>Got a Idea? We've got the skills. Let's team up</h2>
             <p className='text-xl font-mono'>Tell us more about yourself and what you're got in mind.</p> 
           </div>
-          { loading ? ( <Loading data="relative z-10"/>
+          
+          { loading ? ( <Loading data="relative"/>
 ) : Switch === 'Organizer' ? (
     delayedShow ? <><OrgainezerForm /> </> : <Loading data="relative z-10"/>
   ) : Switch === 'Theater' ? (
-    delayedShow ? <><TheatrerForm  /> </> : <Loading data="relative z-10"/>
+    delayedShow ? <><TheatrerForm  /> </> : <Loading data="relative"/>
   ) : (
     <div className='relative flex justify-center items-center w-full h-full text-3xl text-yellow-100 '>Please select an option</div>  
   )

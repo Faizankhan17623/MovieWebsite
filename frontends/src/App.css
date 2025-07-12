@@ -504,7 +504,10 @@ input:checked + .slider:before {
   margin-top: 30px;
 }
 
+.Heading{
+  margin-top: 20px;
+}
 
-.Exp_margin,.next_btn{
-  margin-top: 50px;
+.Bottom{
+  margin-bottom: 20px;
 }

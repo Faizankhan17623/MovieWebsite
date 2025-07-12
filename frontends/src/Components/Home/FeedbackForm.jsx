@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import CountryCode from '../../data/CountryCode.json'
+import toast from 'react-hot-toast'
 const FeedbackForm = () => {
 
     const Submitdata = (data) => {
+      toast.success('Submitted')
         console.log("Form Data - ", data);
     }
 
@@ -12,6 +14,7 @@ const FeedbackForm = () => {
     const [loading,setLoading] = useState(false)
 
     useEffect(()=>{
+      setLoading(true)
       if(isSubmitSuccessful){
         reset({
           first:"",
@@ -22,6 +25,8 @@ const FeedbackForm = () => {
           Messages:""
         })
       }
+      setLoading(false)
+
     },[reset,isSubmitSuccessful])
   return (
     <form onSubmit={handleSubmit(Submitdata)}>
@@ -65,9 +70,9 @@ const FeedbackForm = () => {
               <div className='flex justify-center items-center w-fit gap-3'>
                 <div className='w-[30%]  flex flex-col gap-2'>
                   <label htmlFor="CountryCode" className='lable-style'>Phone Number</label>
-                  <select name="CountryCode" required className='w-[92%] bg-richblack-400 rounded-2xl form-style'  {...register("countrycode", { required: "Country Code is required" })}>
+                  <select required name="CountryCode"  className='w-[92%] bg-richblack-400 rounded-2xl form-style'  {...register("countrycode", { required: "Country Code is required" })}>
                     {CountryCode.map((data,index)=>(
-                      <option required value={data.code} id={index} className='w-[50px] form-style'  >
+                      <option required value={data.code} id={index} className='w-[55px] form-style'  >
                         {data.code} - {data.country}
                       </option>
                     ))}
@@ -80,7 +85,7 @@ const FeedbackForm = () => {
                 <div>
                   <label htmlFor="Number" className='lable-style'>
                     <input type="tel"required name="Number"  minLength={10}
-    maxLength={10}  className='form-style w-[320px] h-[50px] rounded-2xl bg-richblack-500 Names text-white Number_inputs' placeholder='12345 67890' {...register("number", {
+    maxLength={10}  className='form-style w-[390px] h-[50px] rounded-2xl bg-richblack-500 Names text-white Number_inputs' placeholder='12345 67890' {...register("number", {
       required: "Phone Number is required",
       minLength: {
         value: 10,
@@ -99,12 +104,12 @@ const FeedbackForm = () => {
               </div>
               <div className=' w-full flex flex-col Message_Btn gap-3'>
                 <label htmlFor="Messages" className='text-3xl lable-style'>Message</label>
-                <textarea name="Messages"  required cols={4} rows={4} placeholder="Enter Your Message" className='form-style Messages bg-richblack-500 rounded-2xl'  {...register("Message", { required: "Message is required" })}></textarea>
+                <textarea name="Messages"  required cols={4} rows={4} placeholder="Enter Your Message" className='form-style Messages bg-richblack-500 rounded-2xl z-100'  {...register("Message", { required: "Message is required" })}></textarea>
               {errors.Message && (
   <span className="text-red-500 text-sm">{errors.Message.message}</span>)}
               </div>
 
-              <button className='w-full flex justify-center items-center border Btns rounded-2xl bg-yellow-50 text-richblack-900' type='submit' disabled={loading}>Send Messsage</button>
+              <button className='z-100 w-full flex justify-center items-center border Btns rounded-2xl bg-yellow-50 text-richblack-900' type='submit' disabled={loading}>Send Messsage</button>
 
             </div>
           </div>

@@ -1,0 +1,246 @@
+{
+  "genres": [
+    {
+      "name": "Action",
+      "subgenres": [
+        "Adventure Action",
+        "Martial Arts",
+        "Superhero Action",
+        "Disaster/Apocalyptic Action",
+        "Spy/Secret Agent",
+        "War Action",
+        "Crime Action"
+      ]
+    },
+    {
+      "name": "Adventure",
+      "subgenres": [
+        "Fantasy Adventure",
+        "Survival Adventure",
+        "Historical Adventure",
+        "Sci-Fi Adventure",
+        "Jungle/Exploration Adventure"
+      ]
+    },
+    {
+      "name": "Comedy",
+      "subgenres": [
+        "Romantic Comedy",
+        "Satirical/Parody",
+        "Slapstick",
+        "Black Comedy/Dark Humor",
+        "Stand-Up/Improvisation",
+        "Situational Comedy"
+      ]
+    },
+    {
+      "name": "Drama",
+      "subgenres": [
+        "Legal Drama",
+        "Historical Drama",
+        "Political Drama",
+        "Romantic Drama",
+        "Family Drama",
+        "Tragedy",
+        "Social/Issue-Based Drama"
+      ]
+    },
+    {
+      "name": "Thriller",
+      "subgenres": [
+        "Crime Thriller",
+        "Psychological Thriller",
+        "Action Thriller",
+        "Spy Thriller",
+        "Supernatural Thriller",
+        "Legal Thriller"
+      ]
+    },
+    {
+      "name": "Horror",
+      "subgenres": [
+        "Supernatural",
+        "Slasher",
+        "Psychological Horror",
+        "Zombie/Apocalypse Horror",
+        "Monster Horror",
+        "Found Footage",
+        "Body Horror"
+      ]
+    },
+    {
+      "name": "Science Fiction",
+      "subgenres": [
+        "Dystopian Sci-Fi",
+        "Space Exploration",
+        "Alien Invasion",
+        "Cyberpunk",
+        "Time Travel",
+        "Post-Apocalyptic Sci-Fi"
+      ]
+    },
+    {
+      "name": "Fantasy",
+      "subgenres": [
+        "Urban Fantasy",
+        "Epic Fantasy",
+        "Mythological Fantasy",
+        "Dark Fantasy",
+        "Magical Realism"
+      ]
+    },
+    {
+      "name": "Romance",
+      "subgenres": [
+        "Romantic Comedy",
+        "Romantic Drama",
+        "Tragic Romance",
+        "Fantasy Romance",
+        "Period Romance"
+      ]
+    },
+    {
+      "name": "Mystery",
+      "subgenres": [
+        "Detective/Investigation",
+        "Whodunit",
+        "Psychological Mystery",
+        "Supernatural Mystery",
+        "Tech/Modern Mystery"
+      ]
+    },
+    {
+      "name": "Crime",
+      "subgenres": [
+        "Heist/Robbery",
+        "Mafia/Gangster",
+        "Police Procedural",
+        "Legal Crime",
+        "Crime Thriller"
+      ]
+    },
+    {
+      "name": "Animation",
+      "subgenres": [
+        "Traditional Animation",
+        "CGI Animation",
+        "Stop-Motion Animation",
+        "Anime",
+        "Motion Capture",
+        "Experimental Animation"
+      ]
+    },
+    {
+      "name": "Musical",
+      "subgenres": [
+        "Traditional Musicals",
+        "Jukebox Musical",
+        "Rock/Pop Musical",
+        "Stage-to-Screen Adaptation",
+        "Animated Musical"
+      ]
+    },
+    {
+      "name": "Historical",
+      "subgenres": [
+        "Biographical Drama",
+        "War History",
+        "Political History",
+        "Social History"
+      ]
+    },
+    {
+      "name": "War",
+      "subgenres": [
+        "Epic War",
+        "Anti-War",
+        "Historical War",
+        "Modern War"
+      ]
+    },
+    {
+      "name": "Western",
+      "subgenres": [
+        "Classic Western",
+        "Revisionist Western",
+        "Spaghetti Western",
+        "Neo-Western"
+      ]
+    },
+    {
+      "name": "Family",
+      "subgenres": [
+        "Animated Family Movies",
+        "Live-Action Family Movies",
+        "Fantasy Family Movies"
+      ]
+    },
+    {
+      "name": "Sports",
+      "subgenres": [
+        "Biographical Sports",
+        "Team Sports",
+        "Individual Sports",
+        "Extreme Sports"
+      ]
+    },
+    {
+      "name": "Superhero",
+      "subgenres": [
+        "Marvel Universe",
+        "DC Universe",
+        "Independent/Other Superheroes"
+      ]
+    },
+    {
+      "name": "Psychological",
+      "subgenres": [
+        "Psychological Horror",
+        "Psychological Thriller",
+        "Psychological Mystery"
+      ]
+    },
+    {
+      "name": "Noir",
+      "subgenres": [
+        "Classic Noir",
+        "Neo-Noir",
+        "Tech-Noir"
+      ]
+    },
+    {
+      "name": "Post-Apocalyptic/Dystopian",
+      "subgenres": [
+        "Zombie Apocalypse",
+        "Natural Disaster",
+        "Alien Invasion",
+        "Totalitarian/Dystopian Future"
+      ]
+    },
+    {
+      "name": "Documentary",
+      "subgenres": [
+        "Nature/Environmental",
+        "Historical",
+        "Sports",
+        "Biographical",
+        "Investigative"
+      ]
+    },
+    {
+      "name": "Experimental/Arthouse",
+      "subgenres": [
+        "Abstract/Non-Narrative",
+        "Surrealism"
+      ]
+    },
+    {
+      "name": "Coming-of-Age",
+      "subgenres": [
+        "Teenage Coming-of-Age",
+        "Adventure Coming-of-Age",
+        "Romantic Coming-of-Age"
+      ]
+    }
+  ]
+}
