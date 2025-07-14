@@ -511,3 +511,8 @@ input:checked + .slider:before {
 .Bottom{
   margin-bottom: 20px;
 }
+
+
+.Level2Btns{
+  margin-top: 10px;
+}
