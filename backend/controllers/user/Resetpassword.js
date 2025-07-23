@@ -27,7 +27,7 @@ exports.LinkSend = async(req,res)=>{
             },{new:true})
             console.log("This is the updated details",updateDetails)
 
-            const url = `http://localhost:5173/password-update/${token}`
+            const url = `https://moviewebsite-mjuz.onrender.com/password-update/${token}`
             
             await mailSenders(email,
                 'password reset',
