@@ -1,5 +1,6 @@
 {
-    "ProjectNumber":[
+    "ProjectNumber": [
+        "0",
         "1",
         "2",
         "3",
@@ -12,7 +13,7 @@
         "10",
         "More Than 10"
     ],
-    "Stages":[
+    "Stages": [
         "Pre-Production",
         "Production",
         "Post-Production",
@@ -23,5 +24,28 @@
         "In Development",
         "Released",
         "Writing"
+    ],
+    "Money": [
+        "Less than ₹1 Lakh",
+        "₹1 Lakh – ₹5 Lakhs",
+        "₹5 Lakhs – ₹10 Lakhs",
+        "₹10 Lakhs – ₹25 Lakhs",
+        "₹25 Lakhs – ₹50 Lakhs",
+        "₹50 Lakhs – ₹1 Crore",
+        "₹1 Crore – ₹5 Crores",
+        "₹5 Crores – ₹10 Crores",
+        "More than ₹10 Crores",
+        "Prefer not to say"
+    ],
+    "Screens": [
+        "Single Screen",
+        "Multiplex",
+        "OTT Platform",
+        "Television",
+        "International Release",
+        "Film Festival",
+        "YouTube/Online",
+        "Short Film Circuit",
+        "Other"
     ]
 }

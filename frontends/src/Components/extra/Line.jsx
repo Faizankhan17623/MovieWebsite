@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
 import Loading from "./Loading";
 const Line = ({ part, setPart }) => {
-
-  const [loading,setLoading] = useState(false)
-
   return (
     <div className="border-b-2 border-red-500">
       <div className="flex justify-center gap-2 items-center  h-14 w-full">
         {[1, 2, 3, 4, 5].map((step) => (
           <>
-
-            {/* Step number circle */}
             <span
               className={`h-9 w-9 flex justify-center items-center text-lg font-bold rounded-full cursor-pointer
                 ${step <= part ? 'bg-yellow-300 text-black' : 'bg-gray-600 text-white'}

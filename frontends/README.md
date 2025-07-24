@@ -21,3 +21,4 @@ If you are developing a production application, we recommend using TypeScript wi
 
 <!-- making a new commit  -->
 <!-- 1.0.1 -->
+<!-- 1.0.2 -->

@@ -6,7 +6,11 @@ import Listing from './Components/Home/Listing';
 import {  Routes, Route } from "react-router-dom";
 import About from './Components/Home/AboutUs'
 import Contact from './Components/Home/contact'
-
+import Join from './Components/UserCreation/Join'
+import OPT from './Components/UserCreation/OTP'
+import Login from './Components/Login/join'
+import Forgot from './Components/Login/Forgot'
+import Reset from './Components/Login/Reset'
 const Homelayout = ({Notify}) =>{
   return(
     <div className={`bg-richblack-900 min-h-screen`}>
@@ -25,11 +29,16 @@ const Homelayout = ({Notify}) =>{
 const App = () => {
   const notify = () => toast.error('Work Under Progress !');
   return (
-    <div className={`bg-richblack-900 min-h-screen`}>
+    <div className={`bg-richblack-800 min-h-screen`}>
       <Routes>
         <Route path='/' element={<Homelayout  Notify={notify}/>}/>
         <Route path='/About' element={<About/>}/>
         <Route path='/Contact' element={<Contact/>}/>
+        <Route path='/SignUp' element={<Join/>}/>
+        <Route path='/Login' element={<Login/>}/>
+        <Route path='/OTP' element={<OPT/>}/>
+        <Route path='/Forgot-Password' element={<Forgot/>}/>
+        <Route path='/Reset-Password' element={<Reset/>}/>
       </Routes>
     </div>
   )

@@ -516,3 +516,72 @@ input:checked + .slider:before {
 .Level2Btns{
   margin-top: 10px;
 }
+
+
+.Genre_height{
+  margin-top: 20px;
+}
+
+
+.Con{
+  margin-top: 20px;
+}
+
+.Career{
+  margin-top: 20px;
+}
+
+.Projects{
+  margin-top: 40px;
+}
+
+
+
+.Port_upper,.Number,.Prod,.Exp{
+  margin-top: 10px;
+}
+
+
+.Btns{
+  margin-top: 40px;
+}
+
+
+
+
+.Final{
+  margin-top: 40px;
+}
+
+
+.Email_Left{
+  margin-left: 10px;
+}
+
+.image_Changes{
+  margin-top: 10px;
+}
+
+.Sliders{
+  margin-top: 70px;
+}
+
+.Org_Btns{
+  padding: 10px 0px 10px 0px;
+  margin-top: 6px;
+}
+
+.Logins{
+  margin-top: 20px;
+}
+
+.NUmbers{
+  margin-left: 4px;
+}
+
+
+.bgs{
+  border: 50%;
+  border-radius: 50%;
+  width: 20px;
+}
