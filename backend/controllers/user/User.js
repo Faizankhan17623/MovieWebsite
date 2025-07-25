@@ -40,11 +40,10 @@ exports.FindUserNames = async (req,res)=>{
                 success:false
             })
         }
-        res.json({
-            success:true,
-            message:"User found",
-            data:user
-        })
+        return res.status(200).json({
+            message: "Username is available",
+            success: true
+        });
     }catch(error){
         console.log(error)
         res.status(500).json({
