@@ -26,6 +26,12 @@ exports.GetAlluserDetails = async(req,res)=>{
 exports.FindUserNames = async (req,res)=>{
     const {FirstName,LastName} = req.body
     try{
+        if(!FirstName || !LastName){
+            return res.status(400).json({
+                message:"Please provide both First Name and Last Name",
+                success:false
+            })
+        }
         const Names = FirstName + " " + LastName
         const user = await USER.findOne({userName:Names})
         if(!user){          
@@ -50,6 +56,12 @@ exports.FindUserNames = async (req,res)=>{
 
 exports.FindEmail = async (req,res)=>{
     const {email} = req.body
+    if(!email){
+        return res.status(400).json({
+            message:"Please provide an email",
+            success:false
+        })
+    }
     try{
         const user = await USER.findOne({email:email})
         if(!user){
@@ -74,6 +86,12 @@ exports.FindEmail = async (req,res)=>{
 
 exports.FindNumber = async (req,res)=>{
     const {number} = req.body
+    if(!number){
+        return res.status(400).json({
+            message:"Please provide a number",
+            success:false
+        })
+    }
     try{
         const user = await USER.findOne({number:number})
         if(!user){
