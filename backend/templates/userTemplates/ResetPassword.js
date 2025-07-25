@@ -1,9 +1,9 @@
-const updatePasswordTemplate = (email,token) => {
+const ResetPasswordTemplate = (password) => {
 	return `<!DOCTYPE html>
 	<html>	
 	<head>
 		<meta charset="UTF-8">
-		<title>Reset Password</title>
+		<title>OTP Verification Email</title>
 		<style>
 			body {
 				background-color: #ffffff;
@@ -59,19 +59,15 @@ const updatePasswordTemplate = (email,token) => {
 			.highlight {
 				font-weight: bold;
 			}
-            .btns{
-                background-color: #FFD60A;
-            }
 		</style>
 	</head>
 	<body>
 		<div class="container">
-			<div class="message"></div>
+			<div class="message">The password is been updates</div>
 			<div class="body">
-				<p>Hello  ${email}</p>
-				<p>Welcome to the Cine Circuit website click on the button below to reset your password</p>
-				<p class="highlight">If you did not request a password reset, please ignore this email. or mail us to <a href="mailto:faizankhan901152@gmail.com">Support</a></p>
-                <button type="button" class="btns"><a href="https://moviewebsite-mjuz.onrender.com/password-update/${token}">Reset Password</a></button>
+				<p>Dear User,</p>
+				<p>Dear user ${username} your password  has been updated</p>
+				<p>The new password image is ${password}</p>
 			</div>
 			<div class="support">if This has not been done by you please contact our customer support  <a
 					href="mailto:faizankhan901152@gmail.com">Contact us </a>. We are here to help!</div>
@@ -79,4 +75,4 @@ const updatePasswordTemplate = (email,token) => {
 	</body>
 	</html>`;
 };
-module.exports = updatePasswordTemplate 
+module.exports = ResetPasswordTemplate;
