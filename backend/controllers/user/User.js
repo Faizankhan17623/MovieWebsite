@@ -9,14 +9,14 @@ exports.GetAlluserDetails = async(req,res)=>{
                 success:false
             })
         }
-        res.json({
+        return res.json({
             success:true,
             message:"All the user details are present",
             data:Details
         })
     }catch(error){
         console.log(error)
-        res.status(500).json({
+        return res.status(500).json({
             message:"Internal server error",
             success:false
         })
@@ -46,7 +46,7 @@ exports.FindUserNames = async (req,res)=>{
         });
     }catch(error){
         console.log(error)
-        res.status(500).json({
+        return res.status(500).json({
             message:"Internal server error",
             success:false
         })
@@ -69,14 +69,14 @@ exports.FindEmail = async (req,res)=>{
                 success:false
             })
         }
-        res.json({
+         return res.json({
             success:true,
             message:"User found",
             data:user
         })
     }catch(error){
         console.log(error)
-        res.status(500).json({
+        return res.status(500).json({
             message:"Internal server error",
             success:false
         })
@@ -99,14 +99,14 @@ exports.FindNumber = async (req,res)=>{
                 success:false
             })
         }
-        res.json({
+        return res.json({
             success:true,
             message:"User found",
             data:user
         })
     }catch(error){
         console.log(error)
-        res.status(500).json({
+        return res.status(500).json({
             message:"Internal server error",
             success:false
         })
