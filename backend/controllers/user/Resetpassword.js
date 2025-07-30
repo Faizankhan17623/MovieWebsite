@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const USER = require('../../models/user')
 const bcrypt = require('bcrypt')
 const mailSenders = require('../../utils/mailsender')
-
+const ResetPasword = require("../../templates/userTemplates/Updatepasswordtemplate")
 // Done
 // tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 32
 exports.LinkSend = async(req,res)=>{
@@ -31,13 +31,14 @@ exports.LinkSend = async(req,res)=>{
             
             await mailSenders(email,
                 'password reset',
-                `your link in the email is ${url} This is the link to change the password`
+                ResetPasword(email,token)
             )
 
             res.json({
                 success: true,
                 message:
                   "Email Sent Successfully, Please Check Your Email to Continue Further",
+                  token:token,
               })
     } catch (error) {
         return res.json({

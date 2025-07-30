@@ -3,10 +3,11 @@ const mailSenders = require("../utils/mailsender");
 const sendingOtpTeemplate = require('../templates/userTemplates/emailTemplate')
 const otpschema = new mongoose.Schema({
     otp:{
-        type:String,
+        type:Number,
         required:true
     },
-    email:{type:String,required:true},
+    email:{type:String,required:true,
+         match: [/^\S+@\S+\.\S+$/, 'Invalid email format']},
     createdAt:{
         type:Date,
         default:Date.now,

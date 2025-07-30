@@ -33,9 +33,10 @@ app.use(cookieParser ())
 app.use(morgan("dev"));
 
 app.use(VisitorCounter(Visitor))
-app.use(cors(
-    origin="http://localhost:5173/",
-    optionsSuccessStatus=200
+app.use(cors({
+    origin : "*",
+    credentials:true
+}
 ))
 
 app.use(cors())

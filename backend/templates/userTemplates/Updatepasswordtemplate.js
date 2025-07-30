@@ -71,7 +71,7 @@ const updatePasswordTemplate = (email,token) => {
 				<p>Hello  ${email}</p>
 				<p>Welcome to the Cine Circuit website click on the button below to reset your password</p>
 				<p class="highlight">If you did not request a password reset, please ignore this email. or mail us to <a href="mailto:faizankhan901152@gmail.com">Support</a></p>
-                <button type="button" class="btns"><a href="https://moviewebsite-mjuz.onrender.com/password-update/${token}">Reset Password</a></button>
+                <button type="button" class="btns"><a href="http://localhost:5173/Reset-Password/${token}">Reset Password</a></button>
 			</div>
 			<div class="support">if This has not been done by you please contact our customer support  <a
 					href="mailto:faizankhan901152@gmail.com">Contact us </a>. We are here to help!</div>

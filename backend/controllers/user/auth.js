@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
 
             if(Finding.usertype === 'Organizer'){
                 return res.status(400).json({
-                    message:"you are not allowed to use This route ",
+                    message:"The User is an Orgainezer Please Use The Orgainezer Login",
                     success:false
                 })
             }
@@ -45,12 +45,12 @@ exports.login = async (req, res) => {
 
         if (!isPasswordValid) {
             return res.status(400).json({
-                message: "Incorrect password.",
+                message: "Ener The Correct Password",
                 success: false
             });
         }
 
-        const { userName, usertype, verified, number, _id } = Finding;
+        const { userName, usertype, verified, number, _id,image } = Finding;
         console.log(usertype)
         const now = new Date();
         const pattern = date.compile('DD/MM/YYYY HH:mm:ss');
@@ -62,7 +62,7 @@ exports.login = async (req, res) => {
         await USER.findByIdAndUpdate(_id, { $push: { lastlogin: lastLoginTime } }, { new: true });
 
         const jwtCreation = jwt.sign(
-            { email, userName, usertype, verified, number, id: _id, lastlogin: lastLoginTime },
+            {  usertype, verified, id: _id },
             process.env.JWT_PRIVATE_KEY,
             { expiresIn: '24h', algorithm: 'HS256' }
         );
@@ -71,16 +71,19 @@ exports.login = async (req, res) => {
         const options = {
             expires : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
             httpOnly:true,
+            secure: false, 
+            sameSite: 'Lax'
         };
 
-        res.setHeader('token',jwtCreation,options)
+        // res.setHeader('token',jwtCreation,options)
         
         res.cookie('token', jwtCreation, options).status(200).json({
             message: "User logged in successfully.",
             success: true,
-            token: jwtCreation
+            token: jwtCreation,
+            image:image
         });
-
+        
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({

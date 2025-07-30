@@ -10,6 +10,7 @@
     const updateUsername = require('../../templates/userTemplates/UpdateNametemplate')
     const updateNumber = require('../../templates/userTemplates/Updatenumbertemplate')
     const date = require('date-and-time')
+    // const validator = require("validator");
 
 // Done
 // tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 14
@@ -23,6 +24,7 @@
                     success:false
                 })
             }
+
             // console.log("This is the name that is coming",name)
             const Findingemail = await USER.findOne({
                 email:email
@@ -55,20 +57,22 @@
                 });
             }
 
-            const otpCreation = await OTP.findOne({email}).sort({createdAt:-1}).limit(1)
-            if(!otpCreation){
-                return res.status(404).json({
-                    message:"The otp is not beeen found or is been expired create a new one",
-                    success:false
-                })
-            }
-            // console.log("This is thee otpcrations from th createduser code",otpCreation)
-            if(otpCreation.otp !== otp){
+            const otpCreation = await OTP.find({email}).sort({createdAt:-1}).limit(1);
+
+            if(otpCreation.length === 0 ) {
                 return res.status(400).json({
-                    message:"the otp is not created or is beeen expired",
-                    success:false
-                })
+                    message: "No OTP found for this email. Please request a new OTP.",
+                    success: false
+                }); 
             }
+            
+            if (otp !== otpCreation[0].otp){
+                return res.status(400).json({
+                    message: "The OTP is not correct please try again",
+                    success: false
+                });
+            }
+
             // now we will hash the password 
             const hasing =  await bcrypt.hash(password,10)
             // console.log("This is the hashed password that is been created",hasing)
@@ -85,10 +89,10 @@
                 confirmpass:hasing,
                 number:number,
                 usertype:usertype,
-                otp:otpCreation,
                 createdAt:ps,
                 image:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
             }) 
+            
             await Creation.save()
             nameChnages.join()
             USER.id = Creation._id

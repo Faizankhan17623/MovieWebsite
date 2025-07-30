@@ -45,20 +45,22 @@ exports.CreateOrgainezer = async(req,res)=>{
 
 
 
-        const otpCreation = await OTP.findOne({email}).sort({createdAt:-1}).limit(1)
-            if(!otpCreation){
-                return res.status(404).json({
-                    message:"The otp is not beeen found or is been expired create a new one",
-                    success:false
-                })
-            }
-            // console.log("This is thee otpcrations from th createduser code",otpCreation)
-            if(otpCreation.otp !== otp){
-                return res.status(400).json({
-                    message:"the otp is not created or is beeen expired",
-                    success:false
-                })
-            }
+        const otpCreation = await OTP.find({email}).sort({createdAt:-1}).limit(1);
+       
+                   if(otpCreation.length === 0 ) {
+                       return res.status(400).json({
+                           message: "No OTP found for this email. Please request a new OTP.",
+                           success: false
+                       });
+                   }
+                   
+                   if (otp !== otpCreation[0].otp){
+                       return res.status(400).json({
+                           message: "The OTP is not correct please try again",
+                           success: false
+                       });
+                   }
+
             // now we will hash the password 
         const hasing =  await bcrypt.hash(password,10)
         const now = new Date()
@@ -118,7 +120,7 @@ exports.OrgaineserLogin = async(req,res)=>{
 
             if(Finding.usertype === 'Viewer'){
                 return res.status(400).json({
-                    message:"you are not allowed to use This route ",
+                    message:"The User is an Viewer Please Use The Viewer Login",
                     success:false
                 })
             }
@@ -131,7 +133,7 @@ exports.OrgaineserLogin = async(req,res)=>{
                 })
             }
 
-                const {userName,usertype,verified,number,_id} = Finding
+                const {userName,usertype,verified,number,_id ,image} = Finding
                 const now = new Date();
                 const pattern = date.compile('DD/MM/YYYY HH:mm:ss');
                 let lastLoginTime = date.format(now, pattern);
@@ -139,7 +141,7 @@ exports.OrgaineserLogin = async(req,res)=>{
                 await USER.findByIdAndUpdate(_id,{$push:{lastlogin:lastLoginTime}},{new:true})
                 USER.id = _id
                 // console.log("This is the login code",login)
-                const jwtCreation = jwt.sign({email,userName,usertype,verified,number,id:_id,lastlogin:lastLoginTime},process.env.JWT_PRIVATE_KEY,{ expiresIn: '24h', algorithm: 'HS256' })
+                const jwtCreation = jwt.sign({usertype,verified,id:_id},process.env.JWT_PRIVATE_KEY,{ expiresIn: '24h', algorithm: 'HS256' })
                 const options = {
                     expires:new Date (Date.now() + 2 * 24 * 60 * 60 * 1000),
                     httpOnly:true
@@ -148,7 +150,8 @@ exports.OrgaineserLogin = async(req,res)=>{
                 res.cookie('token',jwtCreation,options).status(200).json({
                     message:"The user is been loged in",
                     success:true,
-                    data:jwtCreation
+                    data:jwtCreation,
+                    image:image
                 })
         }catch(error){
             console.log(error)

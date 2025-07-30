@@ -18,9 +18,9 @@ route.post("/Create-User",Createuser)
 route.post("/Create-OTP",CreateOtp) 
 // This is the extra route that was added to get all the user details
 route.get("/Get-All-UserDetails",GetAlluserDetails)
-route.get("/Find-UserNames",FindUserNames)
-route.get("/Find-Email",FindEmail)
-route.get("/Find-Number",FindNumber)
+route.post("/Find-UserNames",FindUserNames)
+route.post("/Find-Email",FindEmail)
+route.post("/Find-Number",FindNumber)
 
 route.put("/Update-userName",auth,updateUserName)
 route.put("/Update-Password",auth,updatePassword) 
