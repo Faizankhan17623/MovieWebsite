@@ -4,8 +4,13 @@ import { useForm } from 'react-hook-form'
 import { LiaEyeSolid, LiaEyeSlashSolid } from "react-icons/lia"
 import { useNavigate } from 'react-router-dom'
 import Loader from '../extra/Loading'
-
+import {OrgainezerLogin} from '../../Services/operations/orgainezer'
+import toast from 'react-hot-toast'
+import { useDispatch } from 'react-redux'
+// import OpenRoute from '../../Hooks/OpenRoute'
 const Org = () => {
+  const dispatch = useDispatch()
+
   const [showPass, setShowPass] = useState(false)
     const [Pass,setpass] = useState("")
     const [loading,setLoading] = useState(false)
@@ -19,13 +24,20 @@ const Org = () => {
   
     // const password = watch('Password')
   
-    const onsubmit = (data) => {
-      setLoading(true)
-      setTimeout(() => {
-        setLoading(false)
-        navigate('/OTP')
-      }, 10000);
-      console.log("This is the org form data", data)
+    const onsubmit = async(data) => {
+       setLoading(true)
+              try{
+                const Response = await dispatch(OrgainezerLogin(data.Email,data.Password))
+                // OpenRoute()
+                if(Response?.success){
+                  toast.success("user is loged in ")
+                }
+              setLoading(false)
+              }catch(error){
+               toast.error(error.message)
+                         console.log(error)
+                         console.log(error.message)
+              }
     }
   
     if (loading) {
@@ -38,42 +50,46 @@ const Org = () => {
    return (
       <form
         onSubmit={handleSubmit(onsubmit)}
-        className='w-full h-full mx-auto p-8 rounded-2xl  shadow-lg space-y-8 mt-8'
+        className='w-full h-full mx-auto p-8 rounded-2xl  shadow-lg space-y-8 mt-8 gap-4'
       >
    
   
         {/* Email */}
         <div>
           <label className="block  mb-2 font-semibold" htmlFor="Email">
-            Email Address <span className="text-red-500">*</span>
+            Email Address <span className="text-red-500">*</span>    {errors.Email && (
+            <span className="text-red-600 text-sm">{errors.Email.message}</span>
+          )}
           </label>
           <input
             type="email"
+            autoComplete='email'
             {...register("Email", { required: "Email is required" })}
             className={`w-full p-3  rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.Email && "border-red-500"}`}
             placeholder="Enter Your Email Address"
           />
-          {errors.Email && (
-            <span className="text-red-600 text-sm">{errors.Email.message}</span>
-          )}
+        
         </div>
   
         {/* Phone */}
     
   
         {/* Passwords */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 Pass">
           {/* Password */}
           <div className="flex-1 relative">
             <label className="block  mb-2 font-semibold" htmlFor="Password">
-              Password <span className="text-red-500">*</span>
+              Password <span className="text-red-500">*</span>  {errors.Password && (
+              <span className="text-red-600 text-sm">{errors.Password.message}</span>
+            )}
             </label>
             <input
               type={showPass ? "text" : "password"}
+              autoComplete='current-password'
               {...register("Password", {
                 required: "Password is required",
                 minLength: {
-                  value: 6,
+                  value: 2,
                   message: "Password must be exactly 6 characters"
                 },
                 maxLength: {
@@ -93,16 +109,16 @@ const Org = () => {
             >
               {showPass ? <LiaEyeSolid /> : <LiaEyeSlashSolid />}
             </button>
-            {errors.Password && (
-              <span className="text-red-600 text-sm">{errors.Password.message}</span>
-            )}
+            
           </div>
           {/* Confirm Password */}
           
         </div>
-         <div className='w-full flex flex-end justify-end items-end'>
+        
+         <div className='w-full flex flex-end justify-end items-end Forgot'>
             <p> <a href="/Forgot-Password" className='text-blue-200'>Forgot Password</a>  </p>
-          </div>
+        </div>
+
         {/* Submit button */}
           {loading ? (
           <button
@@ -116,7 +132,7 @@ const Org = () => {
         ) : (
           <button
             type="submit"
-            className="w-full bg-yellow-200 Org_Btns hover:bg-blue-700 text-white font-semibold py-3 rounded-lg mt-4 text-lg transition duration-200 shadow"
+            className="w-full bg-yellow-200 cursor-pointer Org_Btns hover:bg-blue-700 text-white font-semibold py-3 rounded-lg mt-4 text-lg transition duration-200 shadow"
           >
             Submit
           </button>

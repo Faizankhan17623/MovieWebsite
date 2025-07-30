@@ -3,9 +3,7 @@ import Navbar from '../Home/Navbar'
 import Users from './User'
 import Org from './Org'
 import Loading from '../extra/Loading'
-import Frame  from '../../assests/frame.png'
 import Review from '../../assests/20250722_1919_Website Welcome Screen_remix_01k0s5zpfafgwtb2917cgvb6tk.png'
-
 import review2 from '../../assests/20250722_1851_Grid Pattern Demo_remix_01k0s4hx3be05r0srqw6mksj47.png'
 
 const Join = () => {
@@ -33,16 +31,15 @@ const Join = () => {
     <div className='w-full h-full flex flex-col justify-evenly items-center'>
       <Navbar />
       <div className='w-full h-full flex flex-row text-white justify-around items-center'>
-        <div className='w-1/3 h-[500px] '>
-          <div className='w-[400px]   h-1/3 flex  flex-col justify-around items-center'>
+        <div className='w-1/3 h-[730px]'>
+          <div className='w-1/2 h-1/3 flex flex-col justify-center items-center'>
+          <div className='flex flex-col justify-center items-center w-full Banner'>
             <h1 className='text-bold text-2xl'>WELCOME BACK</h1>
             <p className='font-italic'>
               Discover Your Passion <br /> <span className='text-blue-100'>Be Unstoppable</span>
             </p>
-            {/* rounded-3xl w-44 h-14 ${
-    selectedType === 'Director' ? 'bg-richblack-900 border-richblack-900' : 'bg-richblack-400'
-   */}
-            <div className='w-fit  h-14 flex justify-around items-center gap-1 rounded-3xl bg-richblack-400 Level2Btns'>
+          </div>
+            <div className='w-78 Slider slide h-14  flex  rounded-3xl bg-richblack-400 '>
               <button onClick={() => handleSelect('User')} className={`hover:border-richblack-500 rounded-3xl w-40 h-14 ${
     User === 'User' ? 'bg-richblack-900 border-richblack-900 ' : 'bg-richblack-400'
   }`}>User</button>
@@ -50,17 +47,16 @@ const Join = () => {
     User === 'Organizer' ? 'bg-richblack-900 border-richblack-900' : 'bg-richblack-400'
   }`}>Organizer</button>
             </div>
+
           </div>
           <div className='text-white'>
             {content}
           </div>
         </div>
+
         <div className='w-1/2 h-[450px] flex justify-center items-center'>
-        {/* <div>
-          <img src={Frame} alt="This is the  Frame" draggable="false" className='Sliders object-cover'/>
-        </div>  */}
         <div>
-          <img src={User === 'User'?Review:review2} alt="This is the image" draggable="false" className='w-[440px] rounded-md'/>
+          <img src={User === 'User'?Review:review2} alt="This is the image" draggable="false" className='w-[500px] rounded-md Image_tops'/>
         </div>
         </div>
       </div>

@@ -1,11 +1,10 @@
 import toast from "react-hot-toast";
-import {apiConnector} from './apiConnector.js'
-
-import {setUser,setLoading,setToken,setliggenin,setUserImage} from '../../Slices/authSlice.js'
+import {apiConnector} from '../apiConnector.js'
+import {setUser,setLoading,setToken,setLogin,setUserImage} from '../../Slices/authSlice.js'
 import {setloading,setlikes,setdislikes,setuser} from '../../Slices/ProfileSlice.js'
-import {CreateUser,SendOtp,Login,ResetPassword,UpdatePersonalDetails,PersonalChoice,GetAllShows,SpecificShow,Comment,SendMessage,TicketData,Ratings} from '../Apis/UserApi.js'
-
+import {CreateUser,SendOtp,Login,ResetPassword,UpdatePersonalDetails,PersonalChoice,GetAllShows,SpecificShow,Comment,SendMessage,TicketData,Ratings,AllDetails} from '../Apis/UserApi.js'
 import {setShow,setlaoding,setallShow} from '../../Slices/ShowSlice.js'
+import Cookies from "js-cookie";
 
 const {createuser} = CreateUser 
 const {createotp} = SendOtp
@@ -19,71 +18,169 @@ const {Comments,GetAllComment} = Comment
 const {SendMessages,UpdateMessage,GetAllMessages} = SendMessage
 const {TicketPurchase,TicketPurchasedFullDetail} = TicketData
 const {CreateRating,GetAverageRating,GetAllRatingReview} = Ratings
+const {GetAllDetails,FindUserNames,FindEmail,FindNumber} = AllDetails
 
-export function sendOtp(email){
-    return async(dispatch)=>{
+export function UserDetails (){
+    return async (dispatch) => {
         const toastId = toast.loading("Loading...")
         dispatch(setLoading(true))
         try {
-            const response = await apiConnector("POST",createotp,{
-                email:email
-            })
-
-            console.log("Api response...",response)
-            console.log(response.data.success)
-
-            if(!response.data.success){
+            const response = await apiConnector("GET", GetAllDetails)
+            console.log("Current user details fetched successfully", response)
+            if (!response.data.success) {
                 throw new Error(response.data.message)
             }
-            toast.success('otp Send SuccesFully')
-
-            // isme navigate daal na reh gay hain
+            dispatch(setUser(response.data.user))
         } catch (error) {
-            console.log("Error in sending the otp",error)
-            console.log("Error in sending the otp")
+            console.error("Error fetching current user details", error)
         }
         dispatch(setLoading(false))
         toast.dismiss(toastId)
     }
 }
 
+export function FindUserName(First, Last) {
+    return async (dispatch) => {
+        const toastId = toast.loading("Loading ...")
+        dispatch(setLoading(true))
+        try {
+            const response = await apiConnector("POST", FindUserNames, {
+                FirstName: First,
+                LastName: Last
+            })
+            // console.log("Api response...", response)
+            
+              if (!response.data.success) {
+            console.log("Api response...", response)
+            return { success: false, message: response.data.message };
 
-export function UserCreation(name,password,email,number,otp,navigate){
+            }
+            // dispatch(setUser(response.data.user))
+             return { success: true, data: response.data.message };
+        } catch (error) {
+            console.error("Error fetching user details", error)
+             return { success: false, message: "Error checking username" };
+        }finally {
+            dispatch(setLoading(false))
+            toast.dismiss(toastId)
+        }
+    }
+}
+
+export function findemail(email) {
+    return async (dispatch) => {
+        // const toastId = toast.loading("Loading...")
+        dispatch(setLoading(true))
+        try {
+            const response = await apiConnector("POST", FindEmail, {
+                email: email
+            })
+            // console.log("Api response...", response)
+            if (!response.data.success) {
+                   console.log("Api response...", response)
+            return { success: false, message: response.data.message };
+            }
+            // dispatch(setUser(response.data.user))
+              return { success: true, data: response.data.message };
+        } catch (error) {
+           console.error("Error checking email:", error);
+      return { success: false, message: "Error checking email availability" };
+        }finally {
+            dispatch(setLoading(false))
+        }
+        // toast.dismiss(toastId)
+    }
+}
+
+export function sendOtp(email){
+    return async(dispatch)=>{
+        dispatch(setLoading(true))
+        try {
+            const response = await apiConnector("POST",createotp,{
+                email:email
+            })
+            // console.log("Api Response",response)
+        
+            if (!response.data.success) {
+                throw new Error(response.data.message)
+            }
+
+            toast.success('otp Send SuccesFully')
+            return { success: true, data: response };
+        } catch (error) {
+            console.log("Error in sending the otp",error)
+            console.log("Error in sending the otp")
+            return { success: false, error: error.message };
+        }
+        finally { 
+            dispatch(setLoading(false))
+        }
+    }
+}
+
+export function NumberFinder(number) {
+    return async (dispatch) => {    
+        dispatch(setLoading(true))
+        try {
+            const response = await apiConnector("POST", FindNumber, {
+                number: number
+            })
+           if (!response.data.success) {
+                //    console.log("Api response...", response)
+            return { success: false, message: response.data.message };
+            }
+            // dispatch(setUser(response.data.user))
+              return { success: true, data: response.data.message };
+        } catch (error) {
+             console.error("Error checking email:", error);
+      return { success: false, message: "Error checking email availability" };
+        }finally {  
+            dispatch(setLoading(false))
+        }
+    }
+}
+
+
+export function UserCreation(name,password,email,number,otp){
     return async (dispatch)=>{
         const toastId = toast.loading('...loading')
         dispatch(setLoading(true))
         try {
+             if (!name || !password || !email || !number || !otp) {
+        throw new Error('Missing required fields');
+      }
             const response = await apiConnector("POST",createuser,{
-                userName:name,
+                name:name,
                 email:email,
                 password:password,
                 number:number,
                 otp:otp
             })
 
-            console.log("This is the responsee data",response)
+            //  console.log("This is the responsee data",response)
 
             if (!response.data.success) {
                 throw new Error(response.data.message)
             }
 
-            toast.success("Signup Successful")
-            dispatch(setUser(response.data.usertype))
-            navigate('/')
+            // toast.success("Signup Successful")
+            return { success: true, data: response.data };
         } catch (error) {
-            console.log("Sign up failed")
-            navigate("/") 
-            // ya abhe nahi pura frontend ho gaenga na uske baadh
-            console.log("Error in Creating the user",error)
-        }
-        dispatchEvent(setLoading(false))
+           console.log("Sign up failed");
+      console.error("Error in Creating the user", error.message);
+      toast.error(error.message || 'Signup failed'); 
+      return { success: false, error: error.message }; 
+        }finally {  
+
+        dispatch(setLoading(false))
         toast.dismiss(toastId)
+        }
     }
 }
 
 
 
-export function UserLogin(email,pass,navigate){
+export function UserLogin(email,pass){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
@@ -91,22 +188,34 @@ export function UserLogin(email,pass,navigate){
             const response = await apiConnector("POST",login,{
                 email:email,
                 password:pass
+            },{
+                withCredentials: true
             })
+    
             console.log("User is been logged in ")
             toast.success('Congragulations you are logged in')
+            localStorage.setItem('token', JSON.stringify(response.data.token))
+            Cookies.set('token', response.data.token, { expires: 2 }); 
             dispatch(setToken(response.data.token))
+
             const userimage = response.data.image
             dispatch(setUserImage(userimage))
-            dispatch(setliggenin(true))
-            localStorage.setItem('token',JSON.stringify(response.data.token))
-            navigate('/') // navigation add karna baaki hain saab ke leya sir jee
+            dispatch(setLogin(true))
+            if(!response.data.success){
+                toast.error(response.response.data.message)
+            }
+            return { success: true, data: response.data };
+            // navigate('/') // navigation add karna baaki hain saab ke leya sir jee
         }catch(error){
+            toast.error(error.response.data.message)
+            console.log(error.response.data.message)
             console.log("There is an error in the login process",error)
             console.log("unable to log in")
-            navigate("/home")
+            // navigate("/home")
+        }finally{
+            dispatch(setLoading(false))
+            toast.dismiss(toastId)
         }
-        dispatch(setLoading(false))
-        toast.dismiss(toastId)
     }
 }
 
@@ -121,7 +230,7 @@ export function UserLogout(navigate){
             dispatch(setToken(null))
             dispatch(setUser(null))
             localStorage.removeItem('token')
-            dispatch(setliggenin(false))
+            dispatch(setLogin(false))
             navigate('/login')
         }catch(error){
             console.log("There is an error in the logout process",error)
@@ -142,6 +251,7 @@ export function GetPasswordResettoken(email,emailsend){
                 email:email
             })
             console.log("This is the responsee data",response)
+            console.log("Reset Password Token Send")
 
             if (!response.data.success) {
                 throw new Error(response.data.message)
@@ -149,6 +259,7 @@ export function GetPasswordResettoken(email,emailsend){
 
             toast.success("Link Send Successfully")
             emailsend(true)
+            return { success: true, data: response.data };
         } catch (error) {
             console.log("Error in updating the password",error)
             console.log("Error in updating the password")
@@ -184,8 +295,6 @@ export function Restpassword(token,password){
         toast.dismiss(toastId)
     }
 }
-
-
 
 
 // From herewe will put all the code that is going to se to update the data user fields
