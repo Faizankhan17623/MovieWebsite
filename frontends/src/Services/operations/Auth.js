@@ -182,7 +182,7 @@ export function UserCreation(name,password,email,number,otp){
 
 export function UserLogin(email,pass){
     return async(dispatch)=>{
-        const toastId = toast.loading("..loading")
+        // const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
         try{
             const response = await apiConnector("POST",login,{
@@ -204,18 +204,18 @@ export function UserLogin(email,pass){
             if(!response.data.success){
                 toast.error(response.response.data.message)
             }
+            
+
             return { success: true, data: response.data };
-            // navigate('/') // navigation add karna baaki hain saab ke leya sir jee
+           
         }catch(error){
             toast.error(error.response.data.message)
             console.log(error.response.data.message)
             console.log("There is an error in the login process",error)
             console.log("unable to log in")
-            // navigate("/home")
-        }finally{
-            dispatch(setLoading(false))
-            toast.dismiss(toastId)
         }
+         dispatch(setLoading(false))
+        // toast.dismiss(toastId)
     }
 }
 
@@ -244,7 +244,7 @@ export function UserLogout(navigate){
 
 export function GetPasswordResettoken(email,emailsend){
     return async(dispatch)=>{
-        const toastId = toast.loading("..loading")
+        // const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
         try {
             const response = await apiConnector("POST",LinkSend,{
@@ -264,32 +264,34 @@ export function GetPasswordResettoken(email,emailsend){
             console.log("Error in updating the password",error)
             console.log("Error in updating the password")
         }
-        dispatch(setLoading(false))
-        toast.dismiss(toastId)
+        dispatch(setloading(false))
+        // toast.dismiss(toastId)
     }
 }
 
-
-export function Restpassword(token,password){
+// 9175182438
+// 9028648188
+export function Restpassword(password,ConfirmPassword,token){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
         try {
             const response = await apiConnector("PUT",Resetpassword,{
-                token:token,
-                password:password
+                password,
+                ConfirmPassword,
+                token
             })
-            console.log("This is the responsee data",response)
+            console.log("This Password Has Been Resetted")
 
             if (!response.data.success) {
                 throw new Error(response.data.message)
             }
 
             toast.success("Password Reset Successfully")
-            // navigate('/login')
         } catch (error) {
             console.log("Error in updating the password",error)
             console.log("Error in updating the password")
+            toast.error(error.response.data.message || "Error in resetting the password")
         }
         dispatch(setLoading(false))
         toast.dismiss(toastId)

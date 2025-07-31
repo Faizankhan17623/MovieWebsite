@@ -31,6 +31,8 @@ const Org = () => {
                 // OpenRoute()
                 if(Response?.success){
                   toast.success("user is loged in ")
+            navigate("/")
+
                 }
               setLoading(false)
               }catch(error){
@@ -40,13 +42,15 @@ const Org = () => {
               }
     }
   
-    if (loading) {
-      return (
-        <div className="w-full h-full  bg-transparent flex justify-center items-center">
-          <Loader />
-        </div>
-      )
-    }
+     if(loading){
+        return (
+          <div className='w-full h-full  flex flex-col'>
+            <div className='flex-1 flex justify-center items-center text-white'>
+              <Loader/>
+            </div>
+          </div>
+        )
+      }
    return (
       <form
         onSubmit={handleSubmit(onsubmit)}

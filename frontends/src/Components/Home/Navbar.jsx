@@ -44,7 +44,7 @@ const Navbar = ({setColors,darkmode}) => {
 const noLoggeedin ={
   data:[
     "Sign Up",
-    "login",
+    "Login",
     "Help Center"
   ]
 }
@@ -119,7 +119,7 @@ const color_change = ()=>{
             <IoMdMenu className='text-4xl'/>
             <img src={'https://res.cloudinary.com/dp6kj5f6i/image/upload/v1750395467/sdreincarneted-removebg-preview_dnvhmc.png'} alt="Logo" loading='lazy' className='w-8'/>
               <span className={`${Open ? 'flex' : 'hidden'} flex-col absolute top-[78px]  triangle-up `}></span>
-              <div className={`${Open ? 'flex justify-center items-center border-t-4' : 'hidden'} flex-col gap-2 text-white absolute top-[92px] bg-gray-800 p-2 rounded shadow-lg z-50 w-30 border-b-1`}>
+              <div className={`${Open ? 'flex justify-center items-center border-t-4' : 'hidden'} flex-col gap-2  absolute top-[92px] bg-gray-800 p-2 rounded shadow-lg z-50 w-30 border-b-1 text-white font-bold`}>
                 <a href="/SignUp" className='border-b-1 gap-2 lines' >{noLoggeedin.data[0]}</a>
                 <a href="/Login" className='border-b-1 gap-2 lines'>{noLoggeedin.data[1]}</a>
                 <a href="/" className=''>{noLoggeedin.data[2]}</a>

@@ -23,12 +23,14 @@ const Forgot = () => {
   const Handler = async (e) =>{
     try {
       setLoading(true)
+      setEmail(e.Email)
       const Response = await dispatch(GetPasswordResettoken(e.Email,setsend))
       // console.log(Response)
-      seToken(Response.data.token)
 
       if(Response?.success){
-        toast.success("LInk Sedn TO The Email")
+        const newToken =Response?.data?.token 
+          seToken(newToken)
+        toast.success("Link Send To Your Email id")
       }
 
     } catch (error) {
@@ -45,8 +47,10 @@ const Forgot = () => {
 
   if(loading){
     return (
-      <div className='w-full h-full flex flex-1 justify-center items-center'>
-        <Loader/>
+      <div className='w-full h-full  flex flex-col'>
+        <div className='flex-1 flex justify-center items-center text-white'>
+          <Loader/>
+        </div>
       </div>
     )
   }
@@ -96,7 +100,7 @@ const Forgot = () => {
           </form>
         </div>
       </div>
-      {token && <Reset JWT={token}/>}
+      { Send && <Reset Emails={Emails} name={Send}/>}
     </div>
   )
 }

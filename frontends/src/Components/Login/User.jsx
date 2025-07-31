@@ -33,11 +33,10 @@ const User = () => {
         try{
           const Response = await dispatch(findemail(username))
             if (Response?.success) {
-
-          setNames("Available"); // Lowercase
-        } else {
-          setNames("This Email is not Available");
-          toast.error("Please Check Your Email")
+              setNames("This Email is not Available");
+              toast.error("Please Check Your Email")
+          } else {
+          setNames("")
         }
         }catch(error){
             console.error("Error in username check:", error);
@@ -46,6 +45,7 @@ const User = () => {
         toast.dismiss(toastId);
       }
       },300)
+      return () => clearTimeout(Handler)
     },[username])
     //   const password = watch('Password')
     
@@ -61,6 +61,7 @@ const User = () => {
           // console.log(Response)
           if(Response?.success){
             toast.success("user is loged in ")
+            navigate('/dashboard')
           }
         setLoading(false)
         }catch(error){
@@ -71,13 +72,16 @@ const User = () => {
         }
       }
     
-      if (loading) {
-        return (
-          <div className="w-full h-full  bg-transparent flex justify-center items-center">
-            <Loader />
-          </div>
-        )
-      }
+
+       if(loading){
+          return (
+            <div className='w-full h-full flex flex-col'>
+              <div className='flex-1 flex justify-center items-center text-white'>
+                <Loader/>
+              </div>
+            </div>
+          )
+        }
   const nameAsteriskColor = names === "available" ? "text-caribgreen-500" : "text-red-500";
 
      return (
@@ -105,7 +109,7 @@ const User = () => {
               onChange={(e)=>setusername(e.target.value)}
               className={`w-full p-3  rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.Email && "border-red-500"}`}
               placeholder="Enter Your Email Address"
-              autoComplete='email'
+               autoComplete="email"
             />
            
           </div>
@@ -138,7 +142,7 @@ const User = () => {
                 className={`w-full p-3 pr-10  rounded-lg outline-none form-style focus:ring-2 focus:ring-blue-400 transition ${errors.Password && "border-red-500"}`}
                 placeholder="Enter Your Password"
                 onChange={(e)=>setpass(e.target.value)}
-                autoComplete='current-password'
+                  autoComplete="current-password"
               />
               <button
                 type="button"

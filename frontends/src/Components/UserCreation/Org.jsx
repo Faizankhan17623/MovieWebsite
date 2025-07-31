@@ -195,13 +195,17 @@ const Org = () => {
       // console.log("This is the org form data", data)
     }
 
-    if (Loading) {
-      return (
-        <div className="w-full h-full  bg-transparent flex justify-center items-center">
-          <Loader />
+  if(Loading){
+    return (
+      <div className='w-full h-full flex flex-col'>
+        <div className='flex-1 flex justify-center items-center text-white'>
+          <Loader data="text-4xl border left-100  top-50 h-80"/>
         </div>
-      )
-    }
+      </div>
+    )
+  }
+
+  
 
 
      const nameAsteriskColor = names === "available" ? "text-caribgreen-500" : "text-red-500";

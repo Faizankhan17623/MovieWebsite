@@ -197,15 +197,16 @@ setShowOtp(false)
       setErrorMessage(error.message || "An error occurred during signup.");
       }
   };
-
-  if (Loading) {
+  
+  if(Loading){
     return (
-      <span>
-        <Loader data="text-4xl border left-100  top-50 h-80"/>
-      </span>
-    );
+      <div className='w-full h-full overflow-x-hidden flex flex-col'>
+        <div className='flex-1 flex justify-center items-center text-white'>
+          <Loader data="text-4xl border left-100  top-50 h-80"/>
+        </div>
+      </div>
+    )
   }
-
 
   // Helper functions for asterisk colors
   const nameAsteriskColor = names === "available" ? "text-caribgreen-500" : "text-red-500";

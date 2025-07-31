@@ -172,7 +172,7 @@ const OTP = ({Style}) => {
 
           <button
             type='submit'
-            className={`Register cursor-pointer bg-yellow-100 hover:bg-yellow-100 w-full h-24 text-brown-900 rounded-md font-bold text-lg transition-all disabled:opacity-50`}
+            className={`Register cursor-pointer bg-yellow-200 hover:bg-yellow-300 w-full h-14 text-brown-900 rounded-md font-bold text-lg transition-all disabled:opacity-50`}
             onClick={handleVerifyClick}
             disabled={otp.length < 6}
           >
