@@ -23,11 +23,11 @@ exports.LinkSend = async(req,res)=>{
             {email:email},
             {
                 token:token,
-                resetPasswordExpires:Date.now() + 3600000,
+                resetPasswordExpires:Date.now() +  300000,
             },{new:true})
             console.log("This is the updated details",updateDetails)
 
-            const url = `https://moviewebsite-mjuz.onrender.com/password-update/${token}`
+            const url = `http://localhost:5173/Reset-Password/${token}`
             
             await mailSenders(email,
                 'password reset',
@@ -52,16 +52,24 @@ exports.LinkSend = async(req,res)=>{
 // tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 34
 exports.ResetPassword = async(req,res)=>{
     try {
-        const {password,token} = req.body
+        const {password,ConfirmPassword,token} = req.body
+
+         if (ConfirmPassword !== password) {
+       return res.json({
+         success: false,
+         message: "Password and Confirm Password Does not Match",
+       })
+     }
+     
         const TokenFinding = await USER.findOne({token:token})
         if(!TokenFinding){
             return res.status(400).json({
-                message:"The token is not presnet or has been expired",
+                message:"The Rreset Email is Been Expired Please Ask For a New One",
                 success:false
             })
         }
 
-        if((!TokenFinding.resetPasswordExpires > Date.now())){
+        if((TokenFinding.resetPasswordExpires < Date.now())){
             return res.status(400).json({
                 message:"This email is not valid or the token is expird please genereate a new one",
                 success:false
@@ -69,7 +77,7 @@ exports.ResetPassword = async(req,res)=>{
         }
 
         const encryptinPassword = await bcrypt.hash(password,10)
-        const PasswordChanging = await USER.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword},{new:true})
+        const PasswordChanging = await USER.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword,token:null,resetPasswordExpires:null},{new:true})
         return res.status(200).json({
             message:"The password is been updated",
             success:true,

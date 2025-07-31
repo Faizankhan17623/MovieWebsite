@@ -47,8 +47,7 @@ const userSchema =  new mongoose.Schema({
         required:true
     },
     resetPasswordExpires:{
-        type:Date,
-        expires:'120'
+        type:Date
     },
     theatresCreated:{
         type:mongoose.Schema.Types.ObjectId,
