@@ -77,7 +77,7 @@ exports.ResetPassword = async(req,res)=>{
         }
 
         const encryptinPassword = await bcrypt.hash(password,10)
-        const PasswordChanging = await USER.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword,token:null,resetPasswordExpires:null},{new:true})
+        const PasswordChanging = await USER.findOneAndUpdate({token:token},{password:encryptinPassword,confirmpass:encryptinPassword,resetPasswordExpires:null},{new:true})
         return res.status(200).json({
             message:"The password is been updated",
             success:true,

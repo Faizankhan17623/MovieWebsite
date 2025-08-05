@@ -27,11 +27,12 @@ function convertSecondsToDuration(totalSeconds) {
     }
 }  
 // This is the function that is present in the create show route on line noe 40
+
 exports.CreateShow = async(req,res)=>{
     try {
         const userid = req.USER.id
 
-        const {title,tagline,releasedate,genreid,subgenereid,languagename,castid,directorname,producername,writersname,totalbudget,hashid,Duration} = req.body
+        const {title,tagline,releasedate,genreid,subgenereid,languagename,castid=[],directorname,producername,writersname,totalbudget,hashid,Duration} = req.body
         const image = req.files.image
         const trailer = req.files.trailer
         // console.log('THis is the image ',image.size)
@@ -84,19 +85,29 @@ exports.CreateShow = async(req,res)=>{
             })
         }
 
-        if(image.size / (1024*1024) > max_upload_size && trailer.size / (1024*1024) > max_upload_size){
-            return res.status(400).json({
-                 error: `THe image file or the video fie is too large maximum allowed is ${max_upload_size}mb`
-            })
-        }
+      if (image.size / (1024 * 1024) > max_upload_size || trailer.size / (1024 * 1024) > max_upload_size) {
+  return res.status(400).json({
+    error: `Image or video file too large. Max allowed is ${max_upload_size} MB`,
+    success: false,
+  });
+}
 
         const FindingTitle = await CreateShow.findOne({title:title})
         const FindingTagline = await CreateShow.findOne({tagline})
         const findingGenreid  = await genre.findOne({_id:genreid})
         const findingsubGenreid  = await subgenre.findOne({_id:subgenereid})
         const FindingLanguage = await language.findOne({name:languagename})
-        const castFinding = await cast.findOne({_id:castid})
-        const haahsFinding = await hashtags.findOne({hashid})
+        
+        if (!Array.isArray(castid) || castid.length === 0) {
+  return res.status(400).json({
+    message: "At least one cast ID is required and must be an array.",
+    success: false
+  });
+}
+
+
+        const castFinding = await cast.find({_id:{$in:castid}})
+        const haahsFinding = await hashtags.findOne({_id:hashid})
 
         if(FindingTitle){
             return res.status(400).json({
@@ -133,13 +144,14 @@ exports.CreateShow = async(req,res)=>{
             })
         }
 
-        if(!castFinding){
-            return res.status(400).json({
-                message:"This cast is not present please check the name",
-                success:false
-            })
-        }   
-        if(haahsFinding){
+       
+if (castFinding.length !== castid.length) {
+  return res.status(400).json({
+    message: "One or more cast IDs are invalid.",
+    success: false
+  });
+}
+        if(!haahsFinding){
             return res.status(400).json({
                 message:"The hash id is not present please re check it again",
                 success:false

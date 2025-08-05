@@ -17,7 +17,7 @@ const {GetAlluserDetails,FindUserNames,FindEmail,FindNumber} = require('../contr
 route.post("/Create-User",Createuser)
 route.post("/Create-OTP",CreateOtp) 
 // This is the extra route that was added to get all the user details
-route.get("/Get-All-UserDetails",GetAlluserDetails)
+route.get("/Get-All-UserDetails",auth,GetAlluserDetails)
 route.post("/Find-UserNames",FindUserNames)
 route.post("/Find-Email",FindEmail)
 route.post("/Find-Number",FindNumber)

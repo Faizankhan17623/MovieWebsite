@@ -3,7 +3,8 @@ const USER = require('../../models/user')
 
 exports.GetAlluserDetails = async(req,res)=>{
     try{
-        const Details = await USER.find({})
+        const id = req.USER.id
+        const Details = await USER.findById(id)
         if(!Details){
             return res.status(400).json({
                 message:"There is no user present in the database",

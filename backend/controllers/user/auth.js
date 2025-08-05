@@ -16,7 +16,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        const Finding = await USER.findOne({ email })
+        const user = await USER.findOne({ email })
             .populate('resetPasswordExpires')
             .populate({path:'showsCreated',model:'Show'})
             .populate({path:'UserBannerliked',model:'Show'})
@@ -25,7 +25,7 @@ exports.login = async (req, res) => {
             .populate({path:'comment',model:'Comment'})
             .exec()
 
-            if(Finding.usertype === 'Organizer'){
+            if(user.usertype === 'Organizer'){
                 return res.status(400).json({
                     message:"The User is an Orgainezer Please Use The Orgainezer Login",
                     success:false
@@ -34,14 +34,14 @@ exports.login = async (req, res) => {
 
 
             
-        if (!Finding) {
+        if (!user) {
             return res.status(404).json({
                 message: "Email not found.",
                 success: false
             });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, Finding.confirmpass);
+        const isPasswordValid = await bcrypt.compare(password, user.confirmpass);
 
         if (!isPasswordValid) {
             return res.status(400).json({
@@ -50,8 +50,8 @@ exports.login = async (req, res) => {
             });
         }
 
-        const { userName, usertype, verified, number, _id,image } = Finding;
-        console.log(usertype)
+        const { userName, usertype, verified, number, _id,image } = user;
+        // console.log(usertype)
         const now = new Date();
         const pattern = date.compile('DD/MM/YYYY HH:mm:ss');
         const lastLoginTime = date.format(now, pattern);
@@ -67,6 +67,9 @@ exports.login = async (req, res) => {
             { expiresIn: '24h', algorithm: 'HS256' }
         );
 
+        user.token = jwtCreation;
+        user.password = undefined
+
         // console.log(jwtCreation)
         const options = {
             expires : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
@@ -81,7 +84,7 @@ exports.login = async (req, res) => {
             message: "User logged in successfully.",
             success: true,
             token: jwtCreation,
-            image:image
+            user
         });
         
     } catch (error) {

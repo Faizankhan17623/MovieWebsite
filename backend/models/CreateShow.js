@@ -50,13 +50,12 @@ const CreateShowSchema = new mongoose.Schema({
     }],
     createdAt:{
         type:String,
-        required:true,
-        space:true
+        required:true
     },
-    castName:{
+    castName:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Cast"
-    },
+    }],
     uploaded:{
         type:Boolean,
         default:false,

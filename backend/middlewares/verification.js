@@ -4,12 +4,16 @@ const USER = require('../models/user');
 
 exports.auth = async (req, res, next) => {
     try {
-        const token = req.body.token || req.cookies.token || req.headers('token')
+        const token = req.body.token || req.cookies.token || req.headers['authorization']
         // console.log(token)
+        if (token && token.startsWith('Bearer ')) {
+    token = token.split(' ')[1];
+}
+
         if (!token) {
             return res.status(401).json({
                 message: "You are not logged in. Please log in.",
-                success: false
+                success: false 
             });
         }
 
@@ -17,14 +21,14 @@ exports.auth = async (req, res, next) => {
         const decode = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
         // console.log("Decoded Token:", decode);
         // console.log(decode)
-        if (!decode.email) {
+        if (!decode) {
             return res.status(400).json({
                 message: "Invalid token format",
                 success: false
             });
         }
 
-        req.USER = decode; // Attach decoded user to request
+        req.USER = decode.id; // Attach decoded user to request
         next();
 
     } catch (error) {
@@ -38,8 +42,8 @@ exports.auth = async (req, res, next) => {
 
 exports.IsAdmin = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ email: req.USER.email });
-
+        const Finding = await USER.findOne({ id: req.USER.id });
+        // console.log("Finding in IsAdmin:", Finding);
         if (!Finding) {
             return res.status(404).json({
                 message: "User not found",
@@ -48,7 +52,7 @@ exports.IsAdmin = async (req, res, next) => {
         }
 
         if (Finding.usertype === 'Administrator') {
-            console.log('Allowed');
+            // console.log('Allowed');
             next();
         } else {
             return res.status(403).json({
@@ -67,8 +71,8 @@ exports.IsAdmin = async (req, res, next) => {
 
 exports.IsOrganizer = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ email: req.USER.email });
-
+        const Finding = await USER.findOne({ id: req.USER.id });
+        // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {
             return res.status(404).json({
                 message: "User not found",
@@ -77,7 +81,7 @@ exports.IsOrganizer = async (req, res, next) => {
         }
 
         if (Finding.usertype === 'Organizer') {
-            console.log('Allowed');
+            // console.log('Allowed');
             next();
         } else {
             return res.status(403).json({
@@ -98,8 +102,8 @@ exports.IsOrganizer = async (req, res, next) => {
 
 exports.IsUSER = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ email: req.USER.email });
-
+        const Finding = await USER.findOne({ id: req.USER.id  });
+        // console.log("Finding in IsUSER:", Finding);
         if (!Finding) {
             return res.status(404).json({
                 message: "User not found",
@@ -108,7 +112,7 @@ exports.IsUSER = async (req, res, next) => {
         }
 
         if (Finding.usertype === 'Viewer') {
-            console.log('Allowed');
+            // console.log('Allowed');
             next();
         } else {
             return res.status(403).json({
@@ -127,8 +131,8 @@ exports.IsUSER = async (req, res, next) => {
 
 exports.IsTheatrer = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ email: req.USER.email });
-
+        const Finding = await USER.findOne({ id: req.USER.id });
+        // console.log("Finding in IsTheatrer:", Finding);
         if (!Finding) {
             return res.status(404).json({
                 message: "User not found",
@@ -137,7 +141,7 @@ exports.IsTheatrer = async (req, res, next) => {
         }
 
         if (Finding.usertype === 'Theatrer') {
-            console.log('Allowed');
+            // console.log('Allowed');
             next();
         } else {
             return res.status(403).json({

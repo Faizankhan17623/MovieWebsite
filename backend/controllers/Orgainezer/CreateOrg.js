@@ -110,21 +110,29 @@ exports.OrgaineserLogin = async(req,res)=>{
                 })
             }
     
-            const Finding = await USER.findOne({email:email}).populate('resetPasswordExpires')
-            if(!Finding){
+            const user = await USER.findOne({email:email}) 
+                .populate('resetPasswordExpires')
+                .populate({path:'showsCreated',model:'Show'})
+                .populate({path:'UserBannerliked',model:'Show'})
+                .populate({path:'UserBannerhated',model:'Show'})
+                .populate({path:'messageReceived',model:'Message'})
+                .populate({path:'comment',model:'Comment'})
+                .exec()
+
+            if(!user){
                 return res.status(404).json({
                     message:"The email is not been found",
                     success:false
                 })
             }
 
-            if(Finding.usertype === 'Viewer'){
+            if(user.usertype === 'Viewer'){
                 return res.status(400).json({
                     message:"The User is an Viewer Please Use The Viewer Login",
                     success:false
                 })
             }
-            const compare = await bcrypt.compare(password,Finding.confirmpass)
+            const compare = await bcrypt.compare(password,user.confirmpass)
     
             if(!compare){
                 return res.status(400).json({
@@ -133,25 +141,31 @@ exports.OrgaineserLogin = async(req,res)=>{
                 })
             }
 
-                const {userName,usertype,verified,number,_id ,image} = Finding
+                const {userName,usertype,verified,number,_id ,image} = user
                 const now = new Date();
                 const pattern = date.compile('DD/MM/YYYY HH:mm:ss');
                 let lastLoginTime = date.format(now, pattern);
                 // console.log("This is the id",_id)
                 await USER.findByIdAndUpdate(_id,{$push:{lastlogin:lastLoginTime}},{new:true})
-                USER.id = _id
+
+
                 // console.log("This is the login code",login)
                 const jwtCreation = jwt.sign({usertype,verified,id:_id},process.env.JWT_PRIVATE_KEY,{ expiresIn: '24h', algorithm: 'HS256' })
                 const options = {
                     expires:new Date (Date.now() + 2 * 24 * 60 * 60 * 1000),
-                    httpOnly:true
+                      httpOnly:true,
+            secure: false, 
+            sameSite: 'Lax'
                 }
-    
+
+                     user.token = jwtCreation;
+                    user.password = undefined;  
+
                 res.cookie('token',jwtCreation,options).status(200).json({
                     message:"The user is been loged in",
                     success:true,
-                    data:jwtCreation,
-                    image:image
+                    token:jwtCreation,
+                    user
                 })
         }catch(error){
             console.log(error)
