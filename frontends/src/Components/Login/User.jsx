@@ -6,10 +6,11 @@ import Loader from '../extra/Loading'
 import {UserLogin,findemail} from '../../Services/operations/Auth'
 import { useDispatch } from 'react-redux'
 import toast from 'react-hot-toast'
+// import { useSelector } from 'react-redux';
 
 
 const User = () => {
-  
+
    const [showPass, setShowPass] = useState(false)
       const [Pass,setpass] = useState("")
       const [loading,setLoading] = useState(false)
@@ -57,11 +58,10 @@ const User = () => {
         }
         setLoading(true)
         try{
-          const Response = await dispatch(UserLogin(data.Email,data.Password))
+          const Response = await dispatch(UserLogin(data.Email,data.Password,navigate))
           // console.log(Response)
           if(Response?.success){
             toast.success("user is loged in ")
-            navigate('/dashboard')
           }
         setLoading(false)
         }catch(error){

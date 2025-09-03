@@ -9,8 +9,10 @@ import { FaLongArrowAltLeft } from "react-icons/fa";
 import {Restpassword} from '../../Services/operations/Auth' 
 import { useDispatch } from 'react-redux'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 const Reset = ({Emails,name}) => {
+  const navigate = useNavigate()
 
        const {
           register,
@@ -48,7 +50,7 @@ const Reset = ({Emails,name}) => {
         const MainToken = token[4]
       
         // console.log(token)
-        const Response = await dispatch(Restpassword(e.NewPass,e.ConfirmPass,MainToken))
+        const Response = await dispatch(Restpassword(e.NewPass,e.ConfirmPass,MainToken,navigate))
         if(Response?.success){
           toast.success("Password Reser Succesfully")
         }

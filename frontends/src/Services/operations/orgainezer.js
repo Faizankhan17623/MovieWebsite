@@ -2,11 +2,14 @@ import toast from 'react-hot-toast'
 import {apiConnector} from '../apiConnector'
 import {CreateOrgainezer,Ticket,AllotTheatre,GetAllSHowsDetails,GetAllTheatreDetails} from "../Apis/OranizaerApi"
 import { setLoading} from '../../Slices/orgainezerSlice'
-import {setToken,setLogin,setUserImage} from '../../Slices/authSlice.js'
+import {setToken,setLogin,setUserImage,setUser} from '../../Slices/authSlice.js'
+import {setuser} from '../../Slices/ProfileSlice.js'
+import Cookies from "js-cookie";
+
+
+
 
 const {createorgainezer,orgainezerlogin} = CreateOrgainezer
-
-
 export function Creation(name,password,email,number,otp){
     return async (dispatch) => {
         dispatch(setLoading(true));
@@ -42,11 +45,10 @@ export function Creation(name,password,email,number,otp){
     }    
 }
 
-
-export function OrgainezerLogin(email,password){
+export function OrgainezerLogin(email,password,navigate){
     return async (dispatch) => {
         dispatch(setLoading(true));
-        const ToastId = toast.loading("Logging in, please wait...");
+        // const ToastId = toast.loading("Logging in, please wait...");
         try{
             if (!email || !password) {
                 throw new Error('Email and password are required');
@@ -56,16 +58,32 @@ export function OrgainezerLogin(email,password){
                 email:email,
                 password:password
             })
-           console.log("User is been logged in ")
-                      toast.success('Congragulations you are logged in')
-                      dispatch(setToken(response.data.token))
-                      const userimage = response.data.image
+
+                 console.log("User is been logged in ")
+                toast.success('Congragulations you are logged in')
+                // console.log(response.data.user.verified)
+
+                 dispatch(setToken(response.data.token))
+                 dispatch(setLogin(true))
+
+                     const userimage = response?.data?.user?.image
+
                       dispatch(setUserImage(userimage))
-                      dispatch(setLogin(true))
-                      localStorage.setItem('token',JSON.stringify(response.data.token))
-                      if(!response.data.success){
-                          toast.error(response.response.data.message)
-                      }
+                      localStorage.setItem('userImage', userimage)
+
+
+                    dispatch(setuser({ ...response.data.user ,usertype:response.data.user.usertype, image:userimage }))
+            dispatch(setUser(response.data.user))
+
+                                Cookies.set('token', response.data.token, { expires: 2 }); 
+                      localStorage.setItem('token', JSON.stringify(response.data.token))
+                      localStorage.setItem('Verified', JSON.stringify(response.data.user.verified))
+
+            navigate('/Dashboard/My-Profile')
+
+                         if(!response.data.success){
+                                    toast.error(response.response.data.message)   
+                                }
         }catch(error){
            toast.error(error.response.data.message)
                       console.log(error.response.data.message)
@@ -74,7 +92,7 @@ export function OrgainezerLogin(email,password){
         }
         finally {
             dispatch(setLoading(false));
-            toast.dismiss(ToastId);
+            // toast.dismiss(ToastId);
         }
     }    
 }

@@ -4,19 +4,25 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n \"client,server\" -c \"bgRed,bgBlue\" \"npm start\" \"npm run server\"",
+    "client": "vite",
+    "server": "cd ../backend && npm run dev",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.7",
     "axios": "^1.10.0",
+    "concurrently": "^9.2.0",
     "gsap": "^3.13.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "react": "^19.1.0",
+    "react-cookie": "^8.0.1",
+    "react-cookie-consent": "^9.0.0",
     "react-countup": "^6.5.3",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.4",
@@ -41,9 +47,9 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.6",
     "react-router-dom": "^7.7.1",
-    "tailwindcss": "^4.1.7",
+    "tailwindcss": "^4.1.11",
     "vite": "^6.3.5"
   }
 }

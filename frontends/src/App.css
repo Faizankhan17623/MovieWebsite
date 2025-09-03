@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 *{
     margin: 0px;
     padding: 0px;
@@ -17,7 +18,7 @@
     --color-transparent:'#ffffff00';
 
     /* Color White */
-    --color-white-5: #FFFFFF;
+    --color-white-5: #00000000;
     --color-Black-5 :"#484848";
 
     /* Color Rich Balck */
@@ -554,8 +555,6 @@ input:checked + .slider:before {
   margin-top: 40px;
 }
 
-
-
 .Port_upper,.Number,.Prod,.Exp{
   margin-top: 10px;
 }
@@ -640,4 +639,277 @@ input:checked + .slider:before {
 .Forgot{
   margin-top: 10px;
   margin-bottom : 1px;
+}
+
+.Sides{
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.DashLine{
+  margin-top: 10px;
+  margin-left: 8px;
+  margin-bottom: 10px;
+} 
+
+
+.Profiles{
+  padding:6px 6px 6px 6px;
+}
+
+
+.FirstProfile{
+  margin-bottom: 10px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-top: 10px;
+}
+
+.SecondProfile,.ThirdProfile,.FourthProfile{
+  padding: 8px 8px 8px 8px;
+}
+
+
+.BUttons{
+  margin-top: 20px;
+  padding: 10px 20px 10px 20px;
+}
+
+.Main{
+  padding: 16px 16px 16px 16px;
+}
+
+.Home{
+  margin-bottom: 4px;
+}
+.Texts{
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.Sixers{
+  margin-bottom: 10px;
+}
+
+
+.Active{
+  padding: 6px 12px 6px 12px;
+  margin-left: 10px;
+}
+
+.TagLines{
+  padding: 18px 16px 12px 18px;
+}
+
+.Tabs{
+  padding: 12px 18px 12px 18px;
+  margin-left: 10px;
+}
+
+.Data{
+  padding: 16px 18px;
+}
+
+.Menu{
+  padding: 8px;
+}
+
+.CC{
+  margin-top: 8px;
+  padding: 8px 0px;
+}
+
+.Completion{
+  padding: 8px 16px 8px 16px;
+}
+
+.Shows{
+  padding-left: 40px;
+}
+
+.Duration{
+  padding: 12px 0px 12px 50px;
+}
+
+.Purchase{
+  padding: 12px 50px 12px 65px;
+}
+
+.Price{
+  padding: 0px 50px 0px 95px;
+}
+
+.Progress{ 
+  margin-left: 20px;
+}
+
+.Paginations{
+  margin-top: 8px;
+}
+
+.Aaaa{
+  padding: 4px 8px 4px 20px;
+}
+
+
+.Drop{
+  padding: 8px 8px 8px 8px;
+}
+
+.subMenu{
+  margin-left: 32px;
+  margin-top: 8px;
+}
+
+.Close{
+  padding:8px 8px 8px 8px;
+}
+
+.Tags1{
+  padding-left: 20px;
+}
+
+.subMenu1{
+  margin-left: 32px;
+  margin-top: 18px;
+}
+
+
+.Statusss{
+  margin-top: 8px;
+}
+
+
+.Secondss{
+  padding: 20px 0px 0px 0px;
+}
+
+
+.Verificationss{
+  margin-bottom: 24px;
+  padding: 20px 0px 0px 20px;
+}
+
+.Form{
+  margin-top: 10px;
+}
+
+
+.Backgroundss{
+  margin-top: 50px;
+}
+
+.Project{
+  margin-top: 50px;
+}
+
+.Distrubations{
+  margin-top: 50px;
+}
+
+.Supports{
+  margin-top: 50px;
+}
+
+.Roles{
+  margin-top: 50px;
+}
+
+.Policy{
+  margin-top: 50px;
+}
+
+.Emails{
+  margin-top: 30px;
+}
+
+.Whatsappp{
+  margin-top: 10px;
+}
+
+.Location{
+  margin-top: 10px;
+}
+
+.Addres{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.Perm{
+  margin-top: 10px;
+}
+
+.Uploadeser{
+  margin-top: 10px;
+}
+
+.Buttonss{
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.Genderrres{
+  margin-top: 30px;
+}
+
+.BIO{
+  margin-top: 20px;
+}
+.Working{
+  margin-top: 10px;
+}
+
+.OIB{
+  margin-bottom: 8px;
+}
+
+.Projectsss{
+  margin-top: 20px;
+}
+
+.Adding{
+  margin-top: 12px;
+  padding: 4px 16px 4px 16px;
+}
+.Show{
+  margin-top: 20px;
+}
+
+.Socialss{
+  margin-top: 30px;
+}
+.One{
+  margin-top: 10px;
+}
+
+.dGsss{
+  margin-top: 20px;
+}
+
+.Datass{
+  margin: 1px 2px 1px 2px;
+  padding: 1px 12px 1px 12px;
+}
+
+.Subo{
+  padding: 1px 8px 1px 8px;
+}
+
+.Distribute{
+  margin-bottom: 20px; 
+  padding-bottom: 20px;
+}
+
+.b{
+  margin-bottom: 20px;
+}
+.dpp{
+  padding-bottom: 20px;
+}
+
+.Last_Field{
+  padding-bottom: 20px;
 }

@@ -24,3 +24,30 @@ If you are developing a production application, we recommend using TypeScript wi
 <!-- 1.0.2 -->
 <!-- 1.0.3 -->
 <!-- 1.0.4 -->
+<!-- 1.0.5 -->
+<!-- 1.0.6 -->
+
+
+
+
+
+
+<!-- This thing i forgot to add i need to add this also  -->
+<!-- 
+// In your login function, send device info
+const deviceFingerprint = {
+    userAgent: navigator.userAgent,
+    screen: `${screen.width}x${screen.height}`,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+};
+
+const response = await apiConnector("POST", login, {
+    email: email,
+    password: pass,
+    deviceInfo: deviceFingerprint
+});
+
+// Server validates device on each request -->
+
+
+<!-- Rememebr when  the appis build like 100 percentage make the HttpOnly  true so that it can be blocked byt the atackers  -->

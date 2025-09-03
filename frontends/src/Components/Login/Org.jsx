@@ -1,4 +1,4 @@
-import {  useState } from 'react'
+import {  useState ,useEffect} from 'react'
 import CountryCodee from '../../data/CountryCode.json'
 import { useForm } from 'react-hook-form'
 import { LiaEyeSolid, LiaEyeSlashSolid } from "react-icons/lia"
@@ -7,31 +7,62 @@ import Loader from '../extra/Loading'
 import {OrgainezerLogin} from '../../Services/operations/orgainezer'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
+import {findemail} from '../../Services/operations/Auth'
 // import OpenRoute from '../../Hooks/OpenRoute'
 const Org = () => {
   const dispatch = useDispatch()
+        const navigate = useNavigate()
+  
 
   const [showPass, setShowPass] = useState(false)
     const [Pass,setpass] = useState("")
     const [loading,setLoading] = useState(false)
+     const [username,setusername] = useState("")
+            const [names, setNames] = useState(""); // "" | "available" | "taken"
+            const [errorMessage, setErrorMessage] = useState('');
 
+                useEffect(()=>{
+                  if(!username) return 
+                  const Handler = setTimeout(async()=>{
+                          const toastId = toast.loading("Checking username...");
+                    try{
+                      const Response = await dispatch(findemail(username))
+                        if (Response?.success) {
+                          setNames("This Email is not Available");
+                          toast.error("Please Check Your Email")
+                      } else {
+                      setNames("")
+                    }
+                    }catch(error){
+                        console.error("Error in username check:", error);
+                    setNames("");
+                    }finally {
+                    toast.dismiss(toastId);
+                  }
+                  },300)
+                  return () => clearTimeout(Handler)
+                },[username])
     const {
       register,
       handleSubmit,
       formState: { errors }
     } = useForm()
-    const navigate = useNavigate()
   
     // const password = watch('Password')
   
     const onsubmit = async(data) => {
+        if(names === " Taken") {
+           let errorMsg = "Please fix the following issues: ";
+      setErrorMessage(errorMsg);
+      return;
+        }
        setLoading(true)
               try{
-                const Response = await dispatch(OrgainezerLogin(data.Email,data.Password))
+                const Response = await dispatch(OrgainezerLogin(data.Email,data.Password,navigate))
                 // OpenRoute()
                 if(Response?.success){
                   toast.success("user is loged in ")
-            navigate("/")
+            // navigate("/Dashboard/my-profile")
 
                 }
               setLoading(false)
@@ -51,24 +82,33 @@ const Org = () => {
           </div>
         )
       }
+
+  const nameAsteriskColor = names === "available" ? "text-caribgreen-500" : "text-red-500";
+
    return (
       <form
         onSubmit={handleSubmit(onsubmit)}
         className='w-full h-full mx-auto p-8 rounded-2xl  shadow-lg space-y-8 mt-8 gap-4'
       >
-   
+  
+           {errorMessage && <span className="text-red-500">{errorMessage}</span>}
+ {names && (
+        <span className={`flex font-semibold  ${names === "Available" ? "text-red-500" : " text-caribgreen-500" }`}>
+          No user Exists With This Email id
+        </span>
+      )}
   
         {/* Email */}
         <div>
           <label className="block  mb-2 font-semibold" htmlFor="Email">
-            Email Address <span className="text-red-500">*</span>    {errors.Email && (
-            <span className="text-red-600 text-sm">{errors.Email.message}</span>
-          )}
+             First Name <span className={nameAsteriskColor}>*</span>
+              {errors.Email && <span className="text-red-600 text-sm"> {errors.Email.message}</span>}
           </label>
           <input
             type="email"
             autoComplete='email'
             {...register("Email", { required: "Email is required" })}
+            onChange={(e)=>setusername(e.target.value)}
             className={`w-full p-3  rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.Email && "border-red-500"}`}
             placeholder="Enter Your Email Address"
           />

@@ -1,10 +1,11 @@
 import toast from "react-hot-toast";
 import {apiConnector} from '../apiConnector.js'
 import {setUser,setLoading,setToken,setLogin,setUserImage} from '../../Slices/authSlice.js'
-import {setloading,setlikes,setdislikes,setuser} from '../../Slices/ProfileSlice.js'
+import {setloading,setlikes,setdislikes,setuser,setverification} from '../../Slices/ProfileSlice.js'
 import {CreateUser,SendOtp,Login,ResetPassword,UpdatePersonalDetails,PersonalChoice,GetAllShows,SpecificShow,Comment,SendMessage,TicketData,Ratings,AllDetails} from '../Apis/UserApi.js'
 import {setShow,setlaoding,setallShow} from '../../Slices/ShowSlice.js'
 import Cookies from "js-cookie";
+// import {setuser} from '../../Slices/ProfileSlice.js'
 
 const {createuser} = CreateUser 
 const {createotp} = SendOtp
@@ -180,49 +181,65 @@ export function UserCreation(name,password,email,number,otp){
 
 
 
-export function UserLogin(email,pass){
+            
+export function UserLogin(email,pass,navigate){
     return async(dispatch)=>{
         // const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
         try{
+
+             if (!email || !pass) {
+                throw new Error('Email and password are required');
+            }
             const response = await apiConnector("POST",login,{
                 email:email,
                 password:pass
-            },{
-                withCredentials: true
             })
-    
+
             console.log("User is been logged in ")
             toast.success('Congragulations you are logged in')
-            localStorage.setItem('token', JSON.stringify(response.data.token))
-            Cookies.set('token', response.data.token, { expires: 2 }); 
+
+            console.log(response.data)
+
             dispatch(setToken(response.data.token))
-
-            const userimage = response.data.image
-            dispatch(setUserImage(userimage))
             dispatch(setLogin(true))
-            if(!response.data.success){
-                toast.error(response.response.data.message)
-            }
-            
 
-            return { success: true, data: response.data };
-           
+            const userimage = response?.data?.user?.image
+            // console.log("This is the user image",userimage)
+            dispatch(setUserImage(userimage))
+            localStorage.setItem("userImage", userimage)
+            
+            dispatch(setuser({...response.data.user, usertype:response.data.user.usertype, image: userimage}))
+            dispatch(setUser(response.data.user))
+            Cookies.set('token', response.data.token, { expires: 2 }); 
+            localStorage.setItem('token', JSON.stringify(response.data.token))
+            localStorage.setItem('Verified', JSON.stringify(response.data.user.verified))
+            navigate('/Dashboard/My-Profile')
+
+
+
+     if(!response.data.success){
+                toast.error(response.response.data.message)   
+            }
+
+            
         }catch(error){
             toast.error(error.response.data.message)
             console.log(error.response.data.message)
             console.log("There is an error in the login process",error)
             console.log("unable to log in")
         }
-         dispatch(setLoading(false))
-        // toast.dismiss(toastId)
+
+        dispatch(setLoading(false))
+        // toast.dismiss(toastId)  
+
     }
 }
 
 
 
 // and if any thing extra is needed to add we wil add that in the code in future
-export function UserLogout(navigate){
+export function UserLogout(){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
@@ -230,8 +247,11 @@ export function UserLogout(navigate){
             dispatch(setToken(null))
             dispatch(setUser(null))
             localStorage.removeItem('token')
+            Cookies.remove('token'); // Remove cookie
+            localStorage.removeItem('userImage')
+            localStorage.removeItem('user')
+            localStorage.removeItem('Verified')
             dispatch(setLogin(false))
-            navigate('/login')
         }catch(error){
             console.log("There is an error in the logout process",error)
             console.log("unable to log out")
@@ -271,11 +291,15 @@ export function GetPasswordResettoken(email,emailsend){
 
 // 9175182438
 // 9028648188
-export function Restpassword(password,ConfirmPassword,token){
+export function Restpassword(password,ConfirmPassword,token,navigate){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
         dispatch(setLoading(true))
         try {
+            if(!token){
+                navigate("/Forgot-Password")
+                toast.error("Token is Expired Please Create a new One")
+            }
             const response = await apiConnector("PUT",Resetpassword,{
                 password,
                 ConfirmPassword,

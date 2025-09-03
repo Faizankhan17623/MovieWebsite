@@ -215,7 +215,7 @@ const Org = () => {
    return (
       <form
         onSubmit={handleSubmit(onsubmit)}
-        className='w-full h-max rounded-2xl shadow-lg space-y-8 bg-richblack-800'
+        className="w-full h-max rounded-2xl shadow-lg space-y-8 bg-richblack-800"
       >
   {errorMessage && <span className="text-red-500">{errorMessage}</span>}
 

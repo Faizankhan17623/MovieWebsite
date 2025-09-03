@@ -28,7 +28,7 @@ const Join = () => {
   }
 
   return (
-    <div className='w-full h-full flex flex-col justify-evenly items-center'>
+    <div className="w-full h-full flex flex-col justify-evenly items-center">
       <Navbar />
       <div className='w-full h-full flex flex-row text-white justify-around items-center'>
         <div className='w-1/3 h-[730px]'>
@@ -56,7 +56,7 @@ const Join = () => {
 
         <div className='w-1/2 h-[450px] flex justify-center items-center'>
         <div>
-          <img src={User === 'User'?Review:review2} alt="This is the image" draggable="false" className='w-[500px] rounded-md Image_tops'/>
+          <img src={User === 'User'?Review:review2} alt="This is the image" draggable="false" className="w-[500px] rounded-md Image_tops"/>
         </div>
         </div>
       </div>

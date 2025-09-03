@@ -7,7 +7,7 @@ import Loader from '../extra/Loading';
 import { FindUserName, NumberFinder, findemail,sendOtp } from '../../Services/operations/Auth';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
-
+import Join from './Join'
 const User = () => {
 
   const dispatch = useDispatch();
@@ -200,9 +200,9 @@ setShowOtp(false)
   
   if(Loading){
     return (
-      <div className='w-full h-full overflow-x-hidden flex flex-col'>
-        <div className='flex-1 flex justify-center items-center text-white'>
-          <Loader data="text-4xl border left-100  top-50 h-80"/>
+      <div className='w-full h-full  flex flex-col'>
+        <div className='flex-1 flex justify-center items-center '>
+          <Loader data="text-4xl border relative left-10  top-10"/>
         </div>
       </div>
     )
@@ -281,6 +281,7 @@ setShowOtp(false)
 
       {/* Phone */}
       <div className="flex gap-4 Country">
+
         <div className="w-32">
           <label className="block mb-2 font-semibold" htmlFor="CountryCode">
             Country Code <span className="text-caribgreen-500">*</span>
@@ -298,6 +299,7 @@ setShowOtp(false)
             ))}
           </select>
         </div>
+        
         <div className="flex-1">
           <label className="flex gap-3 mb-2 font-semibold" htmlFor="Number">
             Mobile Number <span className={numberAsteriskColor}>*</span>
