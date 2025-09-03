@@ -2,7 +2,7 @@ const cron = require('node-cron')
 const {UpcomigTickets,ExpireTickets} = require('../../controllers/Theatrer/TicketDistrubation')
 // Correct syntax for daily at midnight is "* * * * *"
 
-cron.schedule('3 */4 * * *', async () => {
+cron.schedule('3 */6 * * *', async () => {
     try {
         console.log("THe jobs has started")
         console.log("This is to check the tickets are working fine")
@@ -15,7 +15,7 @@ cron.schedule('3 */4 * * *', async () => {
     }
 })
 
-cron.schedule('4 */4 * * *', async () => {
+cron.schedule('4 */6 * * *', async () => {
     try {
         console.log("THe jobs has started")
         console.log("This is to check the tickets are working fine")

@@ -1,35 +1,35 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
 const USER = require('../models/user');
-
 exports.auth = async (req, res, next) => {
     try {
-        const token = req.body.token || req.cookies.token || req.headers['authorization']
-        // console.log(token)
-        if (token && token.startsWith('Bearer ')) {
-    token = token.split(' ')[1];
-}
+        const token =
+            req.cookies.token ||
+            req.body.token ||
+            req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token) {
-            return res.status(401).json({
-                message: "You are not logged in. Please log in.",
-                success: false 
-            });
+            return res.status(401).json({ success: false, message: "Token Missing" });
         }
 
-        // Verify token instead of signing it
-        const decode = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
-        // console.log("Decoded Token:", decode);
-        // console.log(decode)
-        if (!decode) {
-            return res.status(400).json({
-                message: "Invalid token format",
-                success: false
-            });
-        }
+        try {
+            const decode = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+            // console.log("Decoded Token:", decode);
 
-        req.USER = decode.id; // Attach decoded user to request
-        next();
+            if (!decode) {
+                return res.status(400).json({
+                    message: "Invalid token format",
+                    success: false
+                });
+            }
+
+            // ✅ Attach decoded data to req.user
+            req.USER = { id: decode.id };
+
+            next();
+        } catch (error) {
+            return res.status(401).json({ success: false, message: "Token is invalid" });
+        }
 
     } catch (error) {
         console.log("Error in auth middleware:", error.message);
@@ -39,6 +39,7 @@ exports.auth = async (req, res, next) => {
         });
     }
 };
+
 
 exports.IsAdmin = async (req, res, next) => {
     try {

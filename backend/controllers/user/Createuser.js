@@ -305,8 +305,9 @@ exports.UpdateImage= async(req,res)=>{
     try {
 
         const displayPicture = req.files.displayPicture
+        // console.log(displayPicture)
         const user = req.USER
-        const max_upload_size = 100
+        const max_upload_size = 10
         const Image_Format = ['png','jpeg','jpg']
         
         
@@ -349,7 +350,7 @@ exports.UpdateImage= async(req,res)=>{
         const newDate = new Date(userFindgin.lastImageUpdate)
         newDate.setDate(newDate.getDate()+30)
 
-        if(userFindgin.lastImageUpdate &&(now-new Date(userFindgin.lastImageUpdate)) < 30*60*60*1000){
+        if(userFindgin.lastImageUpdate &&(now-new Date(userFindgin.lastImageUpdate)) < 30*24*60*60*1000){
             return res.status(400).json({
                 message:`The image can only be changed once in 30 days the next date to change it is ${newDate}`,
                 success:false
@@ -369,10 +370,11 @@ exports.UpdateImage= async(req,res)=>{
         const AlertingUser = await mailSender(email,'The main profile image has been changed',imageUpdatimTemplate(userName,image.secure_url))
         console.log("This is the data of the alerting user",AlertingUser)
         console.log("This is the updates user",updatinUser)
-        return res.status(200).json({
-            message:"The user image is been updates",
-            success:true
-        })
+      return res.status(200).json({
+    message: "The user image has been updated",
+    success: true,
+    data: updatinUser
+});
     } catch (error) {
         console.log(error)
         console.log("This is the error message",error.message)

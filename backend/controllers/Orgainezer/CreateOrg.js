@@ -152,7 +152,7 @@ exports.OrgaineserLogin = async(req,res)=>{
                 // console.log("This is the login code",login)
                 const jwtCreation = jwt.sign({usertype,verified,id:_id},process.env.JWT_PRIVATE_KEY,{ expiresIn: '24h', algorithm: 'HS256' })
                 const options = {
-                    expires:new Date (Date.now() + 2 * 24 * 60 * 60 * 1000),
+                    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                       httpOnly:true,
             secure: false, 
             sameSite: 'Lax'

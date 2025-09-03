@@ -1,7 +1,7 @@
 const cron = require('node-cron')
 const {ReturnRemainingTickets} = require('../controllers/Theatrer/TicketDistrubation')
 
-cron.schedule('5 */4 * * *',async()=>{
+cron.schedule('5 */6 * * *',async()=>{
       try {
             console.log("THe jobs has started")
             console.log("This is to check the recovering  are working fine")

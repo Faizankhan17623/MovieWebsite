@@ -1,7 +1,7 @@
 const cron = require('node-cron')
 const { updateUpcomingToReleased,updateReleasedToExpired } = require('../../controllers/Orgainezer/CreateTheatreShow')
 // Correct syntax for daily at midnight is "* * * * *"
-cron.schedule('1 */4 * * *', async () => {
+cron.schedule('1 */6 * * *', async () => {
     try {
         console.log("THe jobs has started")
         // console.log("This will run once in Five Hours")
@@ -13,7 +13,7 @@ cron.schedule('1 */4 * * *', async () => {
     }
 })
 
-cron.schedule('2 */4 * * *', async () => {
+cron.schedule('2 */6 * * *', async () => {
     try {
         console.log("THe jobs has started")
         // console.log("This will run once in Five Hours")

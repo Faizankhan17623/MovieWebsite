@@ -61,10 +61,12 @@ exports.login = async (req, res) => {
         await USER.findByIdAndUpdate(_id, { verified: true }, { new: true });
         await USER.findByIdAndUpdate(_id, { $push: { lastlogin: lastLoginTime } }, { new: true });
 
+        const expiry = "5s";  // string is clearer
+
         const jwtCreation = jwt.sign(
             {  usertype, verified, id: _id },
             process.env.JWT_PRIVATE_KEY,
-            { expiresIn: '24h', algorithm: 'HS256' }
+            { expiresIn:expiry , algorithm: 'HS256' }
         );
 
         user.token = jwtCreation;
@@ -72,7 +74,7 @@ exports.login = async (req, res) => {
 
         // console.log(jwtCreation)
         const options = {
-            expires : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+             expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
             httpOnly:true,
             secure: false, 
             sameSite: 'Lax'
