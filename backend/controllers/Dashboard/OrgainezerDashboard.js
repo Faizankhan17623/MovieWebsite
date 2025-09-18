@@ -13,3 +13,16 @@ exports.GetAllTheatreDetails = async(req,res)=>{
         res.status(500).json({message:"Internal Server Error"});
     }
 }
+
+// exports.CreateOrgData = async(req,res)=>{
+//     try{
+//         const {} = req.body
+//     }catch(error){
+//         console.log(error)
+//         console.log(error,message)
+//         return res.status(500).json({
+//             message:"There is an error in the create org data",
+//             successs:false
+//         })
+//     }
+// }
