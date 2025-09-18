@@ -28,11 +28,6 @@ If you are developing a production application, we recommend using TypeScript wi
 <!-- 1.0.6 -->
 <!-- 1.0.7 -->
 
-
-
-
-
-
 <!-- This thing i forgot to add i need to add this also  -->
 <!-- 
 // In your login function, send device info
