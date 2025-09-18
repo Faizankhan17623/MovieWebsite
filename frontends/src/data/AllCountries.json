@@ -7619,37 +7619,6 @@
       ]
     },
     {
-      "name": "Israel",
-      "iso3": "ISR",
-      "iso2": "IL",
-      "states": [
-        {
-          "name": "Central District",
-          "state_code": "M"
-        },
-        {
-          "name": "Haifa District",
-          "state_code": "HA"
-        },
-        {
-          "name": "Jerusalem District",
-          "state_code": "JM"
-        },
-        {
-          "name": "Northern District",
-          "state_code": "Z"
-        },
-        {
-          "name": "Southern District",
-          "state_code": "D"
-        },
-        {
-          "name": "Tel Aviv District",
-          "state_code": "TA"
-        }
-      ]
-    },
-    {
       "name": "Italy",
       "iso3": "ITA",
       "iso2": "IT",

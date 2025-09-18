@@ -14,6 +14,7 @@ import { CiChat1 } from 'react-icons/ci';
 import { MdReviews } from 'react-icons/md';
 import { FaLock } from 'react-icons/fa';
 import isVerificationSubmitted from './OrganizerVerificationForm'
+
 const LeftSide = () => {
   const { user } = useSelector((state) => state.profile);
   const [confirmationModal, setConfirmationModal] = useState(null);
@@ -50,11 +51,10 @@ const LeftSide = () => {
     { icon: CiChat1, label: 'Chat', path: '/Dashboard/My-Venues', id: 4 },
     { icon: MdReviews, label: 'Reviews', path: '/Dashboard/My-Venues', id: 5 },
     {
-      icon: IoSettings, // Using IoSettings icon for verification form link
+      icon: IoSettings, 
       label: 'Organizer Verification',
       path: '/Dashboard/Organizer-Verification',
       id: 6,
-      disabled: isVerificationSubmitted, // Disable once submitted
     },
   ];
 

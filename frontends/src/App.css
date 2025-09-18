@@ -813,10 +813,12 @@ input:checked + .slider:before {
 
 .Roles{
   margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 .Policy{
   margin-top: 50px;
+  margin-bottom: 150px;
 }
 
 .Emails{
@@ -912,4 +914,92 @@ input:checked + .slider:before {
 
 .Last_Field{
   padding-bottom: 20px;
+}
+
+.role{
+  padding-bottom: 20px;
+}
+
+.Btnes{
+  padding: 18px 20px 18px 16px;
+}
+
+.iMGAEESS{
+  padding-bottom: 40px;
+}
+
+.pp{ 
+  margin: 50px 0px 100px 0px;
+}
+
+.logot{
+  padding: 24px 24px 24px 24px;
+}
+
+.text-2{
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.btens{
+  padding: 12px 20px 12px 20px;
+}
+
+.cc{
+  padding: 12px 16px 12px 16px;
+}
+
+.SelectionOne{
+  margin-top: 24px;
+  padding:24px 24px 24px 24px;
+}
+
+.Liness{
+  margin-bottom: 14px;
+}
+
+.Texetions{
+  padding: 8px 12px 8px 12px;
+}
+
+.Dynamics{
+  padding: 12px 12px 12px 12px;
+}
+
+.Awards{
+  padding: 0px 12px 0px 12px;
+}
+
+.TaS{
+  margin-top: 20px;
+}
+
+.Softs{
+  padding: 12px 12px 12px 12px;
+  margin-top: 20px;
+}
+
+.selectTool{
+  padding: 10px 5px 10px 5px;
+}
+
+.S{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.T{
+  margin-top: 10px;
+}
+
+.Fundes{
+  margin: 20px 0px 20px 0px;
+}
+
+.f{
+  padding: 1px 12px 1px 12px;
+}
+
+.any{
+  padding: 8px 12px 8px 12px;
 }

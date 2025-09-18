@@ -320,10 +320,6 @@
     "code": "+353"
   },
   {
-    "country": "Israel",
-    "code": "+972"
-  },
-  {
     "country": "Italy",
     "code": "+39"
   },
@@ -761,7 +757,7 @@
   },
   {
     "country": "Vatican City",
-    "code": "+39-06, +379"
+    "code": "+379"
   },
   {
     "country": "Venezuela",

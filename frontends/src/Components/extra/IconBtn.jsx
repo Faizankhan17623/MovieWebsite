@@ -6,8 +6,8 @@ export default function IconBtn({
   outline = false,
   customClasses,
   type,
-  borderColor = 'border-yellow-50', // New prop for custom border color, with default
-  bgColor = 'bg-yellow-50', // New prop for custom bg color, with default
+  borderColor = 'border-yellow-50', 
+  bgColor = 'bg-yellow-50', 
 }) {
   return (
     <button
@@ -15,7 +15,7 @@ export default function IconBtn({
       onClick={onclick}
       className={`flex items-center ${
         outline ? `border ${borderColor} bg-transparent` : bgColor
-      } cursor-pointer gap-x-2 rounded-md py-2 px-5 font-semibold text-richblack-900 ${customClasses}`}
+      } cursor-pointer gap-x-2 rounded-md cc  font-semibold text-richblack-900 ${customClasses}`}
       type={type}
     >
       {children ? (
