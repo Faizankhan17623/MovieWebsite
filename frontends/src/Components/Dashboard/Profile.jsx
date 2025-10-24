@@ -56,6 +56,7 @@ const Profile = () => {
     const Str = String(number)
     return  Str.slice(0,5) + ' ' + Str.slice(5)
   }
+  // console.log(data)
   // console.log(name)
   // const First = 
   return (
@@ -107,7 +108,8 @@ const Profile = () => {
 
           <div className='w-1/2 flex flex-col gap-2'>
             <span className='text-richblack-600'>Phone Number</span>
-            <span className='text-richblack-5'>(+91){data?.number ? FormatNumber(data.number):""}</span>
+            {/* countrycode */}
+            <span className='text-richblack-5'> ({data?.countrycode}) {data?.number ? FormatNumber(data.number):""}</span>
           </div>
         </div>
       </div>

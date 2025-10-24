@@ -142,23 +142,25 @@ export function NumberFinder(number) {
 }
 
 
-export function UserCreation(name,password,email,number,otp){
+export function UserCreation(name,password,email,number,otp,countrycode){
     return async (dispatch)=>{
         const toastId = toast.loading('...loading')
         dispatch(setLoading(true))
         try {
-             if (!name || !password || !email || !number || !otp) {
+             if (!name || !password || !email || !number || !otp || !countrycode) {
+                console.log(name,password,email,number,otp,countrycode)
         throw new Error('Missing required fields');
       }
             const response = await apiConnector("POST",createuser,{
                 name:name,
-                email:email,
                 password:password,
+                email:email,
                 number:number,
-                otp:otp
+                otp:otp,
+                countrycode
             })
 
-            //  console.log("This is the responsee data",response)
+             console.log("This is the responsee data",response)
 
             if (!response.data.success) {
                 throw new Error(response.data.message)
@@ -168,6 +170,7 @@ export function UserCreation(name,password,email,number,otp){
             return { success: true, data: response.data };
         } catch (error) {
            console.log("Sign up failed");
+           console.log(error)
       console.error("Error in Creating the user", error.message);
       toast.error(error.message || 'Signup failed'); 
       return { success: false, error: error.message }; 
@@ -500,8 +503,6 @@ export function bannerDislike(id){
     }
 }
 
-
-
 export function GetAllShowsData(){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
@@ -522,8 +523,6 @@ export function GetAllShowsData(){
         toast.dismiss(toastId)
     }
 }
-
-
 
 export function GetSpecificShowData(id){
     return async(dispatch)=>{
@@ -595,7 +594,6 @@ export function GetAllComments(id){
     }
 }
 
-
 export function SendMessageFriends(to,message,type){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
@@ -621,8 +619,6 @@ export function SendMessageFriends(to,message,type){
     }
 }
 
-
-
 export function Updatemessage(id,message){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
@@ -647,7 +643,6 @@ export function Updatemessage(id,message){
     }
 }
 
-
 export function GetallMessages(){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
@@ -668,7 +663,6 @@ export function GetallMessages(){
         toast.dismiss(toastId)
     }
 }
-
 
 export function ticketpurchased(){
     return async(dispatch)=>{
@@ -763,7 +757,6 @@ export function getAverageRating(Showid){
         toast.dismiss(toastId)
     }
 }
-
 
 export function getAllRatingReview(){
     return async(dispatch)=>{

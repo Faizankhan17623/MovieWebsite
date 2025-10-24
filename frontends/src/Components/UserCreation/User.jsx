@@ -170,12 +170,11 @@ const User = () => {
       firstName: data.First,
       lastName: data.Last,
       email: data.Email,
-      countryCode: data.CountryCode,
-      phoneNumber: data.Number,
       password: data.Password,
       confirmPassword: data.ConfirmPass,
+      countrycode: data.CountryCode,
+      phoneNumber: data.Number,
        usertype:"Viewer"
-
     };
       // console.log("Full data object:", finalData); 
        setData(finalData)

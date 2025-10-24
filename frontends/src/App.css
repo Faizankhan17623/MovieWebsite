@@ -1004,11 +1004,22 @@ input:checked + .slider:before {
   padding: 8px 12px 8px 12px;
 }
 
+.PI{
+  margin-bottom: 20px;  
+}
 
+.Pa{
+  padding-top: 20px;
+  padding-left: 20px;
+}
 
-/* THis is written just for the hagns in the n8n so it is like used in int  */
+.COUNTS{
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
 
-
-
-
-/* Faizana moin kahn it is just for the testing  */
+.b{
+  margin-top: 20px;
+}

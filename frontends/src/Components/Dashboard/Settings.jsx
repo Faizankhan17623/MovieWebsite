@@ -97,7 +97,7 @@ const Settings = () => {
           className="w-20 h-20 rounded-full object-cover border-4 border-yellow-300"
         />
         <div className="flex flex-col gap-3">
-          <p className="text-white text-lg">Change Profile Picture</p>
+          <p className="text-white text-lg text-red-400">Change Profile Picture</p>
           <div className="flex gap-3">
             {selectedFile ? (
               <button
@@ -139,7 +139,7 @@ const Settings = () => {
 
       {/* Profile Information */}
       <div className="w-full max-w-3xl bg-richblack-800 rounded-xl shadow flex flex-col gap-6 p-6">
-        <h2 className="text-white font-semibold text-lg">Profile Information</h2>
+        <h2 className="text-white font-semibold text-lg text-yellow-200 Pa">Profile Information</h2>
 
         <div className="grid grid-cols-2 gap-6">
           <div>
@@ -205,23 +205,24 @@ const Settings = () => {
         </div>
 
         {/* phone + about */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
+          <div className="w-full PI">
             <label className="block text-richblack-100 mb-1">Mobile Number *</label>
-            <div className="flex">
+            <div className="flex justify-around items-center gap-5">
               <select
                 {...register("countryCode", { required: "Code is required" })}
-                className="form-style w-18 rounded-r-none bg-richblack-700"
+                className="form-style w-[200px] rounded-r-none bg-richblack-700"
+                defaultValue=""
               >
+                <option value="" disabled>Select Country</option>
                 {CountryCodee.map((c, i) => (
-                  <option key={i} value={c.code}>{c.code}</option>
+                  <option key={i} value={c.code}>{c.country}-{c.code}</option>
                 ))}
               </select>
               <input
                 type="tel"
                 maxLength={10}
                 {...register("mobileNumber", { required: "Number is required" })}
-                className="form-style flex-1 rounded-l-none"
+                className="form-style flex-1 rounded-l-none [550px]"
                 placeholder="Enter number"
               />
             </div>
@@ -229,7 +230,7 @@ const Settings = () => {
               <p className="text-red-500 text-xs mt-1">{errors.mobileNumber.message}</p>
             )}
           </div>
-          <div>
+          {/* <div>
             <label className="block text-richblack-100 mb-1">About *</label>
             <input
               {...register("about", {
@@ -242,13 +243,12 @@ const Settings = () => {
             {errors.about && (
               <p className="text-red-500 text-xs mt-1">{errors.about.message}</p>
             )}
-          </div>
-        </div>
+          </div> */}
       </div>
 
       {/* Password section */}
       <div className="w-full max-w-3xl bg-richblack-800 rounded-xl shadow p-6">
-        <h2 className="text-white font-semibold text-lg mb-6">Password</h2>
+        <h2 className="text-white font-semibold text-lg mb-6 text-yellow-200 Pa">Password</h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
             <label className="block text-richblack-100 mb-1">Current Password</label>

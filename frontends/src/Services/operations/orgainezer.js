@@ -10,12 +10,12 @@ import Cookies from "js-cookie";
 
 
 const {createorgainezer,orgainezerlogin} = CreateOrgainezer
-export function Creation(name,password,email,number,otp){
+export function Creation(name,password,email,number,otp,code){
     return async (dispatch) => {
         dispatch(setLoading(true));
         const ToastId = toast.loading("Creating the orgainezer, please wait...");
         try{
-            if (!name || !password || !email || !number || !otp) {
+            if (!name || !password || !email || !number || !otp ||!code) {
         throw new Error('Missing required fields');
       }
 
@@ -24,7 +24,9 @@ export function Creation(name,password,email,number,otp){
                 password: password,
                 email: email,
                 number: number,
-                otp: otp
+                otp: otp,
+                countrycode:code
+
             })
             //  console.log("This is the responsee data",response)
 

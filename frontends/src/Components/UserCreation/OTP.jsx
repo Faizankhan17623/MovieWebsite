@@ -54,17 +54,20 @@ const OTP = ({Style}) => {
   // console.log(sentOtp)
   
  const handleVerifyClick = async () => {
+  console.log(data)
   if(data.usertype === "Viewer"){
     if(otp === sentOtp  || otp === resendOtp){
     try{
       setLoading(true)
+      console.log(data)
        const fullName = `${data.firstName} ${data.lastName}`;
       const response =  await dispatch(UserCreation(
         fullName,
         data.password,
         data.email,
         data.phoneNumber,
-        Number(otp)
+        Number(otp),
+        data.countrycode
       ))
       if(response?.success){
         toast.success("User Created")
@@ -118,7 +121,7 @@ const OTP = ({Style}) => {
       setLoading(true)
       setOtp("")
       const response = await dispatch(sendOtp(data.email))
-      console.log(response)
+      // console.log(response)
          if(response?.success){
           toast.success("Otp received on the Email")
           setResendOtp(response.data.data.data)

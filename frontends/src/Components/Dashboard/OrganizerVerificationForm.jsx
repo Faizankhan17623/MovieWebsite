@@ -16,8 +16,16 @@ import Logout from '../extra/Logout';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
 import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import {GetAllUserDetails} from '../../Services/operations/User'
+import Loader from '../extra/Loading'
+
 
 const OrganizerVerificationForm = () => {
+   const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const {token} = useSelector((state)=>state.auth)
+
   const {
     register,
     handleSubmit,
@@ -53,9 +61,6 @@ const OrganizerVerificationForm = () => {
     FaImdb: FaImdb,
     FaXTwitter: FaXTwitter,
   };
-
-  const navigate = useNavigate()
-
 
   const Proceed = async()=>{
 
@@ -180,6 +185,8 @@ const [duplicateinternship, setduplicateinternship] = useState(new Set());
 // Director Experienced
 const [duplicateAwardFestival, setduplicateAwardFestival] = useState(new Set());
 const [duplicateMovieName, setduplicateMovieName] = useState(new Set());
+const [data,setdata] = useState()
+  const [loading,setloading] = useState(false)
 
 
 
@@ -203,7 +210,7 @@ const [fields,setFields] = useState({
   RiskManagement:""
 })
 
-  const { fields: filmEntries, append: appendFilm, remove: removeFilm } = useFieldArray({ control, name: "filmentries" });
+  const { fields: Notable, append: appendprojects, remove: removeprojects } = useFieldArray({ control, name: "Notable" });
   const { fields: socials, append: appendSocial, remove: removeSocial } = useFieldArray({ control, name: "socials" });
   const { fields: ongoingProjects, append: appendOngoing, remove: removeOngoing } = useFieldArray({ control, name: "ongoingProjects" });
   const { fields: plannedProjects, append: appendPlanned, remove: removePlanned } = useFieldArray({ control, name: "plannedProjects" });
@@ -213,6 +220,25 @@ const [fields,setFields] = useState({
   const { fields: awards, append: appendAward, remove: removeAward } = useFieldArray({ control, name: "awards"});
   const { fields: tools, append: appendtools, remove: removetools } = useFieldArray({ control, name: "tools"});
 
+  useEffect(()=>{
+    const Handlerr = async()=>{
+      if (!token) return;
+      try{
+        const Repsonse = await dispatch(GetAllUserDetails(token,navigate))
+        // console.log(Repsonse.data.data)
+        setdata(Repsonse?.data?.data)
+
+          if (Repsonse?.success) {
+    setdata(Repsonse?.data?.data);
+  }
+      }catch(error){
+        console.log(error)
+      }
+    }
+    Handlerr()
+  },[token,navigate,dispatch])
+
+// console.log(data)
 
 useEffect(() => {
   if (Awards === "Yes" && awards.length === 0) {
@@ -235,10 +261,10 @@ useEffect(() => {
 // console.log(ongoingProjects)
 
   useEffect(() => {
-  if (work === "Yes" && filmEntries.length === 0) {
-    appendFilm({ name: '', url: '', role: '', budget: '' });
+  if (work === "Yes" && Notable.length === 0) {
+    appendprojects({ name: '', url: '', role: '', budget: '' });
   }
-}, [work, filmEntries, appendFilm]);
+}, [work, Notable, appendprojects]);
 
 useEffect(() => {
   if (media === "Yes" && socials.length === 0) {
@@ -333,7 +359,7 @@ useEffect(() => {
 
 
 
-const filmEntriesValue = watch("filmentries");
+const notableValue = watch("Notable");
 const socialsValue = watch("socials");
 const ongoingValue = watch("ongoingProjects");
 const plannedValue = watch("plannedProjects");
@@ -342,11 +368,11 @@ const certifiedValue = watch("Certified");
 
 // Film Entries
 useEffect(() => {
-  if (filmEntriesValue === "No") {
-    setValue("filmentries", []); // remove key from form
-    while (filmEntries.length > 0) removeFilm(0);
+  if (notableValue === "No") {
+    setValue("Notable", []); // remove key from form
+    while (filmEntries.length > 0) removeprojects(0);
   }
-}, [filmEntriesValue, filmEntries.length, removeFilm, setValue]);
+}, [notableValue, Notable.length, removeprojects, setValue]);
 
 // Socials
 useEffect(() => {
@@ -388,6 +414,7 @@ useEffect(() => {
   }
 }, [certifiedValue, certifications.length, removeCert, setValue]);
 
+ 
 const onSubmit = async (data) => {
      await setConfirmationModal({
                text1: 'Are you sure?',
@@ -399,8 +426,10 @@ const onSubmit = async (data) => {
             })
     console.log("Form submitted", data);
     // console.log("Form errors", errors);
-    console.log("This is the film entries",filmEntries)
-    console.log(typeof filmEntries)
+    // console.log("This is the film entries",filmEntries)
+    // console.log(typeof filmEntries)
+    // console.log(data.CountryCode)
+    // console.log(typeof data.CountryCode)
     // Notables(filmEntries)
     setSubmittedData(data);
     setIsSubmitted(true);
@@ -425,8 +454,43 @@ const onSubmit = async (data) => {
    setFields((prev) => ({ ...prev, [name]: value }));
   };
 
+useEffect(() => {
+  if (data?.number) {
+    setMobileNumber(data.number);
+    if (open) {
+      setWhatsAppNumber("");
+    } else {
+      setWhatsAppNumber(data.number);
+    }
+  }
+}, [data, open]);
 
 
+const Name = data?.userName.split(" ")
+
+// console.log(data)
+useEffect(() => {
+  if (Name) {
+    setValue("First", Name[0] || "");
+    setValue("Last", Name[1] || "");
+    setValue("Email", data?.email || "");
+    setValue("CountryCode", data.countrycode || "");
+    setValue("MobileNumber", data.number || "");
+
+    if (open) {
+      // checkbox unchecked → allow manual WhatsApp entry
+      setValue("WhatsAppNumber", "");
+      setWhatsAppNumber("");
+    } else {
+      // checkbox checked (default) → copy mobile number
+      setValue("WhatsAppNumber", data.number || "");
+      setWhatsAppNumber(data.number || "");
+    }
+  }
+}, [Name, setValue, data, open]);
+
+
+// console.log(Name)
 
   return (
     <div className="flex justify-center h-fit w-full min-h-screen bg-richblack-900 overflow-y-scroll overflow-x-hidden">
@@ -442,69 +506,74 @@ const onSubmit = async (data) => {
             <div className="w-full Form bg-richblack-800 rounded-md">
               <p className="text-xl font-bold text-yellow-400 mb-6 text-center flex justify-start items-start Verificationss">Personal Information</p>
               <div className="w-full h-full flex justify-evenly items-center">
-                <label htmlFor="First" className="flex flex-col gap-2">
-                  <span className="flex flex-row items-center gap-2">*<span>First Name</span></span>
+                <label htmlFor="First" className={` flex flex-col gap-2 ${Name?"cursor-not-allowed":"cursor-pointer"}`}>
+                  <span className={` flex flex-row items-center gap-2 ${Name?"cursor-not-allowed":"cursor-pointer"}`}>*<span>First Name</span></span>
                   <input
                     type="text"
                     placeholder="Enter Your First name"
-                    className="w-[490px] p-3 rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition"
+                    defaultValue={Name?.[0] || ''}
+                    className={` w-[490px] p-3 rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition ${Name?"cursor-not-allowed":"cursor-pointer"}`}
                     {...register("First", { required: "First Name is required" })}
                   />
                   {errors.First && <span className="text-red-500">{errors.First.message}</span>}
                 </label>
-                <label htmlFor="Last" className="flex flex-col gap-2 w-1/2">
+                <label htmlFor="Last"  className={` flex flex-col gap-2 w-1/2 ${Name?"cursor-not-allowed":"cursor-pointer"}`}>
                   <span className="flex flex-row items-center gap-2">*<span>Last Name</span></span>
                   <input
                     type="text"
                     placeholder="Enter Your Last name"
-                    className="p-3 rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition"
+                    defaultValue={Name?.[1] || ''}
+                    className=
+                    {` p-3 rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition ${Name?"cursor-not-allowed":"cursor-pointer"}`}
                     {...register("Last", { required: "Last Name is required" })}
                   />
                   {errors.Last && <span className="text-red-500">{errors.Last.message}</span>}
                 </label>
               </div>
-              <div className="w-full flex justify-between items-start Emails ">
-                <label htmlFor="Email" className="flex flex-col gap-2 mt-6">
+              <div className="w-full flex justify-between items-start Emails">
+                <label htmlFor="Email" className={` flex flex-col gap-2 mt-6 ${data ? "cursor-not-allowed" : "cursor-pointer"}`}>
                   <span className="flex flex-row items-center gap-2">*<span>Email Address</span></span>
                   <input
                     type="email"
                     name="Email"
+                    defaultValue={data?.email || ''}
                     id="Email"
                     placeholder="Enter Your Email id"
-                    className="w-[490px] p-3 rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition mt-0"
+                    className={` w-[490px] p-3 rounded-lg form-style outline-none focus:ring-2 focus:ring-blue-400 transition mt-0 ${data ? "cursor-not-allowed":"cursor-pointer"} `}
                     {...register("Email", { required: "Email is required" })}
                   />
                   {errors.Email && <span className="text-red-500">{errors.Email.message}</span>}
                 </label>
                 <div className="flex w-1/2 gap-2 min-h-[100px]">
-                  <div className="w-32 flex flex-col gap-2">
-                    <label className="flex flex-col gap-2 font-semibold" htmlFor="CountryCode">
+                  <div className={` w-32 flex flex-col gap-2  ${data?"cursor-not-allowed":"cursor-pointer"}`}>
+                    <label className={` flex flex-col gap-2 font-semibold ${data ?"cursor-not-allowed":"cursor-pointer"}`} htmlFor="CountryCode">
                       <span className="flex flex-row items-center gap-2">*<span>Country Code</span></span>
                     </label>
                     <select
                       {...register("CountryCode", { required: "Country code is required" })}
-                      className={`p-3 w-full bg-richblack-600 h-11 form-style rounded-lg outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.CountryCode ? "border-red-500" : ""}`}
+                      className={`p-3 w-full bg-richblack-600 h-11 form-style rounded-lg outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.CountryCode ? "border-red-500" : ""} ${data?"cursor-not-allowed":"cursor-pointer"} `}
                       defaultValue=""
+                      value={data?.countrycode || ''}
                     >
                       <option value="" disabled>Select Your Country Code</option>
                       {Countries.map((data, i) => (
-                        <option key={i} value={data.code}>
-                          {data.code} - {data.country}
+                        <option key={i} value={data.code} className={data?"cursor-not-allowed":"cursor-pointer"}>
+                          {data.code}-{data.country}
                         </option>
                       ))}
                     </select>
                     {errors.CountryCode && <span className="text-red-500">{errors.CountryCode.message}</span>}
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label htmlFor="MobileNumber" className="flex flex-col gap-2">
+                    <label htmlFor="MobileNumber" className={`flex flex-col gap-2 ${data?"cursor-not-allowed":"cursor-pointer"}`}>
                       <span className="flex flex-row items-center gap-2">*<span>Mobile Number</span></span>
                       <input
                         type="tel"
                         name="MobileNumber"
                         id="MobileNumber"
                         placeholder="Enter Your Mobile Number"
-                        className="p-3 w-[373px] bg-richblack-600 h-11 form-style rounded-lg outline-none focus:ring-2 focus:ring-blue-400 transition"
-                        value={mobileNumber}
+                        className={` p-3 w-[373px] bg-richblack-600 h-11 form-style rounded-lg outline-none focus:ring-2 focus:ring-blue-400 transition ${data?"cursor-not-allowed":"cursor-pointer"}`}
+                        defaultValue={mobileNumber}
                         maxLength={10}
                         {...register("MobileNumber", {
                           required: "*Mobile Number is required",
@@ -522,78 +591,18 @@ const onSubmit = async (data) => {
                           }
                         })}
                         onChange={(e) => {
-                          setMobileNumber(e.target.value);
+                           setMobileNumber(e.target.value);
+    setValue("MobileNumber", e.target.value);
                           if (open) {
-                            setWhatsAppNumber(e.target.value);
-                            setValue('WhatsAppNumber', e.target.value);
-                          }
+      setWhatsAppNumber(e.target.value); // ✅ sync if checked
+      setValue("WhatsAppNumber", e.target.value);
+    }
                         }}
                       />
                       {errors.MobileNumber && <span className="text-red-500">{errors.MobileNumber.message}</span>}
                     </label>
-                    <label
-                      htmlFor="WhatsAppNumber"
-                      className={`flex flex-col gap-2 Whatsappp ${open ? "hidden" : "block"}`}
-                    >
-                      <span className="flex flex-row items-center gap-2">*<span>WhatsApp Number</span></span>
-                      <input
-                        type="tel"
-                        name="WhatsAppNumber"
-                        id="WhatsAppNumber"
-                        placeholder="Enter Your WhatsApp Number"
-                        className="p-3 w-[373px] bg-richblack-600  h-11 form-style rounded-lg outline-none focus:ring-2 focus:ring-blue-400 transition"
-                        value={whatsAppNumber}
-                        maxLength={10}
-                        {...register("WhatsAppNumber", {
-                          required: open ? false : "*WhatsApp Number is required",
-                          minLength: {
-                            value: 10,
-                            message: "*WhatsApp number must be exactly 10 digits"
-                          },
-                          maxLength: {
-                            value: 10,
-                            message: "*WhatsApp number must be exactly 10 digits"
-                          },
-                          pattern: {
-                            value: /^[0-9]{10}$/,
-                            message: "*Please enter a valid 10-digit WhatsApp number"
-                          }
-                        })}
-                        onChange={(e) => {
-                          setWhatsAppNumber(e.target.value);
-                          if (open) {
-                            setMobileNumber(e.target.value);
-                            setValue('MobileNumber', e.target.value);
-                          }
-                        }}
-                        disabled={open}
-                      />
-                      {errors.WhatsAppNumber && <span className="text-red-500">{errors.WhatsAppNumber.message}</span>}
-                    </label>
                   </div>
                 </div>
-              </div>
-              <div className="">
-                <input
-                  type="checkbox"
-                  name="SameOnWhatsApp"
-                  id="SameOnWhatsApp"
-                  checked={open}
-                  {...register("SameOnWhatsApp")}
-                  onChange={(e) => {
-                    setOpen(e.target.checked);
-                    setValue("SameOnWhatsApp", e.target.checked);
-                    if (e.target.checked) {
-                      setWhatsAppNumber(mobileNumber);
-                      setValue("WhatsAppNumber", mobileNumber);
-                    } else {
-                      setWhatsAppNumber("");
-                      setValue("WhatsAppNumber", "");
-                    }
-                  }}
-                  className="mr-2"
-                />
-                <label htmlFor="SameOnWhatsApp">Same on WhatsApp</label>
               </div>
               <div className="flex w-full gap-5 Location flex-row">
                 <div className='w-[70%] flex flex-row justify-start gap-60'>
@@ -982,7 +991,7 @@ const onSubmit = async (data) => {
       <span>Hide Projects</span>
     </div>
 
-    {filmEntries.map((field, index) => (
+    {Notable.map((field, index) => (
       <div className='flex justify-evenly items-center gap-3' key={field.id}>
         <span>{index + 1}</span>
        <label className="flex flex-col gap-2">
@@ -991,9 +1000,9 @@ const onSubmit = async (data) => {
   )}
   <span className="flex gap-2">
     *<span>Project Name</span>
-    {errors.filmentries?.[index]?.name && (
+    {errors.Notable?.[index]?.name && (
       <span className="text-red-500 text-sm">
-        {errors.filmentries[index].name.message}
+        {errors.Notable[index].name.message}
       </span>
     )}
   </span>
@@ -1004,11 +1013,11 @@ const onSubmit = async (data) => {
     className={`form-style h-9 w-[290px] bg-richblack-600 rounded-2xl ${
       duplicateNameIndices.has(index) ? "border-2 border-red-500" : ""
     }`}
-    {...register(`filmentries.${index}.name`, {
+    {...register(`Notable.${index}.name`, {
     required: work === "Yes" ? "Project name is required" : false,
     validate: (val) => {
       // Get the latest values directly from RHF
-      const allNames = getValues("filmentries").map((entry, i) =>
+      const allNames = getValues("Notable").map((entry, i) =>
         (i === index ? val : (entry?.name || ""))
           .toLowerCase().replace(/\s+/g, " ").trim()
       );
@@ -1023,13 +1032,13 @@ const onSubmit = async (data) => {
   })}
   onChange={e => {
     const value = e.target.value;
-    setValue(`filmentries.${index}.name`, value, {
+    setValue(`Notable.${index}.name`, value, {
       shouldValidate: true,
       shouldDirty: true
     });
 // getValues
     // Re-calculate duplicates with the absolute latest form values
-    const allNames = getValues("filmentries").map((entry, i) =>
+    const allNames = getValues("Notable").map((entry, i) =>
       (i === index ? value : (entry?.name || ""))
         .toLowerCase().replace(/\s+/g, " ").trim()
     );
@@ -1050,12 +1059,12 @@ const onSubmit = async (data) => {
 
         <label className='flex flex-col gap-2'>
           <span>Total Budget</span>
-          {errors.filmentries?.[index]?.budget && (
-            <span className="text-red-500 text-sm">{errors.filmentries[index].budget.message}</span>
+          {errors.Notable?.[index]?.budget && (
+            <span className="text-red-500 text-sm">{errors.Notable[index].budget.message}</span>
           )}
           <select
             className='p-3 bg-richblack-600 h-11 form-style rounded-lg'
-            {...register(`filmentries.${index}.budget`)}
+            {...register(`Notable.${index}.budget`)}
           >
             <option value="" disabled>Select Budget Range</option>
             {Projects.Money.map((money, i) => (
@@ -1067,13 +1076,13 @@ const onSubmit = async (data) => {
         <label className='flex flex-col gap-2'>
           <span className='flex gap-2'>
             *<span>Your Role</span>
-            {errors.filmentries?.[index]?.role && (
-              <span className="text-red-500 text-sm">{errors.filmentries[index].role.message}</span>
+            {errors.Notable?.[index]?.role && (
+              <span className="text-red-500 text-sm">{errors.Notable[index].role.message}</span>
             )}
           </span>
           <select
             className='p-3 bg-richblack-600 h-11 form-style rounded-lg'
-            {...register(`filmentries.${index}.role`, { required: "Role is required" })}
+            {...register(`Notable.${index}.role`, { required: "Role is required" })}
           >
             <option value="" disabled>Role</option>
             {Projects.roles.map((role, i) => (
@@ -1088,9 +1097,9 @@ const onSubmit = async (data) => {
   )}
   <span>
     *<span>Url</span>
-    {errors.filmentries?.[index]?.url && (
+    {errors.Notable?.[index]?.url && (
       <span className="text-red-500 text-sm">
-        {errors.filmentries[index].url.message}
+        {errors.Notable[index].url.message}
       </span>
     )}
   </span>
@@ -1120,7 +1129,7 @@ const onSubmit = async (data) => {
         if (!normalizedVal) return true;
 
         // get all urls normalized, replace current index with val normalized
-        const allUrls = getValues("filmentries").map((entry, i) =>
+        const allUrls = getValues("Notable").map((entry, i) =>
           i === index ? normalizedVal : normalize(entry?.url || "")
         );
 
@@ -1137,7 +1146,7 @@ const onSubmit = async (data) => {
     onChange={(e) => {
       const value = e.target.value;
 
-      setValue(`filmentries.${index}.url`, value, {
+      setValue(`Notable.${index}.url`, value, {
         shouldValidate: true,
         shouldDirty: true,
       });
@@ -1152,7 +1161,7 @@ const onSubmit = async (data) => {
         }
       };
 
-      const urlsNormalized = getValues("filmentries").map((entry, i) =>
+      const urlsNormalized = getValues("Notable").map((entry, i) =>
         i === index ? value : entry?.url || ""
       ).map(normalize);
 
@@ -1176,10 +1185,10 @@ const onSubmit = async (data) => {
         <div
           className="flex justify-center items-center rounded-full hover:bg-red-600 cursor-pointer"
           onClick={() => {
-            if (filmEntries.length === 1) {
+            if (Notable.length === 1) {
               setFilmError("You need to keep at least one field");
             } else {
-              removeFilm(index);
+              removeprojects(index);
               setFilmError("");
             }
           }}
@@ -1199,10 +1208,10 @@ const onSubmit = async (data) => {
       type="button"
       className="mt-2 px-4 py-1 bg-blue-600 text-white rounded Adding"
       onClick={() => {
-        if (filmEntries.length >= 4) {
+        if (Notable.length >= 4) {
           setFilmError("You can create 4 fields only");
         } else {
-          appendFilm({ name: '', url: '', role: '', budget: '' });
+          appendprojects({ name: '', url: '', role: '', budget: '' });
           setFilmError("");
         }
       }}
@@ -1351,7 +1360,7 @@ const onSubmit = async (data) => {
       // Check live if URL is correct
       if (expectedBase && !enteredUrl.startsWith(expectedBase)) {
         seturlduplications('Enter the right link'); // set error state
-        toast.error(`Bhai sahab, galat link! Please enter a ${currentPlatform} URL.`);
+        // toast.error(`Bhai sahab, galat link! Please enter a ${currentPlatform} URL.`);
       } else {
         seturlduplications(false); // clear error
       }
@@ -3610,6 +3619,7 @@ const onSubmit = async (data) => {
                       
                       </div>
                     )}
+
                     {selectedRole === "Producer" && experiences === "Experienced" && (
                       <div className='space-y-8 SelectionOne bg-richblack-700 rounded-lg border border-richblack-600'>
                         <h1 className="text-red-500 flex justify-center items-center gap-2"> All The Fields are Required in this Section </h1>
@@ -3950,6 +3960,7 @@ const onSubmit = async (data) => {
                         </div>
                       </div>
                     )}
+
                     {selectedRole === "Director" && experiences === "Fresher" && (
                       <div className=' space-y-8 SelectionOne bg-richblack-700 rounded-lg border border-richblack-600'>
                         <h1 className="text-red-500 flex justify-center items-center gap-2"> All The Fields are Required in this Section </h1>
@@ -4076,6 +4087,7 @@ const onSubmit = async (data) => {
                         </div>
                       </div>
                     )}
+
                     {selectedRole === "Producer" && experiences === "Fresher" && (
                       <div className='space-y-8 SelectionOne bg-richblack-700 rounded-lg border border-richblack-600'>
                         <h1 className="text-red-500 flex justify-center items-center gap-2"> All The Fields are Required in this Section </h1>
@@ -4085,7 +4097,7 @@ const onSubmit = async (data) => {
                      <div className='space-y-2'>
   <label htmlFor="DirectorInspiration" className="block font-semibold mb-2 ">
     <span className="flex items-center gap-2">
-      * <span>What inspires you to become a director?</span>
+      * <span>What inspires you to become a Producer?</span>
       {errors.DirectorInspiration && (
         <span className="text-red-500">
           {errors.DirectorInspiration.message}
@@ -4115,14 +4127,14 @@ const onSubmit = async (data) => {
 
                         </div>
                         <div className='space-y-4'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>🎬 Project Experience</h3>
+                          <h3 className='text-lg font-semibold text-yellow-400 mb-4 Liness'>🎬 Project Experience</h3>
                           <div className='space-y-2'>
                             <label className='block text-sm font-medium text-gray-300'><span> * Projects done till now </span> {errors.fresherProjects && (
         <span className="text-red-500">
           {errors.fresherProjects.message}
         </span>
       )} </label>
-                            <select defaultValue="" className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400' {...register("fresherProjects",{required:"Project Count is required"})}>
+                            <select defaultValue="" className='w-full px-3 py-2 COUNTS bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400' {...register("fresherProjects",{required:"Project Count is required"})}>
                               <option value="" disabled>Select Project Count</option>
                               {Projects.typicalTeamSizeRanges.map((data, index) => (
                                 <option key={index} value={data}>{data}</option>
@@ -4131,7 +4143,7 @@ const onSubmit = async (data) => {
                           </div>
                         </div>
                         <div className='space-y-4'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>💰 Budget Planning</h3>
+                          <h3 className='text-lg font-semibold text-yellow-400 mb-4 Liness b'>💰 Budget Planning</h3>
 <div className="space-y-2">
   <label htmlFor="BudgetHandling" className="block font-semibold mb-2">
     <span className="flex items-center gap-2">
@@ -4151,7 +4163,7 @@ const onSubmit = async (data) => {
     maxLength={250}
     rows={4}
     value={fields.BudgetHandling}
-    className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+    className="w-full Texetions bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
     {...register("BudgetHandling", { required: "Budget planning is required" })}
     onChange={handleChange}
   />
@@ -4163,7 +4175,7 @@ const onSubmit = async (data) => {
 
                         </div>
                         <div className='space-y-4'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>🎓 Experience & Funding</h3>
+                          <h3 className='text-lg font-semibold text-yellow-400 mb-4 Liness'>🎓 Experience & Funding</h3>
                          {/* Internship Experience Section */}
 <div className="flex flex-col justify-around items-center">
   <span className="flex gap-1">
@@ -4409,7 +4421,7 @@ const onSubmit = async (data) => {
 
                         </div>
                         <div className='space-y-4'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>🤝 Networking & Industry Relations</h3>
+                          <h3 className='text-lg font-semibold text-yellow-400 mb-4 Liness'>🤝 Networking & Industry Relations</h3>
 <div className="space-y-2">
   <label htmlFor="Networking" className="block font-semibold mb-2">
     <span className="flex items-center gap-2">
@@ -4429,7 +4441,7 @@ const onSubmit = async (data) => {
     maxLength={250}
     rows={3}
     value={fields.Networking}
-    className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+    className="w-full Texetions bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
     {...register("Networking", { required: "Networking plan is required" })}
     onChange={handleChange}
   />
@@ -4442,7 +4454,7 @@ const onSubmit = async (data) => {
 
                         </div>
                         <div className='space-y-4'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>⏰ Risk Management</h3>
+                          <h3 className='text-lg font-semibold text-yellow-400 mb-4 Liness'>⏰ Risk Management</h3>
 <div className="space-y-2">
   <label htmlFor="FundDelays" className="block font-semibold mb-2">
     <span className="flex items-center gap-2">
@@ -4462,7 +4474,7 @@ const onSubmit = async (data) => {
     maxLength={250}
     rows={3}
     value={fields.FundDelays}
-    className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+    className="w-full Texetions bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
     {...register("FundDelays", { required: "Funding delays strategy is required" })}
     onChange={handleChange}
   />
@@ -4476,6 +4488,7 @@ const onSubmit = async (data) => {
                         </div>
                       </div>
                     )}  
+
                   </div>
                 </div>
               </div>
