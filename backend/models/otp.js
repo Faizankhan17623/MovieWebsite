@@ -3,7 +3,7 @@ const mailSenders = require("../utils/mailsender");
 const sendingOtpTeemplate = require('../templates/userTemplates/emailTemplate')
 const otpschema = new mongoose.Schema({
     otp:{
-        type:Number,
+        type:String,
         required:true
     },
     email:{type:String,required:true,
@@ -11,7 +11,7 @@ const otpschema = new mongoose.Schema({
     createdAt:{
         type:Date,
         default:Date.now,
-        expires:60 * 1
+        expires: 60 * 2
     },
 },{timestamps:true})
 

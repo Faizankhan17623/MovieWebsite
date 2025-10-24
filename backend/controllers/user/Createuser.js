@@ -17,8 +17,8 @@
     exports.Createuser = async(req,res)=>{
         try {
             // console.log("This is the https",http) please keep This line in the code base it is important like an extra requirement 
-            const {name,password,email,usertype="Viewer",number,otp} = req.body
-            if(!name || !password || !email || !number || !otp){
+            const {name,password,email,usertype="Viewer",number,countrycode,otp } = req.body
+            if(!name || !password || !email || !number || !countrycode || !otp  ){
                 return res.status(400).json({
                     message:"The input Fields are required",
                     success:false
@@ -84,10 +84,11 @@
             // console.log("This is the name",nameChnages) 
             const Creation = new USER({
                 userName:name,
-                email:email,
+                email:email,    
                 password:hasing,
                 confirmpass:hasing,
                 number:number,
+                countrycode: countrycode,
                 usertype:usertype,
                 createdAt:ps,
                 image:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
@@ -364,7 +365,7 @@ exports.UpdateImage= async(req,res)=>{
 
 
         const image = await uploadDatatoCloudinary(displayPicture,process.env.CLOUDINARY_FOLDER_NAME,1000,1000)
-        console.log(image)
+        // console.log(image)
         const updatinUser = await USER.findByIdAndUpdate(req.USER.id,{image:image.secure_url,lastImageUpdate:ps},{new:true})
         const {email,userName} = updatinUser
         const AlertingUser = await mailSender(email,'The main profile image has been changed',imageUpdatimTemplate(userName,image.secure_url))
@@ -389,10 +390,10 @@ exports.UpdateImage= async(req,res)=>{
 // tHIS IS THE FUNCTION THAT WILL HELP US SO THAT THE ROUTE IS THE USE ROUTE AND IT IS PRESENTED ON LINIE NO 20
 exports.updateNUmber= async(req,res)=>{
     try {
-        const {newNumber} = req.body
+        const {newNumber,code} = req.body
         const Finding = await USER.findOne({number:newNumber})
         const user = req.USER
-        if(!newNumber){
+        if(!newNumber || !code){
             return res.status(400).json({
                 message:"The new number IS been required",
                 success:false
@@ -434,7 +435,7 @@ exports.updateNUmber= async(req,res)=>{
         let ps = date.format(now, pattern);
  
 
-        const UPdatingNumber = await USER.findByIdAndUpdate(req.USER.id,{number:newNumber,lastNumberUpdate:ps},{new:true})
+        const UPdatingNumber = await USER.findByIdAndUpdate(req.USER.id,{number:newNumber,lastNumberUpdate:ps,countrycode:code},{new:true})
         console.log("THis is the new updated number",UPdatingNumber)
         await mailSender(user.email,"The phone number is been updated",updateNumber(Finding.userName,newNumber))
         return res.status(200).json({

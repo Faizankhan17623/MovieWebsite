@@ -26,7 +26,10 @@ exports.CreateCast = async(req,res)=>{
             })
         }
 
-        const Image_Format = ['png','jpeg','jpg']
+        const Image_Format = [ "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp"]
         let imageTypes = image.mimetype.split('/')[1].toLowerCase();
         if(!Image_Format.includes(imageTypes)){
             return res.status(400).json({

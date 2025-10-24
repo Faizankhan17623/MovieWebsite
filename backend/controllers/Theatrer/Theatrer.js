@@ -14,9 +14,9 @@ exports.CreateTheatrere = async(req,res)=>{
 
         // const userId = req.USER.id
 
-        const {name,email,password,number} = req.body
+        const {name,email,password,number,code} = req.body
 
-        if(!name || !email || !password ||!number){
+        if(!name || !email || !password ||!number || !code){
             return res.status(400).json({
                 message:"The inputs are been required",
                 success:false
@@ -66,7 +66,8 @@ exports.CreateTheatrere = async(req,res)=>{
             verified:true,
             number:number,
             image:`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
-            createdAt:ps
+            createdAt:ps,
+            countrycode:code
         })
 
         // await Theatres.updateOne({_id:userId},{Owner:Creation._id})

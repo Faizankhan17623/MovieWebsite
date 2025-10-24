@@ -7,7 +7,7 @@ const fileUpload = require('express-fileupload')
 const colors = require('colors')
 var morgan = require('morgan')
 const VisitorCounter = require('express-visitor-counter')
-
+const formData = require('express-form-data')
 require('./Background_Process/Shows/movieStatusCronjobs')
 require('./Background_Process/Tickets/Tickets')
 require('./Background_Process/ReturnnsoldTickets')
@@ -58,6 +58,9 @@ app.use('/api/v1/Org',Orgainezer)
 app.use('/api/v1/Show',Show)
 app.use('/api/v1/Theatrer',Theatre)
 app.use('/api/v1/Payment',payment)
+
+
+app.use(formData.parse())
 
 app.use('/',(req,res)=>{
     res.status(200).json({

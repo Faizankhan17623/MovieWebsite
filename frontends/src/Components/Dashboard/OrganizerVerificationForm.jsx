@@ -23,8 +23,10 @@ const OrganizerVerificationForm = () => {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
     reset,
+    
     control,
   } = useForm({
     defaultValues: {
@@ -37,7 +39,10 @@ const OrganizerVerificationForm = () => {
       AssistanceRequired: "No",
       Certified: "No",
       Experience: "No",
-      Collaboration: "No"
+      Collaboration: "No",
+      ToolsChoice: "No",     
+      tools: [],             
+      software: [],     
     }
   });
 
@@ -53,6 +58,9 @@ const OrganizerVerificationForm = () => {
 
 
   const Proceed = async()=>{
+
+    localStorage.setItem("Data Submitted",true)
+
     Swal.fire({
       title:"Success !",
       text:"Your Data is Been Submitted",
@@ -64,6 +72,7 @@ const OrganizerVerificationForm = () => {
     setTimeout(()=>{
       navigate("/Dashboard/My-Profile")
     },3000)
+
 
   }
   
@@ -128,15 +137,51 @@ const [internError, setInternError] = useState("");
   const [awardError, setAwardError] = useState("");
 const [hasAwards, setHasAwards] = useState("No");  
 const [awardSectionOpen, setAwardSectionOpen] = useState(false);
- const [toolError, setToolError] = useState("");
-  const [selectedTools, setSelectedTools] = useState([]);
+
+const [selectedTools, setSelectedTools] = useState([]);
+const [selectedSoftware, setSelectedSoftware] = useState([]);
+const [toolError, setToolError] = useState("");
  const [softwareError, setSoftwareError] = useState("");
-  const [selectedSoftware, setSelectedSoftware] = useState([]);
   const [Soft,setSoft] = useState("No")
+
   const [funding,setfunding] = useState(false)
   const [finance,setfinance] = useState([])
   const[financeError,setfinanceError] = useState("")
 const [Funding,setFunding] = useState("No")
+
+const [Duplication,setduplication] = useState(false)
+const [urlDuplication,seturlduplication] = useState(false)
+const [urlDuplicatio,seturlduplicatio] = useState(false)
+const [urlDuplications,seturlduplications] = useState(false)
+const [vie,setview] = useState(false)
+const [follow,setfollow] = useState("")
+const [Ongoingduplication,setOngoingduplication] = useState(false)
+
+// Notable projects and the socail media links set 
+const [duplicateNameIndices, setDuplicateNameIndices] = useState(new Set());
+const [duplicateUrlIndices, setDuplicateUrlIndices] = useState(new Set());
+
+// Ongoing Projects and projects planned for this year 
+const [duplicateongoingproject, setduplicateongoingproject] = useState(new Set());
+const [duplicateongoingscript, setduplicateongoingscriptcls] = useState(new Set());
+const [duplicateProjectsplanned, setduplicateProjectsplanned] = useState(new Set());
+
+// Distribution
+const [duplicatedistributations, setduplicatedistributations] = useState(new Set());
+
+// Certifications
+const [duplicateCertifications, setduplicateCertifications] = useState(new Set());
+
+// Producer Fresher
+// Experience & Funding
+const [duplicateinternship, setduplicateinternship] = useState(new Set());
+// const [duplicatedocuments, setduplicatedocuments] = useState(new Set());
+
+// Director Experienced
+const [duplicateAwardFestival, setduplicateAwardFestival] = useState(new Set());
+const [duplicateMovieName, setduplicateMovieName] = useState(new Set());
+
+
 
 const [fields,setFields] = useState({
   bio:"",
@@ -157,19 +202,17 @@ const [fields,setFields] = useState({
   // Producer Experience 
   RiskManagement:""
 })
-// console.log(fields)
-console.log(finance)
+
   const { fields: filmEntries, append: appendFilm, remove: removeFilm } = useFieldArray({ control, name: "filmentries" });
   const { fields: socials, append: appendSocial, remove: removeSocial } = useFieldArray({ control, name: "socials" });
   const { fields: ongoingProjects, append: appendOngoing, remove: removeOngoing } = useFieldArray({ control, name: "ongoingProjects" });
   const { fields: plannedProjects, append: appendPlanned, remove: removePlanned } = useFieldArray({ control, name: "plannedProjects" });
   const { fields: distributionsEntries, append: appendDistribution, remove: removeDistribution } = useFieldArray({ control, name: "distributionsEntries" });
   const { fields: certifications, append: appendCert, remove: removeCert } = useFieldArray({ control, name: "certifications" });
-const { fields: internships, append: appendIntern, remove: removeIntern } = useFieldArray({ control, name: "internships" });
-const { fields: awards, append: appendAward, remove: removeAward } = useFieldArray({ control, name: "awards"});
-const { fields: Tooles, append: appendtools, remove: removetools } = useFieldArray({ control, name: "tools"});
+  const { fields: internships, append: appendIntern, remove: removeIntern } = useFieldArray({ control, name: "internships" });
+  const { fields: awards, append: appendAward, remove: removeAward } = useFieldArray({ control, name: "awards"});
+  const { fields: tools, append: appendtools, remove: removetools } = useFieldArray({ control, name: "tools"});
 
-// console.log(Tooles)
 
 useEffect(() => {
   if (Awards === "Yes" && awards.length === 0) {
@@ -189,6 +232,8 @@ useEffect(() => {
   }
 }, [Awards, awards, appendAward, removeAward]);
 
+// console.log(ongoingProjects)
+
   useEffect(() => {
   if (work === "Yes" && filmEntries.length === 0) {
     appendFilm({ name: '', url: '', role: '', budget: '' });
@@ -198,7 +243,7 @@ useEffect(() => {
 useEffect(() => {
   if (media === "Yes" && socials.length === 0) {
     // pick the first platform as default
-    appendSocial({ MediaName: Soc[0].name, Followers: '', link: '' });
+    appendSocial({ mediaName: Soc[0].name, followers: '', link: '' });
   }
 
   if (media === "No" && socials.length > 0) {
@@ -298,7 +343,7 @@ const certifiedValue = watch("Certified");
 // Film Entries
 useEffect(() => {
   if (filmEntriesValue === "No") {
-    setValue("filmentries", undefined); // remove key from form
+    setValue("filmentries", []); // remove key from form
     while (filmEntries.length > 0) removeFilm(0);
   }
 }, [filmEntriesValue, filmEntries.length, removeFilm, setValue]);
@@ -306,7 +351,7 @@ useEffect(() => {
 // Socials
 useEffect(() => {
   if (socialsValue === "No") {
-    setValue("socials", undefined);
+    setValue("socials", []);
     while (socials.length > 0) removeSocial(0);
   }
 }, [socialsValue, socials.length, removeSocial, setValue]);
@@ -314,7 +359,7 @@ useEffect(() => {
 // Ongoing Projects
 useEffect(() => {
   if (ongoingValue === "No") {
-    setValue("ongoingProjects", undefined);
+    setValue("ongoingProjects", []);
     while (ongoingProjects.length > 0) removeOngoing(0);
   }
 }, [ongoingValue, ongoingProjects.length, removeOngoing, setValue]);
@@ -322,7 +367,7 @@ useEffect(() => {
 // Planned Projects
 useEffect(() => {
   if (plannedValue === "No") {
-    setValue("plannedProjects", undefined);
+    setValue("plannedProjects", []);
     while (plannedProjects.length > 0) removePlanned(0);
   }
 }, [plannedValue, plannedProjects.length, removePlanned, setValue]);
@@ -330,7 +375,7 @@ useEffect(() => {
 // Distributions
 useEffect(() => {
   if (distributionsValue === "No") {
-    setValue("distributionsEntries", undefined);
+    setValue("distributionsEntries", []);
     while (distributionsEntries.length > 0) removeDistribution(0);
   }
 }, [distributionsValue, distributionsEntries.length, removeDistribution, setValue]);
@@ -338,22 +383,25 @@ useEffect(() => {
 // Certifications (already shown before)
 useEffect(() => {
   if (certifiedValue === "No") {
-    setValue("certifications", undefined);
+    setValue("certifications", []);
     while (certifications.length > 0) removeCert(0);
   }
 }, [certifiedValue, certifications.length, removeCert, setValue]);
 
-  const onSubmit = async (data) => {
+const onSubmit = async (data) => {
      await setConfirmationModal({
                text1: 'Are you sure?',
                             text2: "I take full responsibility for my data. If the data is false, my account may be suspended.",
-                            btn1Text: 'Proceed',
+                            btn1Text: 'Submit Data',
                             btn2Text: 'Review my Details',
                             btn1Handler: () => Proceed(),
                             btn2Handler: () => setConfirmationModal(null),
             })
     console.log("Form submitted", data);
-    console.log("Form errors", errors);
+    // console.log("Form errors", errors);
+    console.log("This is the film entries",filmEntries)
+    console.log(typeof filmEntries)
+    // Notables(filmEntries)
     setSubmittedData(data);
     setIsSubmitted(true);
     try {
@@ -362,7 +410,6 @@ useEffect(() => {
       console.log(error.message);
     }
   };
-
   
  const countWords = (text) => {
     return text.trim().split(/\s+/).filter(Boolean).length;
@@ -380,6 +427,7 @@ useEffect(() => {
 
 
 
+
   return (
     <div className="flex justify-center h-fit w-full min-h-screen bg-richblack-900 overflow-y-scroll overflow-x-hidden">
       <div className="w-full max-w-5xl bg-richblack-900 rounded-xl shadow-lg p-8 Secondss text-white">
@@ -389,7 +437,7 @@ useEffect(() => {
             ? 'Your verification data has been submitted and is under review. You can only view it now.'
             : 'Fill in your details below to request verification as an Organizer. These details can only be submitted once and cannot be changed later. The Administrator Will Review Your Application and Reach back to You Via E-mail'}
         </p>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-white">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-white" autoComplete="off">
             {/* Personal Information */}
             <div className="w-full Form bg-richblack-800 rounded-md">
               <p className="text-xl font-bold text-yellow-400 mb-6 text-center flex justify-start items-start Verificationss">Personal Information</p>
@@ -917,133 +965,252 @@ useEffect(() => {
                   </div>
                 </div>
 
-                {work === "Yes" && projects && (
-                  <div className='flex Show gap-1 Projectsss'>
-                    <FaCaretDown
-                      className="text-2xl cursor-pointer fill-red-600"
-                      onClick={() => setProjects(false)}
-                    />
-                    <span>Show Projects</span>
-                  </div>
-                )}
+               {work === "Yes" && projects && (
+  <div className='flex Show gap-1 Projectsss'>
+    <FaCaretDown
+      className="text-2xl cursor-pointer fill-red-600"
+      onClick={() => setProjects(false)}
+    />
+    <span>Show Projects</span>
+  </div>
+)}
 
-                {work === "Yes" && (
-                  <div className={`${projects ? "hidden" : "w-full Projectsss flex flex-col justify-around gap-2"}`}>
-                    <div className="flex flex-row">
-                      <FaCaretDown className="text-2xl cursor-pointer" onClick={() => setProjects(true)} />
-                      <span>Hide Projects</span>
-                    </div>
-                    {filmEntries.map((field, index) => (
-                      <div className='flex justify-evenly items-center gap-3' key={field.id}>
-                        <span>{index + 1}</span>
-                        <label className='flex flex-col gap-2'>
-                          <span className='flex gap-2'>
-                            *<span>Project Name</span>
-                            {errors.filmentries?.[index]?.name && (
-                              <span className="text-red-500 text-sm">{errors.filmentries[index].name.message}</span>
-                            )}
-                          </span>
-                          <input
-                            type="text"
-                            placeholder="Enter the name of the Project"
-                            className="form-style h-9 w-[290px] bg-richblack-600 rounded-2xl"
-                            {...register(`filmentries.${index}.name`, {
-                              required: work === "Yes" ? "Project name is required" : false,
-                            })}
-                          />
-                        </label>
-                        <label className='flex flex-col gap-2'>
-                          <span>Total Budget</span>
-                            {errors.filmentries?.[index]?.budget && (
-                              <span className="text-red-500 text-sm">{errors.filmentries[index].budget.message}</span>
-                            )}
-                          <select
-                            className='p-3 bg-richblack-600 h-11 form-style rounded-lg'
-                            {...register(`filmentries.${index}.budget`)}
-                          >
-                            <option value="" disabled>Select Budget Range</option>
-                            {Projects.Money.map((money, i) => (
-                              <option key={i} value={money}>
-                                {money}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label className='flex flex-col gap-2'>
-                          <span className='flex gap-2'>
-                            *<span>Your Role</span>
-                            {errors.filmentries?.[index]?.role && (
-                              <span className="text-red-500 text-sm">{errors.filmentries[index].role.message}</span>
-                            )}
-                          </span>
-                          <select
-                            className='p-3 bg-richblack-600 h-11 form-style rounded-lg'
-                            {...register(`filmentries.${index}.role`, { required: "Role is required" })}
-                          >
-                            <option value="" disabled>Role</option>
-                            {Projects.roles.map((role, i) => (
-                              <option key={i} value={role}>
-                                {role}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label className='flex flex-col gap-2'>
-                          <span>
-                            *<span>Url</span>
-                            {errors.filmentries?.[index]?.url && (
-                              <span className="text-red-500 text-sm">{errors.filmentries[index].url.message}</span>
-                            )}
-                          </span>
-                          <input
-                            type="url"
-                            placeholder='Enter Your Url'
-                            className='form-style h-9 w-[290px] bg-richblack-600 rounded-2xl'
-                            {...register(`filmentries.${index}.url`, {
-                              required: "Film URL is required",
-                              pattern: {
-                                value: /^https?:\/\/.+/,
-                                message: "Enter a valid URL",
-                              },
-                            })}
-                          />
-                        </label>
-                        <div
-                          className="flex justify-center items-center rounded-full hover:bg-red-600 cursor-pointer"
-                          onClick={() => {
-                            if (filmEntries.length === 1) {
-                              setFilmError("You need to keep at least one field");
-                            } else {
-                              removeFilm(index);
-                              setFilmError("");
-                            }
-                          }}
-                        >
-                          <RxCross1 className='text-richblack-100' />
-                        </div>
-                      </div>
-                    ))}
-                    {filmError && (
-                      <span className="text-red-500 text-sm flex justify-center items-center">
-                        {filmError}
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      className="mt-2 px-4 py-1 bg-blue-600 text-white rounded Adding"
-                      onClick={() => {
-                        if (filmEntries.length >= 4) {
-                          setFilmError("You can create 4 fields only");
-                        } else {
-                          appendFilm({ name: '', url: '', role: '', budget: '' });
-                          setFilmError("");
-                        }
-                      }}
-                    >
-                      Add more
-                    </button>
-                  </div>
-                )}
+{work === "Yes" && (
+  <div className={`${projects ? "hidden" : "w-full Projectsss flex flex-col justify-around gap-2"}`}>
+    <div className="flex flex-row">
+      <FaCaretDown className="text-2xl cursor-pointer" onClick={() => setProjects(true)} />
+      <span>Hide Projects</span>
+    </div>
+
+    {filmEntries.map((field, index) => (
+      <div className='flex justify-evenly items-center gap-3' key={field.id}>
+        <span>{index + 1}</span>
+       <label className="flex flex-col gap-2">
+  {duplicateNameIndices.has(index) && (
+    <span className="text-red-500 text-sm">Duplicate project name detected!</span>
+  )}
+  <span className="flex gap-2">
+    *<span>Project Name</span>
+    {errors.filmentries?.[index]?.name && (
+      <span className="text-red-500 text-sm">
+        {errors.filmentries[index].name.message}
+      </span>
+    )}
+  </span>
+  <input
+    type="text"
+    placeholder="Enter the name of the Project"
+    autoComplete="off"
+    className={`form-style h-9 w-[290px] bg-richblack-600 rounded-2xl ${
+      duplicateNameIndices.has(index) ? "border-2 border-red-500" : ""
+    }`}
+    {...register(`filmentries.${index}.name`, {
+    required: work === "Yes" ? "Project name is required" : false,
+    validate: (val) => {
+      // Get the latest values directly from RHF
+      const allNames = getValues("filmentries").map((entry, i) =>
+        (i === index ? val : (entry?.name || ""))
+          .toLowerCase().replace(/\s+/g, " ").trim()
+      );
+      const normalized = val.toLowerCase().replace(/\s+/g, " ").trim();
+      // Count duplicates
+      return (
+        allNames.filter((name) => name && name === normalized).length > 1
+          ? "Duplicate project name detected!"
+          : true
+      );
+    }
+  })}
+  onChange={e => {
+    const value = e.target.value;
+    setValue(`filmentries.${index}.name`, value, {
+      shouldValidate: true,
+      shouldDirty: true
+    });
+// getValues
+    // Re-calculate duplicates with the absolute latest form values
+    const allNames = getValues("filmentries").map((entry, i) =>
+      (i === index ? value : (entry?.name || ""))
+        .toLowerCase().replace(/\s+/g, " ").trim()
+    );
+    const counts = {};
+    allNames.forEach((n) => {
+      if (!n) return;
+      counts[n] = (counts[n] || 0) + 1;
+    });
+    const newDuplicates = new Set();
+    allNames.forEach((n, i) => {
+      if (n && counts[n] > 1) newDuplicates.add(i);
+    });
+    setDuplicateNameIndices(newDuplicates);
+  }}
+  />
+</label>
+
+
+        <label className='flex flex-col gap-2'>
+          <span>Total Budget</span>
+          {errors.filmentries?.[index]?.budget && (
+            <span className="text-red-500 text-sm">{errors.filmentries[index].budget.message}</span>
+          )}
+          <select
+            className='p-3 bg-richblack-600 h-11 form-style rounded-lg'
+            {...register(`filmentries.${index}.budget`)}
+          >
+            <option value="" disabled>Select Budget Range</option>
+            {Projects.Money.map((money, i) => (
+              <option key={i} value={money}>{money}</option>
+            ))}
+          </select>
+        </label>
+
+        <label className='flex flex-col gap-2'>
+          <span className='flex gap-2'>
+            *<span>Your Role</span>
+            {errors.filmentries?.[index]?.role && (
+              <span className="text-red-500 text-sm">{errors.filmentries[index].role.message}</span>
+            )}
+          </span>
+          <select
+            className='p-3 bg-richblack-600 h-11 form-style rounded-lg'
+            {...register(`filmentries.${index}.role`, { required: "Role is required" })}
+          >
+            <option value="" disabled>Role</option>
+            {Projects.roles.map((role, i) => (
+              <option key={i} value={role}>{role}</option>
+            ))}
+          </select>
+        </label>
+
+      <label className="flex flex-col gap-2">
+  {duplicateUrlIndices.has(index) && (
+    <span className="text-red-500 text-sm">Duplicate URL detected!</span>
+  )}
+  <span>
+    *<span>Url</span>
+    {errors.filmentries?.[index]?.url && (
+      <span className="text-red-500 text-sm">
+        {errors.filmentries[index].url.message}
+      </span>
+    )}
+  </span>
+  <input
+    type="url"
+    placeholder="Enter Your Url"
+    className={`form-style h-9 w-[290px] bg-richblack-600 rounded-2xl ${
+      duplicateUrlIndices.has(index) ? "border-2 border-red-500" : ""
+    }`}
+    {...register(`filmentries.${index}.url`, {
+      required: "Film URL is required",
+      pattern: {
+        value: /^https?:\/\/.+/,
+        message: "Enter a valid URL",
+      },
+      validate: (val) => {
+        const normalize = (url) => {
+          try {
+            const u = new URL(url);
+            const firstSeg = u.pathname.split("/").filter(Boolean)[0];
+            return (firstSeg ? `${u.origin}/${firstSeg}` : `${u.origin}`).toLowerCase();
+          } catch {
+            return "";
+          }
+        };
+        const normalizedVal = normalize(val);
+        if (!normalizedVal) return true;
+
+        // get all urls normalized, replace current index with val normalized
+        const allUrls = getValues("filmentries").map((entry, i) =>
+          i === index ? normalizedVal : normalize(entry?.url || "")
+        );
+
+        // count duplicates
+        const counts = {};
+        allUrls.forEach((url) => {
+          if (!url) return;
+          counts[url] = (counts[url] || 0) + 1;
+        });
+
+        return counts[normalizedVal] > 1 ? "Same base URL not allowed" : true;
+      },
+    })}
+    onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`filmentries.${index}.url`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const normalize = (url) => {
+        try {
+          const u = new URL(url);
+          const firstSeg = u.pathname.split("/").filter(Boolean)[0];
+          return (firstSeg ? `${u.origin}/${firstSeg}` : `${u.origin}`).toLowerCase();
+        } catch {
+          return "";
+        }
+      };
+
+      const urlsNormalized = getValues("filmentries").map((entry, i) =>
+        i === index ? value : entry?.url || ""
+      ).map(normalize);
+
+      const counts = {};
+      urlsNormalized.forEach((url) => {
+        if (!url) return;
+        counts[url] = (counts[url] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      urlsNormalized.forEach((url, i) => {
+        if (url && counts[url] > 1) newDuplicates.add(i);
+      });
+
+      setDuplicateUrlIndices(newDuplicates);
+    }}
+  />
+</label>
+
+
+        <div
+          className="flex justify-center items-center rounded-full hover:bg-red-600 cursor-pointer"
+          onClick={() => {
+            if (filmEntries.length === 1) {
+              setFilmError("You need to keep at least one field");
+            } else {
+              removeFilm(index);
+              setFilmError("");
+            }
+          }}
+        >
+          <RxCross1 className='text-richblack-100' />
+        </div>
+      </div>
+    ))}
+
+    {filmError && (
+      <span className="text-red-500 text-sm flex justify-center items-center">
+        {filmError}
+      </span>
+    )}
+
+    <button
+      type="button"
+      className="mt-2 px-4 py-1 bg-blue-600 text-white rounded Adding"
+      onClick={() => {
+        if (filmEntries.length >= 4) {
+          setFilmError("You can create 4 fields only");
+        } else {
+          appendFilm({ name: '', url: '', role: '', budget: '' });
+          setFilmError("");
+        }
+      }}
+    >
+      Add more
+    </button>
+  </div>
+)}
 
                 {media === "Yes" && social && (
                   <div className='flex gap-1 Socialss'>
@@ -1051,88 +1218,169 @@ useEffect(() => {
                       className="text-2xl cursor-pointer fill-red-600"
                       onClick={() => setSocial(false)}
                     />
-                    <span>Show Media</span>
+                    <span>Show Media</span>                    
                   </div>
                 )}
                 {media === "Yes" && (
                   <div className={`${social ? "hidden" : "w-full Socialss flex flex-col justify-around gap-2"}`}>
+
                     <div className="flex flex-row">
                       <FaCaretDown className="text-2xl cursor-pointer" onClick={() => setSocial(true)} />
                       <span>Hide Media</span>
                     </div>
-                    {socials.map((field, index) => {
-                      const socialItem = Soc.find((s) => s.name === field.MediaName) || Soc[index % Soc.length];
-                      const IconComponent = iconMap[socialItem.icon];
-                      return (
-                        <div className="flex justify-evenly items-center gap-3" key={field.id}>
-                          <div className="w-10 h-10 flex justify-center items-center rounded-full bg-richblack-700">
-                            {IconComponent && <IconComponent className="text-2xl text-blue-400" />}
-                          </div>
-                          <label className="flex flex-col gap-2">
-                            <span>* Social Media</span>
-                            <select
-                              className="form-style h-12 w-[160px] bg-richblack-600 rounded-2xl"
-                              {...register(`socials.${index}.mediaName`, {
-                                required: media === "Yes" ? "Social Media platform is required" : false,
-                              })}
-                            >
-                              <option value="" disabled>Select Platform</option>
-                              {Soc.map((s, i) => (
-                                <option key={i} value={s.name}>
-                                  {s.name}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.socials?.[index]?.mediaName && (
-                              <span className="text-red-500 text-sm">{errors.socials[index].mediaName.message}</span>
-                            )}
-                          </label>
-                          <label className="flex flex-col gap-2">
-                            <span>* Followers</span>
-                            <input
-                              type="tel"
-                              placeholder="Enter followers"
-                              className="form-style h-9 w-[160px] bg-richblack-600 rounded-2xl"
-                              {...register(`socials.${index}.followers`, { required: "Followers are required" })}
-                            />
-                            {errors.socials?.[index]?.followers && (
-                              <span className="text-red-500 text-sm">{errors.socials[index].followers.message}</span>
-                            )}
-                          </label>
-                          <label className="flex flex-col gap-2">
-                            <span>* URL</span>
-                            <input
-                              type="url"
-                              placeholder="Enter profile URL"
-                              className="form-style h-9 w-[240px] bg-richblack-600 rounded-2xl"
-                              {...register(`socials.${index}.link`, {
-                                required: "URL is required",
-                                pattern: {
-                                  value: /^https?:\/\/.+/,
-                                  message: "Enter a valid URL",
-                                },
-                              })}
-                            />
-                            {errors.socials?.[index]?.link && (
-                              <span className="text-red-500 text-sm">{errors.socials[index].link.message}</span>
-                            )}
-                          </label>
-                          <div
-                            className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-red-600 cursor-pointer"
-                            onClick={() => {
-                              if (socials.length === 1) {
-                                setSocialError("You need to keep at least one field ");
-                              } else {
-                                removeSocial(index);
-                                setSocialError("");
-                              }
-                            }}
-                          >
-                            <RxCross1 className="text-richblack-100" />
-                          </div>
-                        </div>
-                      );
-                    })}
+
+                 {socials.map((field, index) => {
+  // get the current (live) mediaName from form state, fallback to the field snapshot or Soc list
+  const currentMedia =
+    (field[index] && field[index].mediaName) ??
+    field.mediaName ??
+    Soc[index % Soc.length].name;
+
+  const socialItem = Soc.find((s) => s.name === currentMedia) || Soc[index % Soc.length];
+  const IconComponent = iconMap[socialItem.icon];
+
+  return (
+    <div className="flex justify-evenly items-center gap-3" key={field.id}>
+      <div className="w-10 h-10 flex justify-center items-center rounded-full bg-richblack-700">
+        {IconComponent && <IconComponent className="text-2xl text-blue-400" />}
+      </div>
+
+      <label className="flex flex-col gap-2">
+        <span>* Social Media</span>
+        <select
+          className="form-style h-12 w-[160px] bg-richblack-600 rounded-2xl"
+          {...register(`socials.${index}.mediaName`, {
+            required: media === "Yes" ? "Social Media platform is required" : false,
+          })}
+          defaultValue={field.mediaName ?? Soc[index % Soc.length].name}
+        >
+          <option value="" disabled>Select Platform</option>
+          {Soc.map((s, i) => (
+            <option key={i} value={s.name}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+        {errors.socials?.[index]?.mediaName && (
+          <span className="text-red-500 text-sm">{errors.socials[index].mediaName.message}</span>
+        )}
+      </label>
+
+      <label className="flex flex-col gap-2">
+        <span>* Followers</span>
+        <input
+          type="tel"
+          placeholder="Enter followers"
+          className={` " form-style h-9 w-[160px] bg-richblack-600 rounded-2xl " ${vie?"border-2 border-red-400":""} `}
+          value={follow} 
+          {...register(`socials.${index}.followers`, { required: "Followers are required" })}
+          onChange={(e) => {
+  let CurrentValue = e.target.value;
+
+  // Only keep digits
+  CurrentValue = CurrentValue.replace(/\D/g, "");
+
+  // ✅ Stop if more than 13 digits → slice it back
+  if (CurrentValue.length > 13) {
+    CurrentValue = CurrentValue.slice(0, 13);
+    toast.error("Bhai sahab kuch zeyada nahi ho raha hain Zara Aukath main");
+    setview(true);
+  }
+
+  // Format with commas
+  if (CurrentValue) {
+    CurrentValue = Number(CurrentValue).toLocaleString("en-US");
+  }
+
+  setfollow(CurrentValue);
+}}
+
+        />
+        {errors.socials?.[index]?.followers && (
+          <span className="text-red-500 text-sm">{errors.socials[index].followers.message}</span>
+        )}
+      </label>
+
+    <label className="flex flex-col gap-2">
+    {/* Please copy paste the url link */}
+  <span>* URL {urlDuplications  && (<span className='font-md text-red-500'>Please use the right link</span>)} {urlDuplicatio && (<span className='font-md text-red-500'>Please use Seperate link for all of them sir</span>)}</span>
+  <input
+  // urlDuplications,seturlduplications
+    type="url"
+    placeholder="Enter profile URL"
+    className={`form-style h-9 w-[240px] bg-richblack-600 rounded-2xl ${
+      urlDuplications ? "border-2 border-red-500" : ""
+    }`}
+    {...register(`socials.${index}.link`, {
+      required: "URL is required",
+      pattern: {
+        value: /^https?:\/\/.+/,
+        message: "Enter a valid URL",
+      },
+      validate: (value) => {
+        const MediaMap = {
+          LinkedIn: "https://www.linkedin.com",
+          YouTube: "https://www.youtube.com/",
+          Instagram: "https://www.instagram.com/",
+          IMDB: "https://www.imdb.com/",
+          Twitter: "https://x.com/"
+        };
+        const currentPlatform = watch(`socials.${index}.mediaName`);
+        const expectedBase = MediaMap[currentPlatform];
+        if (!expectedBase) return true; // no platform selected
+        return value.startsWith(expectedBase) || `URL must start with ${expectedBase}`;
+      },
+    })}
+    onChange={(e) => {
+      const enteredUrl = e.target.value;
+      const duplicate = socials.some((entry, idx) =>  {
+    entry.link === enteredUrl
+    return index
+  } )
+  seturlduplicatio(duplicate)
+      const MediaMap = {
+        LinkedIn: "https://www.linkedin.com/",
+        YouTube: "https://www.youtube.com/",
+        Instagram: "https://www.instagram.com/",
+        IMDB: "https://www.imdb.com/",
+        Twitter: "https://x.com/"
+      };
+      const currentPlatform = watch(`socials.${index}.mediaName`);
+      const expectedBase = MediaMap[currentPlatform];
+
+      // Check live if URL is correct
+      if (expectedBase && !enteredUrl.startsWith(expectedBase)) {
+        seturlduplications('Enter the right link'); // set error state
+        toast.error(`Bhai sahab, galat link! Please enter a ${currentPlatform} URL.`);
+      } else {
+        seturlduplications(false); // clear error
+      }
+    }}
+  />
+  {errors.socials?.[index]?.link && (
+    <span className="text-red-500 text-sm">{errors.socials[index].link.message}</span>
+  )}
+</label>
+
+
+      <div
+        className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-red-600 cursor-pointer"
+        onClick={() => {
+          if (socials.length === 1) {
+            setSocialError("You need to keep at least one field ");
+          } else {
+            removeSocial(index);
+            // optional: clear social error
+          }
+        }}
+      >
+        <RxCross1 className="text-richblack-100" />
+      </div>
+    </div>
+  );
+})}
+
+
                     {socialError && (
                       <span className="text-red-500 text-sm flex justify-center items-center">
                         {socialError}
@@ -1146,7 +1394,7 @@ useEffect(() => {
                           setSocialError("You can create 5 fields only");
                         } else {
                           const nextIndex = socials.length % Soc.length;
-                          appendSocial({ MediaName: Soc[nextIndex].name, Followers: '', link: '' });
+                          appendSocial({ mediaName: Soc[nextIndex].name, followers: '', link: '' });
                           setSocialError("");
                         }
                       }}
@@ -1172,6 +1420,7 @@ useEffect(() => {
                           type="radio"
                           name="Ongoing"
                           value="Yes"
+                          // webkitdirectory 
                           checked={ongoing === "Yes"}
                           onChange={() => {
                             setOngoing("Yes");
@@ -1185,6 +1434,7 @@ useEffect(() => {
                           type="radio"
                           name="Ongoing"
                           value="No"
+                          // webkitdirectory 
                           checked={ongoing === "No"}
                           onChange={() => {
                             setOngoing("No");
@@ -1238,6 +1488,7 @@ useEffect(() => {
                     <span>Hide Media</span>
                   </div>
                 )}
+
                 {ongoing === "Yes" && (
                   <div className={`${on ? "hidden" : "w-full One flex flex-col justify-around gap-2"}`}>
                     <div className="flex flex-row">
@@ -1254,62 +1505,120 @@ useEffect(() => {
                       >
                         <label htmlFor={`ProName-${index}`} className="flex flex-col gap-2">
                           <span className="flex justify-start items-center gap-3 flex-col-reverse">
+                            
                             {errors.ongoingProjects?.[index]?.ProName && (
                               <span className="text-red-500 text-sm">
                                 {errors.ongoingProjects[index].ProName.message}
                               </span>
                             )}
-                            <span>*<span>Project Name</span></span>
+
+                             {duplicateongoingproject.has(index) && (
+    <span className="text-red-500 text-sm">Duplicate project name detected!</span>
+  )}
+                            <span className='flex'>*<span>Project Name</span></span>
                           </span>
                           <input
                             type="text"
                             placeholder="Enter Your Project Name"
-                            className="form-style h-9 w-[220px] bg-richblack-600 rounded-2xl px-3"
+  className={`form-style h-9 w-[220px] bg-richblack-600 rounded-2xl px-3 ${
+      duplicateongoingproject.has(index) ? "border-2 border-red-500" : ""
+    }`}
                             {...register(`ongoingProjects.${index}.ProName`, {
                               required: ongoing === "Yes" ? "Project name is required" : false,
+                              validate:(val) => {
+                                const allNames = getValues("ongoingProjects").map((entry,i) =>
+                                  (i === index ? val : (entry?.ProName || "")
+                                  ).toLowerCase().replace(/\s+/g," ").trim()
+                                )
+                                const normalized = val.toLowerCase().replace(/\s+/g," ").trim()
+                                return (allNames.filter((name) => name && name === normalized).length > 1 ? "" : true
+                              ) 
+                              }
                             })}
+
+                            onChange={(e)=>{
+                              const value = e.target.value
+                              setValue(`ongoingProjects.${index}.ProName`,value,{ shouldValidate: true, shouldDirty: true})
+                              const allNames = getValues("ongoingProjects").map((entry,i) =>
+                                (i === index ? value : (entry?.ProName || "")
+                                ).toLowerCase().replace(/\s+/g," ").trim()
+                              )
+                              const counts = {}
+                              allNames.forEach((n) => {
+                                if(!n) return
+                                counts[n] = (counts[n] || 0) + 1
+                              }
+                              )
+                              const newDuplicates = new Set()
+                              allNames.forEach((n,i) => {
+                                if(n && counts[n] > 1) newDuplicates.add(i)
+                              })
+                            setduplicateongoingproject(newDuplicates)      
+                            // duplicateongoingproject, setduplicateongoingproject                      
+                            }}
                           />
                         </label>
-                        <label htmlFor={`ProFile-${index}`} className="flex flex-col gap-2">
-                          <span className="flex items-center gap-3 flex-col-reverse">
-                            {errors.ongoingProjects?.[index]?.ProFile && (
-                              <span className="text-red-500 text-sm">
-                                {errors.ongoingProjects[index].ProFile.message}
-                              </span>
-                            )}
-                            <span>*<span>Upload Script / Images</span></span>
-                          </span>
-                       <input
-  type="file"
-  className="form-style"
-  accept="image/*,application/pdf"
-  {...register(`ongoingProjects.${index}.ProFile`, {
-    required: "File upload is required",
-    validate: {
-      fileType: (files) => {
-        if (!files?.[0]) return true; // required will catch empty
-        const allowedTypes = [
-          "application/pdf",
-          "image/jpeg",
-          "image/png",
-          "image/gif",
-          "image/webp",
-        ];
-        return (
-          allowedTypes.includes(files[0].type) ||
-          "Only images or PDFs are allowed"
-        );
+
+<label htmlFor={`ProFile-${index}`} className="flex flex-col gap-2">
+  <span className="flex flex-col-reverse items-center gap-2">
+    {errors?.ongoingProjects?.[index]?.ProFile && (
+      <span className="text-red-500 text-sm">
+        {errors.ongoingProjects[index].ProFile.message}
+      </span>
+    )}
+    <span>
+      *<span>Upload Script / Images</span>
+    </span>
+  </span>
+
+  <input
+    type="file"
+    id={`ProFile-${index}`}
+    className={`form-style bg-richblack-600 rounded-2xl p-2 ${
+      errors?.ongoingProjects?.[index]?.ProFile ? "border border-red-500" : ""
+    }`}
+    accept="image/*,application/pdf"
+    {...register(`ongoingProjects.${index}.ProFile`, {
+      required: "File upload is required",
+      validate: {
+        fileType: (files) => {
+          if (files && files[0]) {
+            const allowedTypes = [
+              "application/pdf",
+              "image/jpeg",
+              "image/png",
+              "image/gif",
+              "image/webp",
+            ];
+            return (
+              allowedTypes.includes(files[0].type) ||
+              "Only images (JPG, PNG, GIF, WEBP) or PDFs are allowed"
+            );
+          }
+          return true;
+        },
+        fileSize: (files) => {
+          if (files && files[0]) {
+            return (
+              files[0].size <= 5 * 1024 * 1024 ||
+              "File size must be less than 5MB"
+            );
+          }
+          return true;
+        },
       },
-      fileSize: (files) =>
-        !files?.[0] ||
-        files[0].size <= 5 * 1024 * 1024 ||
-        "File size must be less than 5MB",
-    },
-  })}
-/>
+    })}
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (file && file.size > 5 * 1024 * 1024) {
+        e.target.value = null;
+        alert("File size must be less than 5MB");
+      }
+    }}
+  />
+</label>
 
 
-                        </label>
                         <label htmlFor={`Start_Date-${index}`} className="flex flex-col gap-2">
                           <span className="flex items-center gap-3">*<span>Start Date</span></span>
                           {errors.ongoingProjects?.[index]?.Start_Date && (
@@ -1391,6 +1700,7 @@ useEffect(() => {
                     </button>
                   </div>
                 )}
+
                 {planned === "Yes" && pp && (
                   <div className="flex gap-1 One">
                     <FaCaretDown
@@ -1400,6 +1710,7 @@ useEffect(() => {
                     <span>Hide Planned Projects</span>
                   </div>
                 )}
+
                 {planned === "Yes" && (
                   <div className={`${pp ? "hidden" : "w-full One flex flex-col justify-around gap-2"}`}>
                     <div className="flex flex-row">
@@ -1414,24 +1725,83 @@ useEffect(() => {
                         className="flex gap-4 p-3 border-b border-gray-700"
                         key={field.id}
                       >
-                        <label htmlFor={`PName-${index}`} className="flex flex-col gap-2">
-                          <span className="flex justify-start items-center gap-3 flex-col">
-                            {errors.plannedProjects?.[index]?.PName && (
-                              <span className="text-red-500 text-sm">
-                                {errors.plannedProjects[index].PName.message}
-                              </span>
-                            )}
-                            <span> *<span>Project Name</span></span>
-                          </span>
-                          <input
-                            type="text"
-                            placeholder="Enter Your Project Name"
-                            className="form-style h-9 w-[220px] bg-richblack-600 rounded-2xl px-3"
-                            {...register(`plannedProjects.${index}.PName`, {
-                              required: planned === "Yes" ? "Project name is required" : false,
-                            })}
-                          />
-                        </label>
+                       <label htmlFor={`Proname-${index}`} className="flex flex-col gap-2">
+  <span className="flex justify-start items-center gap-3 flex-col-reverse">
+    {errors.ongoingProjects?.[index]?.Proname && (
+      <span className="text-red-500 text-sm">
+        {errors.ongoingProjects[index].Proname.message}
+      </span>
+    )}
+    {duplicateProjectsplanned.has(index) && (
+      <span className="text-red-500 text-sm">
+        Duplicate project name detected!
+      </span>
+    )}
+    <span className="flex">
+      *<span>Project Name</span>{" "}
+      {Ongoingduplication && (
+        <span className="font-md text-red-500">
+          All the Projects name are same
+        </span>
+      )}
+    </span>
+  </span>
+
+  <input
+    type="text"
+    placeholder="Enter Your Project Name"
+    className={`form-style h-9 w-[220px] bg-richblack-600 rounded-2xl px-3 ${
+      duplicateProjectsplanned.has(index) ? "border-2 border-red-500" : ""
+    }`}
+    {...register(`ongoingProjects.${index}.Proname`, {
+      required: ongoing === "Yes" ? "Project nmae is required" : false,
+      validate: (val) => {
+        const allNames = getValues("ongoingProjects").map((entry, i) =>
+          (i === index ? val : entry?.Proname || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .trim()
+        );
+
+        const normalized = val.toLowerCase().replace(/\s+/g, "").trim();
+
+        return allNames.filter((name) => name && name === normalized).length > 1
+          ? ""
+          : true;
+      },
+    })}
+    onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`ongoingProjects.${index}.Proname`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const allNames = getValues("ongoingProjects").map((entry, i) =>
+        (i === index ? value : entry?.Proname || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .trim()
+      );
+
+      const counts = {};
+      allNames.forEach((n) => {
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      allNames.forEach((n, i) => {
+        if (n && counts[n] > 1) newDuplicates.add(i);
+      });
+
+      setduplicateProjectsplanned(newDuplicates);
+      // duplicateProjectsplanned, setduplicateProjectsplanned
+    }}
+  />
+</label>
+
                         <label htmlFor={`PType-${index}`} className="flex flex-col gap-2">
                           <span className="flex items-center gap-3 flex-col">
                             {errors.plannedProjects?.[index]?.PType && (
@@ -1569,6 +1939,7 @@ useEffect(() => {
                     </button>
                   </div>
                 )}
+
 <div className="dGsss flex flex-col gap-2">
   {/* ✅ Label + Error */}
   <label className="flex justify-start items-center gap-2" htmlFor="genres">
@@ -1580,109 +1951,114 @@ useEffect(() => {
       )}
     </span>
   </label>
+<div className="relative group w-full h-full">
+  {/* 👇 Only a UI button, not registered */}
+  <input
+    type="button"
+    id="genres"
+    className={`p-3 w-full bg-richblack-600 h-11 form-style rounded-lg outline-none transition 
+      ${errors.genres ? "ring-2 ring-red-500" : "focus:ring-2 focus:ring-blue-400"}`}
+    value={showGenreDropdown ? "Genre" : "Select Genre"}
+    onClick={() => setShowGenreDropdown((prev) => !prev)}
+  />
 
-  <div className="relative group w-full h-full">
-    {/* ✅ Register directly on the visible input (focusable) */}
-    <input
-      type="button"
-      id="genres"
-      className={`p-3 w-full bg-richblack-600 h-11 form-style rounded-lg outline-none transition 
-        ${errors.genres ? "ring-2 ring-red-500" : "focus:ring-2 focus:ring-blue-400"}`}
-      value={showGenreDropdown ? "Genre" : "Select Genre"}
-      onClick={() => setShowGenreDropdown((prev) => !prev)}
-      {...register("genres", {
-        required: "Please select at least one genre",
-        validate: (value) =>
-          genres.length > 0 ,
-      })}
-    />
+  {/* 👇 Hidden input registered with RHF */}
+  <input
+    type="hidden"
+    {...register("genres", {
+      required: "Please select at least one genre",
+      validate: () => genres.length > 0 || "Please select at least one genre",
+    })}
+    value={genres.join(",")}
+  />
 
-    {/* ✅ Dropdown */}
-    {showGenreDropdown && (
-      <div className="absolute left-0 bg-richblack-800 -top-67 mt-2 p-2 rounded shadow w-full h-[255px] z-10">
-        <div className="flex justify-around items-center gap-2 w-full h-full">
-          {/* Genre options */}
-          <div className="w-[80%] border-r-1 grid grid-cols-5 grid-rows-4 gap-2">
-            {Genre.genres.map((data, index) => (
-              <div
-                key={index}
-                className={`text-md font-edu-sa w-fit Datass rounded-lg px-4 py-2 cursor-pointer font-semibold
-                  ${genres.includes(data.name)
-                    ? "bg-yellow-400 text-black"
-                    : "hover:bg-yellow-400 hover:text-black"}`}
-                onClick={() => {
-                  if (genres.length >= 5) {
-                    setGenreError("You cannot select more than 5 genres");
-                    return;
-                  }
-                  setGenreError("");
-                  if (!genres.includes(data.name)) {
-                    const updatedGenres = [...genres, data.name];
-                    setGenres(updatedGenres);
-                    setValue("genres", updatedGenres.join(","), {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    });
-                  }
-                }}
-              >
-                {data.name}
-              </div>
-            ))}
+  {/* ✅ Dropdown */}
+  {showGenreDropdown && (
+    <div className="absolute left-0 bg-richblack-800 -top-67 mt-2 p-2 rounded shadow w-full h-[255px] z-10">
+      <div className="flex justify-around items-center gap-2 w-full h-full">
+        {/* Genre options */}
+        <div className="w-[80%] border-r-1 grid grid-cols-5 grid-rows-4 gap-2">
+          {Genre.genres.map((data, index) => (
+            <div
+              key={index}
+              className={`text-md font-edu-sa w-fit Datass rounded-lg px-4 py-2 cursor-pointer font-semibold
+                ${genres.includes(data.name)
+                  ? "bg-yellow-400 text-black"
+                  : "hover:bg-yellow-400 hover:text-black"}`}
+              onClick={() => {
+                if (genres.length >= 5) {
+                  setGenreError("You cannot select more than 5 genres");
+                  return;
+                }
+                setGenreError("");
+                if (!genres.includes(data.name)) {
+                  const updatedGenres = [...genres, data.name];
+                  setGenres(updatedGenres);
+                  setValue("genres", updatedGenres.join(","), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
+                }
+              }}
+            >
+              {data.name}
+            </div>
+          ))}
+        </div>
+
+        {/* Selected Genres */}
+        <div className="h-full w-[18%] flex flex-col justify-between items-center py-2">
+          <div className="w-full flex justify-center items-center mb-2">
+            <h2 className="font-bold text-lg">Genres</h2>
           </div>
-
-          {/* Selected Genres */}
-          <div className="h-full w-[18%] flex flex-col justify-between items-center py-2">
-            <div className="w-full flex justify-center items-center mb-2">
-              <h2 className="font-bold text-lg">Genres</h2>
-            </div>
-            <div className="flex flex-col justify-center items-center flex-1 gap-1">
-              {genres.length === 0 ? (
-                <div className="text-gray-400">Select Genre</div>
-              ) : (
-                genres.map((data, index) => (
+          <div className="flex flex-col justify-center items-center flex-1 gap-1">
+            {genres.length === 0 ? (
+              <div className="text-gray-400">Select Genre</div>
+            ) : (
+              genres.map((data, index) => (
+                <div
+                  key={index}
+                  className="bg-yellow-400 text-black text-md font-edu-sa w-full border rounded-md flex justify-around items-center gap-2"
+                >
+                  {data}
                   <div
-                    key={index}
-                    className="bg-yellow-400 text-black text-md font-edu-sa w-full border rounded-md flex justify-around items-center gap-2"
+                    onClick={() => {
+                      const updatedGenres = genres.filter((_, i) => i !== index);
+                      setGenres(updatedGenres);
+                      setValue("genres", updatedGenres.join(","), {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                      if (updatedGenres.length < 5) {
+                        setGenreError("");
+                      }
+                    }}
+                    className="cursor-pointer"
                   >
-                    {data}
-                    <div
-                      onClick={() => {
-                        const updatedGenres = genres.filter((_, i) => i !== index);
-                        setGenres(updatedGenres);
-                        setValue("genres", updatedGenres.join(","), {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                        });
-                        if (updatedGenres.length < 5) {
-                          setGenreError("");
-                        }
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <RxCross1 />
-                    </div>
+                    <RxCross1 />
                   </div>
-                ))
-              )}
+                </div>
+              ))
+            )}
 
-              {/* Extra validation messages */}
-              {genreError && (
-                <span className="text-red-500 text-sm flex justify-center items-center">
-                  {genreError}
-                </span>
-              )}
-              {errors.genres && (
-                <span className="text-red-500 text-sm">
-                  {errors.genres.message}
-                </span>
-              )}
-            </div>
+            {/* Errors */}
+            {genreError && (
+              <span className="text-red-500 text-sm flex justify-center items-center">
+                {genreError}
+              </span>
+            )}
+            {errors.genres && (
+              <span className="text-red-500 text-sm">
+                {errors.genres.message}
+              </span>
+            )}
           </div>
         </div>
       </div>
-    )}
-  </div>
+    </div>
+  )}
+</div>
+
 </div>
 
                 <label className='dGsss flex justify-start items-center gap-2' htmlFor='subgenres'>
@@ -1979,7 +2355,6 @@ useEffect(() => {
     </div>
   )}
 </div>
-
                 </div>
                 <div className='w-full flex justify-around items-center dpp'>
                   <div className='dGsss flex flex-col gap-2'>
@@ -2074,16 +2449,69 @@ useEffect(() => {
                     {distributionsEntries.map((field, index) => (
                       <div className='flex justify-evenly items-center gap-3' key={field.id}>
                         <span>{index + 1}</span>
+
                         <label className='flex flex-col gap-2'>
+                            {duplicatedistributations.has(index) && (
+      <span className="text-red-500 text-sm">
+        Duplicate project name detected!
+      </span>
+    )}
            {errors?.distributionsEntries?.[index]?.projectname && <span className='text-red-500 text-sm'>{errors.distributionsEntries[index].projectname.message}</span>}
                           <span className='flex gap-2'>*<span>Project Name</span></span>
                           <input
                             type="text"
                             placeholder="Enter the name of the Project"
-                            className="form-style h-9 w-[290px] bg-richblack-600 rounded-2xl"
+                          className={`form-style h-9 w-[290px] bg-richblack-600 rounded-2xl  ${
+      duplicatedistributations.has(index) ? "border-2 border-red-500" : ""
+    }`}
                             {...register(`distributionsEntries.${index}.projectname`, {
                               required: distribution === "Yes" ? "Project name is required" : false,
+                              validate: (val) => {
+        const allNames = getValues("distributionsEntries").map((entry, i) =>
+          (i === index ? val : entry?.projectname || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .trim()
+        );
+
+        const normalized = val.toLowerCase().replace(/\s+/g, "").trim();
+
+        return allNames.filter((name) => name && name === normalized).length > 1
+          ? ""
+          : true;
+      },
                             })}
+
+                            onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`distributionsEntries.${index}.projectname`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const allNames = getValues("distributionsEntries").map((entry, i) =>
+        (i === index ? value : entry?.projectname || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .trim()
+      );
+
+      const counts = {};
+      allNames.forEach((n) => {
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      allNames.forEach((n, i) => {
+        if (n && counts[n] > 1) newDuplicates.add(i);
+      });
+
+      setduplicatedistributations(newDuplicates);
+      // duplicateProjectsplanned, setduplicateProjectsplanned
+    // duplicatedistributations, setduplicatedistributations
+    }}
                           />
                         </label>
                         <label className='flex flex-col gap-2'>
@@ -2185,8 +2613,8 @@ useEffect(() => {
                             name="AssistanceRequired"
                             value="Yes"
                             checked={support === "Yes"}
-                            onChange={() => {
-                              setSupport("Yes");
+                            onChange={(e) => {
+                              setSupport(e.target.value);
                               setValue("AssistanceRequired", "Yes");
                             }}
                           />
@@ -2198,8 +2626,8 @@ useEffect(() => {
                             name="AssistanceRequired"
                             value="No"
                             checked={support === "No"}
-                            onChange={() => {
-                              setSupport("No");
+                            onChange={(e) => {
+                              setSupport(e.target.value);
                               setValue("AssistanceRequired", "No");
                             }}
                           />
@@ -2259,12 +2687,12 @@ useEffect(() => {
                     <div className="flex gap-2">
                       <label>
                         <input
-                          type="radio"
+                          type="checkbox"
                           name="Certified"
                           value="Yes"
                           checked={certified === "Yes"}
-                          onChange={() => {
-                            setCertified("Yes");
+                          onChange={(e) => {
+                            setCertified(e.target.value);
                             setValue("Certified", "Yes");
                           }}
                         />
@@ -2272,13 +2700,14 @@ useEffect(() => {
                       </label>
                       <label>
                         <input
-                          type="radio"
-                          name="Certified"
+                          type="checkbox"
+                          name="Certified"  
                           value="No"
                           checked={certified === "No"}
-                          onChange={() => {
-                            setCertified("No");
+                          onChange={(e) => {
+                            setCertified(e.target.value);
                             setValue("Certified", "No");
+                            setValue("certifications",[])
                           }}
                         />
                         No
@@ -2297,8 +2726,8 @@ useEffect(() => {
                           name="Experience"
                           value="Yes"
                           checked={experience === "Yes"}
-                          onChange={() => {
-                            setExperience("Yes");
+                          onChange={(e) => {
+                            setExperience(e.target.value);
                             setValue("Experience", "Yes");
                           }}
                         />
@@ -2310,8 +2739,8 @@ useEffect(() => {
                           name="Experience"
                           value="No"
                           checked={experience === "No"}
-                          onChange={() => {
-                            setExperience("No");
+                          onChange={(e) => {
+                            setExperience(e.target.value);
                             setValue("Experience", "No");
                           }}
                         />
@@ -2331,8 +2760,8 @@ useEffect(() => {
                           name="Collaboration"
                           value="Yes"
                           checked={collabration === "Yes"}
-                          onChange={() => {
-                            setCollabration("Yes");
+                          onChange={(e) => {
+                            setCollabration(e.target.value);
                             setValue("Collaboration", "Yes");
                           }}
                         />
@@ -2344,8 +2773,8 @@ useEffect(() => {
                           name="Collaboration"
                           value="No"
                           checked={collabration === "No"}
-                          onChange={() => {
-                            setCollabration("No");
+                          onChange={(e) => {
+                            setCollabration(e.target.value);
                             setValue("Collaboration", "No");
                           }}
                         />
@@ -2356,110 +2785,200 @@ useEffect(() => {
                   </div>
                 </div>
                 {certified === "Yes" && cert && (
-                  <div className="flex gap-1 One">
-                    <FaCaretDown
-                      className="text-2xl cursor-pointer fill-red-600"
-                      onClick={() => setCert(false)}
-                    />
-                    <span>Hide Media</span>
-                  </div>
-                )}
-                {certified === "Yes" && (
-                  <div className={`${cert ? "hidden" : "w-full One flex flex-col justify-around gap-2"}`}>
-                    <div className="flex flex-row">
-                      <FaCaretDown
-                        className="text-2xl cursor-pointer"
-                        onClick={() => setCert(true)}
-                      />
-                      <span>Show Projects</span>
-                    </div>
-                    {certifications.map((field, index) => (
-                      <div
-                        className="flex gap-4 p-3 border-b border-gray-700 w-full justify-around items-center"
-                        key={field.id}
-                      >
-                        <label htmlFor={`CertificateName-${index}`} className="flex flex-col gap-2">
-                          <span className="flex justify-start items-center gap-3">
-           {errors?.certifications?.[index]?.CertificateName && <span className='text-red-500 text-sm'>{errors.certifications[index].CertificateName.message}</span>}
+  <div className="flex gap-1 One">
+    <FaCaretDown
+      className="text-2xl cursor-pointer fill-red-600"
+      onClick={() => setCert(false)}
+    />
+    <span>Hide Certifications</span>
+  </div>
+)}
+               
+{certified === "Yes" && (
+  <div className={`${cert ? "hidden" : "w-full One flex flex-col justify-around gap-2"}`}>
+    <div className="flex flex-row">
+      <FaCaretDown
+        className="text-2xl cursor-pointer"
+        onClick={() => setCert(true)}
+      />
+      <span>Show Certifications</span>
+    </div>
 
-                            *<span>Certificate Name</span>
-                          </span>
-                          <input
-                            type="text"
-                            placeholder="Enter Your Certificate Name"
-                            className="form-style h-9 w-[390px] bg-richblack-600 rounded-2xl px-3"
-                            {...register(`certifications.${index}.CertificateName`, {
-                              required: certified === "Yes" ? "Certificate name is required" : false,
-                            })}
-                          />
-                        </label>
-                        <label htmlFor={`Certificatealink-${index}`} className="flex flex-col gap-2">
-                          <span className="flex items-center gap-3">
-           {errors?.certifications?.[index]?.Certificatealink && <span className='text-red-500 text-sm'>{errors.certifications[index].Certificatealink.message}</span>}
+    {/* Fields Mapping */}
+    {certifications.map((field, index) => (
+      <div
+        className="flex gap-4 p-3 border-b border-gray-700 w-full justify-around items-center"
+        key={field.id}
+      >
+        {/* Certificate Name */}
+        <label className="flex flex-col gap-2">
+          <span className="flex justify-start items-center gap-3">
+            {errors?.certifications?.[index]?.CertificateName && (
+              <span className="text-red-500 text-sm">
+                {errors.certifications[index].CertificateName.message}
+              </span>
+            )}
+           {duplicateCertifications.has(index) && (
+      <span className="text-red-500 text-sm">
+        Duplicate Certificate name detected!
+      </span>
+    )}
+            *<span>Certificate Name</span>                        
+          </span>
+          <input
+            type="text"
+            placeholder="Enter Your Certificate Name"
+            className={`form-style h-9 w-[390px] bg-richblack-600 rounded-2xl px-3${
+      duplicateCertifications.has(index) ? "border-2 border-red-500" : ""
+    }`}
+            {...register(`certifications.${index}.CertificateName`, {
+              required: certified === "Yes" ? "Certificate name is required" : false,
+                validate: (val) => {
+        const allNames = getValues("certifications").map((entry, i) =>
+          (i === index ? val : entry?.CertificateName || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .trim()
+        );
 
-                            *<span>Certificate</span>
-                          </span>
-                          <input
-                            type="file"
-                            accept=".pdf,.docx,.jpg,.jpeg,.png"
-                            className="form-style bg-richblack-600 rounded-2xl p-2"
-                            multiple
-                            {...register(`certifications.${index}.Certificatealink`, {
-                              required: "File upload is required",
-                            })}
-                            onChange={(e) => {
-                              setValue(`certifications.${index}.Certificatealink`, e.target.files[0], { shouldValidate: true });
-                            }}
-                          />
-                        </label>
-                        <label htmlFor={`CertDate-${index}`} className="flex flex-col gap-2">
-           {errors?.certifications?.[index]?.CertDate && <span className='text-red-500 text-sm'>{errors.certifications[index].CertDate.message}</span>}
+        const normalized = val.toLowerCase().replace(/\s+/g, "").trim();
 
-                          <span className="flex items-center gap-3">*<span>Certificate Completion Date</span></span>
-                          <input
-                            type="month"
-                            className="form-style h-9 w-[140px] bg-richblack-600 rounded-2xl px-2"
-                            {...register(`certifications.${index}.CertDate`, {
-                              required: "Date is required",
-                            })}
-                          />
-                        </label>
-                        <div
-                          className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-red-600 cursor-pointer"
-                          onClick={() => {
-                            if (certifications.length === 1) {
-                              setCertError("You need to keep at least one field");
-                            } else {
-                              removeCert(index);
-                              setCertError("");
-                            }
-                          }}
-                        >
-                          <RxCross1 className="text-richblack-100" />
-                        </div>
-                      </div>
-                    ))}
-                    {certError && (
-                      <span className="text-red-500 text-sm flex justify-center items-center">
-                        {certError}
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      className="px-4 py-1 bg-blue-600 text-white rounded Adding w-full"
-                      onClick={() => {
-                        if (certifications.length >= 4) {
-                          setCertError("You can create 4 fields only");
-                        } else {
-                          appendCert({ CertificateName: "", Certificatealink: "", CertDate: "" });
-                          setCertError("");
-                        }
-                      }}
-                    >
-                      Add more
-                    </button>
-                  </div>
-                )}
+        return allNames.filter((name) => name && name === normalized).length > 1
+          ? ""
+          : true;
+      },    
+            })}
+           onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`certifications.${index}.CertificateName`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const allNames = getValues("certifications").map((entry, i) =>
+        (i === index ? value : entry?.CertificateName || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .trim()
+      );
+
+      const counts = {};
+      allNames.forEach((n) => {
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      allNames.forEach((n, i) => {
+        if (n && counts[n] > 1) newDuplicates.add(i);
+      });
+
+      setduplicateCertifications(newDuplicates);
+    
+            {/* duplicateCertifications, setduplicateCertifications */}
+    }} 
+          />
+        </label>
+
+        {/* File Upload */}
+        <label className="flex flex-col gap-2">
+          <span className="flex items-center gap-3">
+            {errors?.certifications?.[index]?.Certificatealink && (
+              <span className="text-red-500 text-sm">
+                {errors.certifications[index].Certificatealink.message}
+              </span>
+            )}
+            *<span>Certificate</span>
+          </span>
+          <input
+            type="file"
+            accept=".pdf,.docx,.jpg,.jpeg,.png"
+            className="form-style bg-richblack-600 rounded-2xl p-2"
+            {...register(`certifications.${index}.Certificatealink`, {
+              required: "File upload is required",
+              validate: {
+                fileType: (files) => {
+                  if (files && files[0]) {
+                    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+                    return (
+                      allowedTypes.includes(files[0].type) ||
+                      "Only PDF, DOCX, JPG, JPEG, PNG files are allowed"
+                    );
+                  }
+                  return true;
+                },
+                fileSize: (files) => {
+                  if (files && files[0]) {
+                    return (
+                      files[0].size < 1 * 1024 * 1024 ||
+                      "File size must be less than 5MB"
+                    );
+                  }
+                  appendCert({ Certificatealink: ""});
+                  // return true;
+                },
+              },
+            })}
+          />
+        </label>
+
+        {/* Completion Date */}
+        <label className="flex flex-col gap-2">
+          {errors?.certifications?.[index]?.CertDate && (
+            <span className="text-red-500 text-sm">
+              {errors.certifications[index].CertDate.message}
+            </span>
+          )}
+          <span className="flex items-center gap-3">*<span>Certificate Completion Date</span></span>
+          <input
+            type="month"
+            className="form-style h-9 w-[140px] bg-richblack-600 rounded-2xl px-2"
+            {...register(`certifications.${index}.CertDate`, {
+              required: "Date is required",
+            })}
+          />
+        </label>
+
+        {/* Remove Button */}
+        <div
+          className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-red-600 cursor-pointer"
+          onClick={() => {
+            if (certifications.length === 1) {
+              setCertError("You need to keep at least one field");
+            } else {
+              removeCert(index);
+              setCertError("");
+            }
+          }}
+        >
+          <RxCross1 className="text-richblack-100" />
+        </div>
+      </div>
+    ))}
+
+    {/* Error + Add More */}
+    {certError && (
+      <span className="text-red-500 text-sm flex justify-center items-center">
+        {certError}
+      </span>
+    )}
+    <button
+      type="button"
+      className="px-4 py-1 bg-blue-600 text-white rounded Adding w-full"
+      onClick={() => {
+        if (certifications.length >= 4) {
+          setCertError("You can create 4 fields only");
+        } else {
+          appendCert({ CertificateName: "", Certificatealink: "", CertDate: "" });
+          setCertError("");
+        }
+      }}
+    >
+      Add more
+    </button>
+  </div>
+)}
               </div>
             </div>
             {/* Roles */}
@@ -2531,7 +3050,7 @@ useEffect(() => {
                 onClick={() => {
                   setExperiences(exp);
                   setExperienceError("");
-                  setValue("experiences", exp, { shouldValidate: true }); // ✅ tell RHF
+                  setValue("experiences", exp, { shouldValidate: true }); 
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -2583,8 +3102,6 @@ useEffect(() => {
                   <div className={`${(!selectedRole || !experiences) ? 'blur-sm pointer-events-none' : ''}`}>
                     {selectedRole === "Director" && experiences === "Experienced" && (
                       <div className=' space-y-8  SelectionOne bg-richblack-800 rounded-lg border border-richblack-600'>
-                        {/* <h1 className="text-red-500 flex justify-center items-center gap-2"> All The Fields are Required in this Section </h1> */}
-
 <div className='space-y-4'>
   <h3 className='text-lg font-semibold text-yellow-400 Liness'>🏆 Awards & Recognition</h3>
   <div className='space-y-3'>
@@ -2599,7 +3116,7 @@ useEffect(() => {
       <label className='flex items-center gap-2 cursor-pointer'>
         <input
           type="radio"
-          name="awards"
+          name="Awards"
           value="Yes"
           className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
           {...register("Awards",{required:"Awards is reqired"})}
@@ -2614,7 +3131,7 @@ useEffect(() => {
       <label className='flex items-center gap-2 cursor-pointer'>
         <input
           type="radio"
-          name="awards"
+          name="Awards"
           value="No"
           className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
           {...register("Awards",{required:"Awards is reqired"})}
@@ -2656,12 +3173,12 @@ useEffect(() => {
       >
         {/* Award Category */}
         <label className="flex flex-col gap-2">
-          {errors?.awards?.[index]?.category && <span className='text-red-500 text-sm'>{errors.awards[index].category.message}</span>}
+          {errors?.Awards?.[index]?.category && <span className='text-red-500 text-sm'>{errors.Awards[index].category.message}</span>}
           <span>* Award Category</span>
           <select
           defaultValue=""
-            className="form-style h-12 w-[150px] bg-richblack-600 rounded-2xl Awards"
-            {...register(`awards.${index}.category`, { required: "Category is required" })}>
+            className="form-style h-12 w-[150px] bg-richblack-600 rounded-2xl awar"
+            {...register(`Awards.${index}.category`, { required: "Category is required" })}>
             <option value="">Select Award</option>
            {Projects.awardCategories.map((data, idx) => (
             <option key={idx}>{data}</option>
@@ -2671,49 +3188,153 @@ useEffect(() => {
 
         {/* Award Name */}
         <label className="flex flex-col gap-2">
-            {errors?.awards?.[index]?.awardName && <span className='text-red-500 text-sm'>{errors.awards[index].awardName.message}</span>}
+            {errors?.Awards?.[index]?.awardName && <span className='text-red-500 text-sm'>{errors.Awards[index].awardName.message}</span>}
+          {/* duplicateAwardFestival, setduplicateAwardFestival */}
+            {duplicateAwardFestival.has(index) && (
+      <span className="text-red-500 text-sm">
+        Duplicate Award name detected!
+      </span>
+    )}
           <span>* Name of Award / Festival</span>
           <input
             type="text"
             placeholder="Enter Award/Festival Name"
-            className="form-style h-9 w-[390px] bg-richblack-800 rounded-2xl px-3 Awards"
-            {...register(`awards.${index}.awardName`, { required: "Award name is required" })}
+            className={`form-style h-9 w-[390px] bg-richblack-800 rounded-2xl px-3 awar ${
+      duplicateAwardFestival.has(index) ? "border-2 border-red-500" : ""
+    }`}
+             {...register(`Awards.${index}.awardName`, {
+              required: hasAwards === "Yes" ? "Certificate name is required" : false,
+                validate: (val) => {
+        const allNames = getValues("Awards").map((entry, i) =>
+          (i === index ? val : entry?.awardName || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .trim()
+        );
+
+        const normalized = val.toLowerCase().replace(/\s+/g, "").trim();
+
+        return allNames.filter((name) => name && name === normalized).length > 1
+          ? ""
+          : true;
+      },    
+            })}
+           onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`Awards.${index}.awardName`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const allNames = getValues("Awards").map((entry, i) =>
+        (i === index ? value : entry?.awardName || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .trim()
+      );
+
+      const counts = {};
+      allNames.forEach((n) => {
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      allNames.forEach((n, i) => {
+        if (n && counts[n] > 1) newDuplicates.add(i);
+      });
+
+      setduplicateAwardFestival(newDuplicates);
+    }} 
           />
         </label>
 
         {/* Movie Name */}
         <label className="flex flex-col gap-2">
-           {errors?.awards?.[index]?.movieName && <span className='text-red-500 text-sm'>{errors.awards[index].movieName.message}</span>}
+          {/* duplicateMovieName, setduplicateMovieName */}
+          {duplicateMovieName.has(index) && (
+      <span className="text-red-500 text-sm">
+        Duplicate Award name detected!
+      </span>
+    )}
+           {errors?.Awards?.[index]?.movieName && <span className='text-red-500 text-sm'>{errors.Awards[index].movieName.message}</span>}
           <span>* Movie / Web Series Name</span>
           <input
             type="text"
             placeholder="Enter Movie Name"
-            className="form-style h-9 w-[375px] bg-richblack-800 rounded-2xl px-3 Awards"
-            {...register(`awards.${index}.movieName`, { required: "Movie/Web Series name is required" })}
+              className={`form-style h-9 w-[375px] bg-richblack-800 rounded-2xl px-3 awar ${
+      duplicateMovieName.has(index) ? "border-2 border-red-500" : ""
+    }`}
+                 {...register(`Awards.${index}.movieName`, {
+              required: hasAwards === "Yes" ? "Certificate name is required" : false,
+                validate: (val) => {
+        const allNames = getValues("Awards").map((entry, i) =>
+          (i === index ? val : entry?.movieName || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .trim()
+        );
+
+        const normalized = val.toLowerCase().replace(/\s+/g, "").trim();
+
+        return allNames.filter((name) => name && name === normalized).length > 1
+          ? ""
+          : true;
+      },    
+            })}
+           onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`Awards.${index}.movieName`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const allNames = getValues("Awards").map((entry, i) =>
+        (i === index ? value : entry?.movieName || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .trim()
+      );
+
+      const counts = {};
+      allNames.forEach((n) => {
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      allNames.forEach((n, i) => {
+        if (n && counts[n] > 1) newDuplicates.add(i);
+      });
+
+      setduplicateMovieName(newDuplicates);
+    }} 
           />
         </label>
 
 <div className='flex w-full  justify-center items-center gap-5'>
   {/* Release Date */}
         <label className="flex flex-col gap-2">
-           {errors?.awards?.[index]?.releaseDate && <span className='text-red-500 text-sm'>{errors.awards[index].releaseDate.message}</span>}
+           {errors?.Awards?.[index]?.releaseDate && <span className='text-red-500 text-sm'>{errors.Awards[index].releaseDate.message}</span>}
           <span>* Release Date</span>
           <input
             type="date"
-            className="form-style h-9 w-[160px] bg-richblack-600 rounded-2xl px-2 Awards"
-            {...register(`awards.${index}.releaseDate`, { required: "Release Date is required" })}
+            className="form-style h-9 w-[160px] bg-richblack-600 rounded-2xl px-2 awar"
+            {...register(`Awards.${index}.releaseDate`, { required: "Release Date is required" })}
           />
         </label>
 
         {/* Currency */}
         <div className='flex justify-center items-center gap-5'>
           <label className="flex flex-col gap-2">
-           {errors?.awards?.[index]?.Currencey && <span className='text-red-500 text-sm'>{errors.awards[index].Currencey.message}</span>}
+           {errors?.Awards?.[index]?.Currencey && <span className='text-red-500 text-sm'>{errors.Awards[index].Currencey.message}</span>}
           <span>* Currency</span>
            <select
           defaultValue=""
-            className="form-style h-12 w-[250px] bg-richblack-600 rounded-2xl Awards"
-            {...register(`awards.${index}.Currencey`, { required: "Currencey is required" })}>
+            className="form-style h-12 w-[250px] bg-richblack-600 rounded-2xl awar"
+            {...register(`Awards.${index}.Currencey`, { required: "Currencey is required" })}>
             <option value="">Select Currencey</option>
            {Projects.currencies.map((data, idx) => (
             <option key={idx} value={data.code}>{data.name} - {data.symbol}</option>
@@ -2723,25 +3344,25 @@ useEffect(() => {
 
         {/* Budget */}
         <label className="flex flex-col gap-2">
-           {errors?.awards?.[index]?.budget && <span className='text-red-500 text-sm'>{errors.awards[index].budget.message}</span>}
+           {errors?.Awards?.[index]?.budget && <span className='text-red-500 text-sm'>{errors.Awards[index].budget.message}</span>}
           <span>* Total Budget</span>
           <input
             type="number"
             placeholder="Enter Budget"
-            className="form-style h-9 w-[220px] bg-richblack-800 rounded-2xl px-3 Awards"
-            {...register(`awards.${index}.budget`, { required: "Budget is required" })}
+            className="form-style h-9 w-[220px] bg-richblack-800 rounded-2xl px-3 awar"
+            {...register(`Awards.${index}.budget`, { required: "Budget is required" })}
           />
         </label>
 
         {/* Earned */}
         <label className="flex flex-col gap-2">
-           {errors?.awards?.[index]?.earned && <span className='text-red-500 text-sm'>{errors.awards[index].earned.message}</span>}
+           {errors?.Awards?.[index]?.earned && <span className='text-red-500 text-sm'>{errors.Awards[index].earned.message}</span>}
           <span>* Total Earned</span>
           <input
             type="number"
             placeholder="Total Earned"
-            className="form-style h-9 w-[220px] bg-richblack-800 rounded-2xl px-3 Awards"
-            {...register(`awards.${index}.earned`, { required: "Total earned is required" })}
+            className="form-style h-9 w-[220px] bg-richblack-800 rounded-2xl px-3 awar"
+            {...register(`Awards.${index}.earned`, { required: "Total earned is required" })}
           />
         </label>
 
@@ -2800,29 +3421,64 @@ useEffect(() => {
 )}
   </div>
 </div>
-                        <div className='space-y-4 TaS'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>🛠️ Tools & Software</h3>
-                          <div className='space-y-3'>
-                            <p className='text-white font-medium flex justify-center items-center'>Can you Name Some of the Software or Tools that you have worked with?</p>
-                            <div className='flex gap-4 justify-center items-center'>
-                              <label className='flex items-center gap-2 cursor-pointer'>
-                                {/* Soft,setSoft */}
-                                <input type="radio" name="tools" value="Yes" className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400' {...register("Tools")} onChange={(e)=>{setSoft(e.target.value),setValue("Tools","Yes")}} checked={Soft === "Yes"}/>
-                                <span className='text-white'>Yes</span>
-                              </label>
-                              <label className='flex items-center gap-2 cursor-pointer'>
-                                <input type="radio" name="tools" value="No" className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400' {...register("Tools")} onChange={(e)=>{setSoft(e.target.value),setValue("Tools","No")}} checked={Soft === "No"}/>
-                                <span className='text-white'>No</span>
-                              </label>
-                            </div>
+                       <div className='space-y-4 TaS'>
+  <h3 className='text-lg font-semibold text-yellow-400 mb-4'>🛠️ Tools & Software</h3>
+  <div className='space-y-3'>
+    <p className='text-white font-medium flex justify-center items-center'>
+      Can you Name Some of the Software or Tools that you have worked with?
+    </p>
 
-      {Soft === "Yes" && (selectedTools.length === 0 || selectedSoftware.length === 0) && (
-  <p className="text-red-500 text-sm mt-2 S">
-    Please select at least one Tool and one Software
-  </p>
-)}
+    {/* Yes/No radio */}
+    <div className='flex gap-4 justify-center items-center'>
+      <label className='flex items-center gap-2 cursor-pointer'>
+        <input
+          type="radio"
+          value="Yes"
+          {...register("ToolsChoice")}
+          onChange={(e) => {
+            setSoft("Yes");
+            setValue("ToolsChoice", "Yes");
+          }}
+          checked={Soft === "Yes"}
+          className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
+        />
+        <span className='text-white'>Yes</span>
+      </label>
+      <label className='flex items-center gap-2 cursor-pointer'>
+        <input
+          type="radio"
+          value="No"
+          {...register("ToolsChoice")}
+          onChange={(e) => {
+            setSoft("No");
+            setValue("ToolsChoice", "No");
+            // reset selections if No
+            setSelectedTools([]);
+            setSelectedSoftware([]);
+            setValue("tools", []);
+            setValue("software", []);
+          }}
+          checked={Soft === "No"}
+          className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
+        />
+        <span className='text-white'>No</span>
+      </label>
+    </div>
 
-                      <section className={Soft === "Yes" ? "grid grid-cols-2 grid-rows-1 border w-full h-fit bg-richblack-800 border-richblack-600 rounded-md p-3 Softs" : "hidden"}>
+    {Soft === "Yes" && (selectedTools.length === 0 || selectedSoftware.length === 0) && (
+      <p className="text-red-500 text-sm mt-2 S">
+        Please select at least one Tool and one Software
+      </p>
+    )}
+
+    {/* Selection section */}
+    <section
+      className={
+        Soft === "Yes"
+          ? "grid grid-cols-2 grid-rows-1 border w-full h-fit bg-richblack-800 border-richblack-600 rounded-md p-3 Softs"
+          : "hidden"
+      }
+    >
       {/* ---------------------- TOOLS SECTION ---------------------- */}
       <div className="h-[300px] w-full flex flex-col">
         <p className="text-red-600 font-bold italic text-center">Select Tools</p>
@@ -2835,38 +3491,38 @@ useEffect(() => {
               <div
                 key={index}
                 className={`relative p-2 rounded-md shadow-sm cursor-pointer w-fit h-fit selectTool flex justify-center items-center gap-2
-                ${
-                  isSelected
+                  ${isSelected
                     ? "bg-yellow-200 text-black"
                     : "bg-richblack-700 text-white hover:bg-richblack-500 active:bg-richblack-600"
-                }`}
+                  }`}
                 onClick={() => {
                   if (isSelected) {
-                    // remove
                     const updated = selectedTools.filter((t) => t !== tool);
                     setSelectedTools(updated);
-                    if (updated.length <= 10) setToolError(""); // ✅ clear error when valid
+                    setValue("tools", updated, { shouldValidate: true });
+                    if (updated.length <= 10) setToolError("");
                   } else {
-                    // add
                     if (selectedTools.length >= 10) {
                       setToolError("You cannot select more than 10 tools");
                       return;
                     }
-                    setSelectedTools([...selectedTools, tool]);
+                    const updated = [...selectedTools, tool];
+                    setSelectedTools(updated);
+                    setValue("tools", updated, { shouldValidate: true });
                   }
                 }}
               >
                 {tool}
 
-                {/* Cross icon (only when selected) */}
                 {isSelected && (
                   <span
                     className="absolute top-1 right-1 cursor-pointer"
                     onClick={(e) => {
-                      e.stopPropagation(); // prevent parent click
+                      e.stopPropagation();
                       const updated = selectedTools.filter((t) => t !== tool);
                       setSelectedTools(updated);
-                      if (updated.length <= 10) setToolError(""); // ✅ fixed for Tools
+                      setValue("tools", updated, { shouldValidate: true });
+                      if (updated.length <= 10) setToolError("");
                     }}
                   >
                     <RxCross1 className="text-black hover:text-red-600" />
@@ -2876,13 +3532,11 @@ useEffect(() => {
             );
           })}
         </div>
-
-        {/* Error message */}
         {toolError && <p className="text-red-500 text-xl mt-2">{toolError}</p>}
       </div>
 
       {/* ---------------------- SOFTWARE SECTION ---------------------- */}
-      <div className=" h-[300px] w-full flex flex-col">
+      <div className="h-[300px] w-full flex flex-col">
         <p className="text-red-600 font-bold italic text-center">Select Software</p>
 
         <div className="grid grid-cols-3 grid-row-5 w-full h-full overflow-y-auto gap-2 p-2 space-y-1">
@@ -2893,37 +3547,37 @@ useEffect(() => {
               <div
                 key={index}
                 className={`relative p-2 rounded-md shadow-sm cursor-pointer w-fit h-fit selectTool flex justify-center items-center gap-2
-                ${
-                  isSelected
+                  ${isSelected
                     ? "bg-yellow-200 text-black"
                     : "bg-richblack-700 text-white hover:bg-richblack-500 active:bg-richblack-600"
-                }`}
+                  }`}
                 onClick={() => {
                   if (isSelected) {
                     const updated = selectedSoftware.filter((t) => t !== tool);
                     setSelectedSoftware(updated);
-                    if (updated.length <= 10) setSoftwareError(""); // ❌ you had setToolError here
+                    setValue("software", updated, { shouldValidate: true });
+                    if (updated.length <= 10) setSoftwareError("");
                   } else {
                     if (selectedSoftware.length >= 10) {
                       setSoftwareError("You cannot select more than 10 software");
                       return;
                     }
-                    setSelectedSoftware([...selectedSoftware, tool]);
+                    const updated = [...selectedSoftware, tool];
+                    setSelectedSoftware(updated);
+                    setValue("software", updated, { shouldValidate: true });
                   }
                 }}
               >
                 {tool}
-
-                {/* Cross icon (only when selected) */}
                 {isSelected && (
                   <span
                     className="absolute top-1 right-1 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // ❌ BUG FIXED: you used selectedTools instead of selectedSoftware
                       const updated = selectedSoftware.filter((t) => t !== tool);
                       setSelectedSoftware(updated);
-                      if (updated.length <= 10) setSoftwareError(""); // ❌ you had setToolError here
+                      setValue("software", updated, { shouldValidate: true });
+                      if (updated.length <= 10) setSoftwareError("");
                     }}
                   >
                     <RxCross1 className="text-black hover:text-red-600" />
@@ -2933,16 +3587,14 @@ useEffect(() => {
             );
           })}
         </div>
-
-        {/* Error message */}
         {softwareError && (
           <p className="text-red-500 text-xl mt-2">{softwareError}</p>
         )}
       </div>
     </section>
+  </div>
+</div>
 
-                          </div>
-                        </div>
                         <div className='space-y-4 TaS'>
                           <h3 className='text-lg font-semibold text-yellow-400 mb-4'>👥 Team Management</h3>
                           <div className='space-y-2 T flex flex-col gap-3'>
@@ -2994,189 +3646,249 @@ useEffect(() => {
                             </div>
                           </div>
                         </div>
-                        <div className='space-y-4 Fundes'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4 '>💰 Funding & Finance</h3>
-                          <div className='space-y-2'>
-                             <label className='block text-sm font-medium text-gray-300'>Can You Tell Us What are the various ways That you have Used to fund your Projects? <span className='text-red-500'>*</span></label> 
-                            {/* <select className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400' {...register("fundingSources", { required: "Funding sources are required" })}>
-                              <option value="" disabled>Select Funding Sources</option>
-                              {Profession.fundingSources.map((data, index) => (
-                                <option key={index} value={data}>{data}</option>
-                              ))}
-                            </select>
-                            {errors.fundingSources && <span className="text-red-500">{errors.fundingSources.message}</span>} */}
-{/* funding,setfunding */}
-                               {funding ? (
-    <div className="flex gap-1 One">
-      <FaCaretDown
-        className="text-2xl cursor-pointer fill-red-600"
-        onClick={() => setfunding(false)} // hides this section
-      />
-      <span>Close {errors.fundingSources && <span className="text-red-500">{errors.fundingSources.message}</span>}</span>
-    </div>
-  ) : (
-    <div className='w-full  bg-richblack-800 p-4 rounded-md flex flex-col gap-4 '>
-      <div className="flex flex-row One">
+
+                       <div className="space-y-4 Fundes">
+  <h3 className="text-lg font-semibold text-yellow-400 mb-4">
+    💰 Funding & Finance
+  </h3>
+  <div className="space-y-2">
+    <label className="block text-sm font-medium text-gray-300">
+      Can You Tell Us What are the various ways That you have Used to fund your
+      Projects? <span className="text-red-500">*</span>
+    </label>
+
+    {funding ? (
+      <div className="flex gap-1 One">
         <FaCaretDown
-          className="text-2xl cursor-pointer"
-          onClick={() => setfunding(true)} // shows Helloes again
+          className="text-2xl cursor-pointer fill-red-600"
+          onClick={() => setfunding(false)} // hides this section
         />
-        <span>OPEN    {errors.fundingSources && <span className="text-red-500">{errors.fundingSources.message}</span>}</span>
+        <span>
+          Close{" "}
+          {errors.fundingSources && (
+            <span className="text-red-500">
+              {errors.fundingSources.message}
+            </span>
+          )}
+        </span>
       </div>
-      <div className={`w-full grid grid-cols-2 grid-rows-1 md:grid-cols-2 gap-2 Fundings ${errors.fundingSources ? "border border-red-500" : ""} ${funding ? "hidden" : "flex flex-wrap gap-2"}`}>
-         {Profession.fundingSources.map((data, index) => {
-          const selected = finance.includes(data);
-          // finance,setfinance
-          return(
-            
-              <span key={index} className={`hover:bg-yellow-500 w-fit h-fit f flex justify-center items-center gap-2 rounded-md ${selected ? "bg-yellow-200 text-black" : "bg-richblack-700 text-white hover:bg-richblack-500 active:bg-richblack-600"}`} onClick={()=>{
-                                  if(selected){
-                                    const updated = finance.filter((f)=>f!==data)
-                                    setfinance(updated)
-                                      if (updated.length <= 5) setfinanceError("");
-                                  } else {
-// financeError,setfinanceError                    // add
+    ) : (
+      <div className="w-full bg-richblack-800 p-4 rounded-md flex flex-col gap-4">
+        <div className="flex flex-row One">
+          <FaCaretDown
+            className="text-2xl cursor-pointer"
+            onClick={() => setfunding(true)} // shows again
+          />
+          <span>
+            OPEN{" "}
+            {errors.fundingSources && (
+              <span className="text-red-500">
+                {errors.fundingSources.message}
+              </span>
+            )}
+          </span>
+        </div>
+
+        <div
+          className={`w-full grid grid-cols-2 grid-rows-1 md:grid-cols-2 gap-2 Fundings ${
+            errors.fundingSources ? "border border-red-500" : ""
+          } ${funding ? "hidden" : "flex flex-wrap gap-2"}`}
+        >
+          {Profession.fundingSources.map((data, index) => {
+            const selected = finance.includes(data);
+
+            return (
+              <span
+                key={index}
+                className={`hover:bg-yellow-500 w-fit h-fit f flex justify-center items-center gap-2 rounded-md ${
+                  selected
+                    ? "bg-yellow-200 text-black"
+                    : "bg-richblack-700 text-white hover:bg-richblack-500 active:bg-richblack-600"
+                }`}
+                onClick={() => {
+                  if (selected) {
+                    const updated = finance.filter((f) => f !== data);
+                    setfinance(updated);
+                    setValue("fundingSources", updated, {
+                      shouldValidate: true,
+                    });
+                    if (updated.length <= 5) setfinanceError("");
+                  } else {
                     if (finance.length >= 5) {
-                      setfinanceError("You cannot select more than 5 Funding source");
+                      setfinanceError(
+                        "You cannot select more than 5 Funding source"
+                      );
                       return;
                     }
-                    setfinance([...finance, data]);
+                    const updated = [...finance, data];
+                    setfinance(updated);
+                    setValue("fundingSources", updated, {
+                      shouldValidate: true,
+                    });
                   }
-                                }}>{data} {selected && <RxCross1 onClick={(e)=>{
-                                  e.stopPropagation()
-                                  const updated = finance.filter((f)=>f!==data)
-                                  setfinance(updated)
-                                    if (updated.length <= 5) setfinanceError("");
-                                }}/>}</span>
-                                
-          )
-})}
-<input
-    type="hidden"
-    {...register("fundingSources", {
-      required: "Please select at least one Funding Source",
-      validate: (value) =>
-        value.length > 0 || "Please select at least one Funding Source",
-    })}
-    value={finance.join(",")}
-  />
+                }}
+              >
+                {data}{" "}
+                {selected && (
+                  <RxCross1
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const updated = finance.filter((f) => f !== data);
+                      setfinance(updated);
+                      setValue("fundingSources", updated, {
+                        shouldValidate: true,
+                      });
+                      if (updated.length <= 5) setfinanceError("");
+                    }}
+                  />
+                )}
+              </span>
+            );
+          })}
 
-        {financeError && <p className="text-red-500 text-xl mt-2">{financeError}</p>}
+          {/* Hidden input synced with RHF */}
+          <input
+            type="hidden"
+            {...register("fundingSources", {
+              required: "Please select at least one Funding Source",
+              validate: (value) =>
+                value && value.length > 0
+                  ? true
+                  : "Please select at least one Funding Source",
+            })}
+          />
+        </div>
 
+        {financeError && (
+          <p className="text-red-500 text-xl mt-2">{financeError}</p>
+        )}
       </div>
-    </div>
-  )}
-
-                          </div>
-                        </div>
-                        <div className='space-y-4 Fundes'>
-                          <h3 className='text-lg font-semibold text-yellow-400 mb-4'>🏛️ Professional Affiliations</h3>
-                        <div className='space-y-3'>
-  <p className='text-white font-medium flex justify-center items-center'>
-    Are you affiliated with any union, guild, or professional film association? 
-    <span className='text-red-500'>*</span>
-  </p>
-
-  <div className='flex gap-4 justify-center items-center'>
-    <label className='flex items-center gap-2 cursor-pointer'>
-      <input
-        type="radio"
-        name="affiliation"
-        value="Yes"
-        className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
-        onChange={() => {
-          setAffiliationError("")
-          setValue('affiliation',"Yes")
-          setFunding("Yes")
-        }}
-        checked={Funding === "Yes"}
-        {...register("affiliation", { required: "Affiliation selection is required" })}
-      />
-      <span className='text-white'>Yes</span>
-    </label>
-    <label className='flex items-center gap-2 cursor-pointer'>
-      <input
-        type="radio"
-        name="affiliation"
-        value="No"
-        className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
-        onChange={() => {
-          setAffiliationError("")
-          setValue('affiliation',"No")
-          setFunding("No")
-        }}
-        checked={Funding === "No"}
-        {...register("affiliation", { required: "Affiliation selection is required" })}
-      />
-      <span className='text-white'>No</span>
-    </label>
+    )}
   </div>
-
-  {Funding === "Yes" && (
-    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
-
-      {/* Guild/Union */}
-      <div className='space-y-2'>
-        <label className='block text-sm font-medium text-gray-300'>
-          Select Guild/Union <span className='text-red-500'>*</span>
-        </label>
-        <select
-          defaultValue=""
-          className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400'
-          {...register("guildUnion", { required: "Guild/Union is required" })}
-        >
-          <option value="" disabled>Select Guild/Union</option>
-          {Profession.unionsGuildsAffiliations.map((data, index) => (
-            <option key={index} value={data}>{data}</option>
-          ))}
-        </select>
-        {errors.guildUnion && <p className="text-red-500 text-sm">{errors.guildUnion.message}</p>}
-      </div>
-
-      {/* Membership ID */}
-      <div className='space-y-2'>
-        <label className='block text-sm font-medium text-gray-300'>
-          Membership ID <span className='text-red-500'>*</span>
-        </label>
-        <input
-          type="text"
-          placeholder='Enter Your Membership ID'
-          className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400'
-          {...register("membershipId", { required: "Membership ID is required" })}
-        />
-        {errors.membershipId && <p className="text-red-500 text-sm">{errors.membershipId.message}</p>}
-      </div>
-
-      {/* Year Joined */}
-      <div className='space-y-2'>
-        <label className='block text-sm font-medium text-gray-300'>
-          Year Joined <span className='text-red-500'>*</span>
-        </label>
-        <input
-          type="date"
-          className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400'
-          {...register("yearJoined", { required: "Year joined is required" })}
-        />
-        {errors.yearJoined && <p className="text-red-500 text-sm">{errors.yearJoined.message}</p>}
-      </div>
-
-      {/* Expiry Date */}
-      <div className='space-y-2'>
-        <label className='block text-sm font-medium text-gray-300'>
-          Expiry Date <span className='text-red-500'>*</span>
-        </label>
-        <input
-          type="date"
-          className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400'
-          {...register("expiryDate", { required: "Expiry date is required" })}
-        />
-        {errors.expiryDate && <p className="text-red-500 text-sm">{errors.expiryDate.message}</p>}
-      </div>
-    </div>
-  )}
 </div>
-{/* Doing some changes for testing purposed */}
-                        </div>
+
+
+                       <div className="space-y-4 Fundes">
+  <h3 className="text-lg font-semibold text-yellow-400 mb-4">
+    🏛️ Professional Affiliations
+  </h3>
+  <div className="space-y-3">
+    <p className="text-white font-medium flex justify-center items-center">
+      <span className="text-red-500">*</span>
+      Are you affiliated with any union, guild, or professional film association?
+    </p>
+
+    {/* Radio Buttons */}
+    <div className="flex gap-4 justify-center items-center">
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          value="Yes"
+          className="w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400"
+          {...register("affiliation", { required: "Affiliation selection is required" })}
+        />
+        <span className="text-white">Yes</span>
+      </label>
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          value="No"
+          className="w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400"
+          {...register("affiliation", { required: "Affiliation selection is required" })}
+        />
+        <span className="text-white">No</span>
+      </label>
+    </div>
+
+    {errors.affiliation && (
+      <p className="text-red-500 text-sm">{errors.affiliation.message}</p>
+    )}
+
+    {/* Watch affiliation value directly from RHF */}
+    {watch("affiliation") === "Yes" && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Guild/Union */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">
+            Select Guild/Union <span className="text-red-500">*</span>
+          </label>
+          <select
+            defaultValue=""
+            className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            {...register("guildUnion", { required: "Guild/Union is required" })}
+          >
+            <option value="" disabled>
+              Select Guild/Union
+            </option>
+            {Profession.unionsGuildsAffiliations.map((data, index) => (
+              <option key={index} value={data}>
+                {data}
+              </option>
+            ))}
+          </select>
+          {errors.guildUnion && (
+            <p className="text-red-500 text-sm">
+              {errors.guildUnion.message}
+            </p>
+          )}
+        </div>
+
+        {/* Membership ID */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">
+            Membership ID <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Enter Your Membership ID"
+            className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            {...register("membershipId", { required: "Membership ID is required" })}
+          />
+          {errors.membershipId && (
+            <p className="text-red-500 text-sm">
+              {errors.membershipId.message}
+            </p>
+          )}
+        </div>
+
+        {/* Year Joined */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">
+            Year Joined <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            {...register("yearJoined", { required: "Year joined is required" })}
+          />
+          {errors.yearJoined && (
+            <p className="text-red-500 text-sm">
+              {errors.yearJoined.message}
+            </p>
+          )}
+        </div>
+
+        {/* Expiry Date */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">
+            Expiry Date <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            className="w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            {...register("expiryDate", { required: "Expiry date is required" })}
+          />
+          {errors.expiryDate && (
+            <p className="text-red-500 text-sm">
+              {errors.expiryDate.message}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
                         <div className='space-y-4 Fundes'>
                           <h3 className='text-lg font-semibold text-yellow-400 mb-4'>👥 Team Management</h3>
                           <div className='space-y-2'>
@@ -3512,28 +4224,80 @@ useEffect(() => {
     {/* Dynamic Internship Fields */}
     {internships.map((field, index) => (
       <div
-        className="flex gap-4 p-3 border-b border-gray-700 w-full justify-around items-center"
+        className="flex gap-4 p-3  w-full justify-around items-center bg-richblack-800 rounded-md"
         key={field.id}
       >
         {/* Internship Name */}
-        <label htmlFor={`internships.${index}.InternshipName`} className="flex flex-col gap-2">
-          <span className="flex justify-start items-center gap-3">
-            *<span>Internship Name</span>
-          </span>
-          <input
-            type="text"
-            placeholder="Enter Internship Name"
-            className="form-style h-9 w-[250px] bg-richblack-600 rounded-2xl px-3"
-            {...register(`internships.${index}.InternshipName`, {
-              required: "Internship name is required",
-            })}
-          />
-          {errors?.internships?.[index]?.InternshipName && (
-            <span className="text-red-500 text-sm">
-              {errors.internships[index].InternshipName.message}
-            </span>
-          )}
-        </label>
+      <label htmlFor={`internships.${index}.InternshipName`} className="flex flex-col gap-2">
+  <span className="flex justify-start items-center gap-3">
+    {duplicateinternship.has(index) && (
+      <span className="text-red-500 text-sm">
+        Duplicate Internship Name Detected!
+      </span>
+    )}
+    *<span>Internship Name</span>
+  </span>
+
+  <input
+    type="text"
+    placeholder="Enter Internship Name"
+    className={`form-style h-9 w-[250px] bg-richblack-600 rounded-2xl px-3 ${
+      duplicateinternship.has(index) ? "border-2 border-red-500" : ""
+    }`}
+    {...register(`internships.${index}.InternshipName`, {
+      required: internship === "Yes" ? "Internship name is required" : false,
+      validate: (val) => {
+        const allNames = getValues("internships").map((entry, i) =>
+          (i === index ? val : entry?.InternshipName || "")
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .trim()
+        );
+
+        const normalized = val.toLowerCase().replace(/\s+/g, "").trim();
+
+        return allNames.filter((name) => name && name === normalized).length > 1
+          ? ""
+          : true;
+      },
+    })}
+    onChange={(e) => {
+      const value = e.target.value;
+
+      setValue(`internships.${index}.InternshipName`, value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      const allNames = getValues("internships").map((entry, i) =>
+        (i === index ? value : entry?.InternshipName || "")
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .trim()
+      );
+
+      const counts = {};
+      allNames.forEach((n) => {
+        if (!n) return;
+        counts[n] = (counts[n] || 0) + 1;
+      });
+
+      const newDuplicates = new Set();
+      allNames.forEach((n, idx) => {
+        if (n && counts[n] > 1) newDuplicates.add(idx);
+      });
+
+      setduplicateinternship(newDuplicates);
+    }}
+  />
+
+  {errors?.internships?.[index]?.InternshipName && (
+    <span className="text-red-500 text-sm">
+      {errors.internships[index].InternshipName.message}
+    </span>
+  )}
+</label>
+
 
         {/* Internship Documents */}
         <label htmlFor={`internships.${index}.InternshipDocs`} className="flex flex-col gap-2">
@@ -3543,17 +4307,22 @@ useEffect(() => {
           <input
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
-            className="form-style bg-richblack-600 rounded-2xl p-2"
+            className="form-style bg-richblack-800 rounded-2xl p-2"
             {...register(`internships.${index}.InternshipDocs`, {
               required: "Internship file is required",
-              validate: {
-                fileSize: (files) =>
-                  files?.[0]?.size <= 5 * 1024 * 1024 || "File size must be less than 5MB",
-              },
-            })}
-            onChange={(e) => {
-              setValue(`internships.${index}.InternshipDocs`, e.target.files[0], { shouldValidate: true });
-            }}
+              validate:{
+                  fileSize: (files) => {
+                  if (files && files[0]) {
+                    return (
+                      files[0].size <= 5 * 1024 * 1024 ||
+                      "File size must be less than 5MB"
+                    );
+                  }
+                  return true;
+                },
+              }
+            }
+            )}
           />
           {errors?.internships?.[index]?.InternshipDocs && (
             <span className="text-red-500 text-sm">

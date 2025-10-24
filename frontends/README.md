@@ -27,6 +27,7 @@ If you are developing a production application, we recommend using TypeScript wi
 <!-- 1.0.5 -->
 <!-- 1.0.6 -->
 <!-- 1.0.7 -->
+<!-- 1.0.8 -->
 
 <!-- This thing i forgot to add i need to add this also  -->
 <!-- 

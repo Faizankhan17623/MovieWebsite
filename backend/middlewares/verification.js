@@ -24,7 +24,7 @@ exports.auth = async (req, res, next) => {
             }
 
             // ✅ Attach decoded data to req.user
-            req.USER = { id: decode.id };
+            req.USER = { id:decode.id } 
 
             next();
         } catch (error) {
@@ -72,7 +72,7 @@ exports.IsAdmin = async (req, res, next) => {
 
 exports.IsOrganizer = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ id: req.USER.id });
+        const Finding = await USER.findOne({ id: USER.id });
         // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {
             return res.status(404).json({
@@ -81,8 +81,8 @@ exports.IsOrganizer = async (req, res, next) => {
             });
         }
 
-        if (Finding.usertype === 'Organizer') {
-            // console.log('Allowed');
+        if (Finding.usertype == 'Organizer') {
+            // console.log('Org Allowed');
             next();
         } else {
             return res.status(403).json({

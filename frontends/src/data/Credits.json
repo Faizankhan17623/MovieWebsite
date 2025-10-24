@@ -15,18 +15,17 @@
         "Other"
       ],
       "type": [
-        "Film",
-        "Short Film",
-        "Documentary",
-        "Web Series",
-        "Music Video",
-        "Ad/Commercial",
-        "Stage Play",
-        "Animation",
-        "Software Project",
-        "Mobile App",
-        "Research Project",
-        "Other"
+  "Feature Film",
+  "Short Film",
+  "Documentary",
+  "Web Series",
+  "TV Series",
+  "Music Video",
+  "Commercial/Advertisement",
+  "Stage Play/Theatre",
+  "Animation",
+  "Experimental Film",
+  "Other"
       ],
       "platform": [
         "Theatrical",

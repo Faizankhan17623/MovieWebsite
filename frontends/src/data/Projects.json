@@ -14,18 +14,18 @@
         "More Than 10"
     ],
     "Stages": [
-        "Pre-Production",
-        "Production",
-        "Post-Production",
-        "Distribution",
-        "Completed",
-        "Cancelled",
-        "On Hold",
-        "In Development",
-        "Released",
-        "Scripting",
-         "Idea/Concept Stage",
-         "Casting"
+       "Idea/Concept",
+       "Scripting/Screenwriting",
+       "Development",
+       "Pre-Production",
+       "Casting",
+       "Production (Filming)",
+       "Post-Production (Editing, VFX, Sound)",
+       "Distribution/Marketing",
+       "Release",
+       "Completed",
+       "On Hold",
+       "Cancelled"
     ],
     "Money": [
         "Less than ₹1 Lakh",

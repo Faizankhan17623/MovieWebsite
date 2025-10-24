@@ -42,6 +42,10 @@ const userSchema =  new mongoose.Schema({
         required:true,
         match: [/^\d{10}$/, "Invalid phone number"],
     },
+    countrycode:{
+        type:String,
+        required:true
+    },
     image:{
         type:String,
         required:true

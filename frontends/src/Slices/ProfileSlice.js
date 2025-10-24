@@ -7,7 +7,8 @@ const initialState = {
   dislikes: 0,
   cooldownDate: localStorage.getItem("cooldownDate") || null, // ⬅️ CHANGED - Added cooldown
   user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
-  verification : localStorage.getItem("Verified") ? JSON.parse(localStorage.getItem("Verified")) : null
+  verification : localStorage.getItem("Verified") ? JSON.parse(localStorage.getItem("Verified")) : null,
+  FormSubmitted:localStorage.getItem("Data Submitted")
 };
 
 const ProfileSlice = createSlice({
@@ -65,6 +66,9 @@ const ProfileSlice = createSlice({
     }
   }
     },
+    setsubmit:(state,action)=>{
+      localStorage.setItem("Data Submitted",JSON.stringify(state))
+    }
 
   }
 });
