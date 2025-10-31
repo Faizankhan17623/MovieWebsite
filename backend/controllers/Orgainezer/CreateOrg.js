@@ -212,8 +212,8 @@ exports.OrgData = async (req, res) => {
       First, Last, Email, Countrycode, number, countryname, statename, cityname,
       Sameforlocalandpermanent, local, permanent, gender, website, totalProjects,
       Experience, shortbio, notableProjects, SocialMedia, ongoingProject,
-      projectspllanned, Project = [], Genre, subGenre, Screen, Target, Distribution,
-      Dist = [], Promotions, Assistance, support, mainreason, certifications, cert = [],
+      projectspllanned, Genre, subGenre, Screen, Target, Distribution,
+      Promotions, Assistance, support, mainreason, certifications,
       ExperienceCollabrating, collabrotion, role, experience
     } = parsedBody;
 
@@ -275,6 +275,7 @@ let notable = []
       notable = []
     }
 
+    // console.log(notable)
     // Parse social[] from form-data
 const socialKeys = Object.keys(req.body).filter(key => key.startsWith("social["));
 let social = [];
@@ -355,8 +356,10 @@ if (SocialMedia && SocialMedia.toString().trim().toLowerCase() === "true") {
     // Parse ongoing[] from form-data
     const ongoingKeys = Object.keys(req.body).filter(key => key.startsWith("ongoing["));
     let ongoing =[]
+
     if(ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true"){
        const ongoingMap = new Map();
+
     ongoingKeys.forEach(key => {
       const match = key.match(/ongoing\[(\d+)\]\[(.+)\]/);
       if (match) {
@@ -366,26 +369,73 @@ if (SocialMedia && SocialMedia.toString().trim().toLowerCase() === "true") {
         ongoingMap.get(index)[field] = req.body[key];
       }
     });
-    ongoing = Array.from(ongoingMap.values())
+   
+     ongoing = Array.from(ongoingMap.values())
+
+
     // const script = req.files?.
     // .map((item, index) => ({
     //   ...item,
     //   script: req.files?.[`ongoing[${index}][script]`] || null
     // }));
     // console.log("✅ Parsed Ongoing:", ongoing);
+
 const errors = [];
+ const Name = new Set()
+ const ScriptName = new Set()
+  const DuplicateNames = []
+  const DuplicateScript = []
+
   for (let index = 0; index < ongoing.length; index++) {
     const project = ongoing[index];
 
+    const {name,startdate,enddate,released} = project
+
     // Validate fields
-    if (!project.name || !project.startdate || !project.enddate || !project.released) {
+    if (!name || !startdate || !enddate || !released) {
       errors.push({ index, message: "Missing required fields", data: project });
     }
 
+    const ParseDate = (str) =>{
+      const [day,month,year] = str.split('/')
+      return new Date(`20${year}-${month}-${day}`);
+    }
+
+    // console.log('THis is the start date',typeof startdate)
+    // console.log('This is the end date',typeof enddate)
+
+    if (Name.has(name)) DuplicateNames.push(index,name); else Name.add(name);
+
+    const Start = ParseDate(startdate)
+    const End = ParseDate(enddate)
+
+    if( Start.getTime() === End.getTime()){
+      return res.status(400).json({
+        message:'The start and the end date should not be the same',
+        success:false,
+        data:project
+      })
+    }
+
+   if (Start > End) {
+  return res.status(400).json({
+    message: 'The start date cannot be later than the end date',
+    success: false,
+    data: project,
+  });
+}
     // Validate script file
     const script = req.files?.[`ongoing[${index}][script]`];
+// const {name} = script 
 
     const fileType = 'application/pdf'
+
+    
+    if (!script) {
+      errors.push({ index, message: "Missing script file", data: project });
+    }
+
+      if (ScriptName.has(script.name)) DuplicateScript.push(index,script.name); else ScriptName.add(script.name);
 
      if (Array.isArray(script)) {
     return res.status(400).json({
@@ -394,31 +444,302 @@ const errors = [];
     });
   }
 
-  if(script.mimetype !== fileType){
-    return res.status(400).json({
-      success: false,
-      message:"only send pdf file as input",
+  if (script.mimetype !== fileType) {
+    errors.push({
+      index,
+      message: `Invalid file type for ongoing[${index}][script]. Expected: ${fileType}, Received: ${script.mimetype}`,
     });
   }
 
-    if (!script) {
-      errors.push({ index, message: "Missing script file", data: project });
-    }
-    // console.log(script)
+// if (released?.toString() === "No") {
+//   ongoing[index].name = "";
+//   ongoing[index].startdate = "";
+//   ongoing[index].enddate = "";
+// }
+
   }
 
-  if (errors.length > 0) {
-    return res.status(400).json({
-      success: false,
-      message: "Some ongoing projects are invalid",
-      errors
-    });
-  }
+  // console.log(DuplicateNames)
+  if (DuplicateNames.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Duplicate entries found in ongoing projects with the same name",
+    data: DuplicateNames,
+  });
+}
 
-  console.log("✅ Parsed Ongoing:", ongoing);
+ if (DuplicateScript.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Duplicate Script taken for this project",
+    data: DuplicateScript,
+  });
+}
+
+if (errors.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Some ongoing projects are invalid",
+    errors,
+  });
+}
+
+  // console.log("✅ Parsed Ongoing:", ongoing);
     }else{
       ongoing = []
     }
+
+
+    const projectKeys = Object.keys(req.body).filter(key => key.startsWith("projects["));
+let Project = [];
+
+if (projectspllanned && projectspllanned.toString().trim().toLowerCase() === "true") {
+  const projectMap = new Map();
+
+  projectKeys.forEach(key => {
+    const match = key.match(/projects\[(\d+)\]\[(.+)\]/);
+    if (match) {
+      const index = match[1];
+      const field = match[2];
+      if (!projectMap.has(index)) projectMap.set(index, {});
+      projectMap.get(index)[field] = req.body[key];
+    }
+  });
+
+  Project = Array.from(projectMap.values());
+
+  const projectNames = new Set();
+
+  const DateChecker = (str) => {
+    const [day, month, year] = str.split('/');
+    const fullYear = year === 2 ? `20${year}` : year;
+    return new Date(`${fullYear}-${month}-${day}`);
+  };
+
+
+const projectStatusReleaseMap = {
+  releaseFalse: [
+    "Idea/Concept",
+    "Scripting/Screenwriting",
+    "Development",
+    "Pre-Production",
+    "Casting",
+    "Production (Filming)",
+    "Post-Production (Editing, VFX, Sound)",
+    "Distribution/Marketing",
+    "On Hold",
+    "Cancelled",
+  ],
+
+  releaseTrue: [
+    "Release",
+    "Completed",
+  ],
+};
+
+  for (let index = 0; index < Project.length; index++) {
+    const project = Project[index];
+    const { name, type, status, start, end, released } = project;
+
+    // Required fields check
+    if (!name || !type || !status || !released || !start || !end) {
+      return res.status(400).json({
+        message: "The input fields are required",
+        data: project,
+      });
+    }
+
+
+     const stat = status.trim().toLowerCase()
+
+    if(projectStatusReleaseMap.releaseFalse.some(s => s.toLowerCase() === stat)){
+      Project[index].released = false
+    }else if (projectStatusReleaseMap.releaseTrue.some(s => s.toLowerCase() === stat)){
+      Project[index].released = true
+    }else{
+      return null
+    }
+
+
+
+    // Duplicate name check
+    if (projectNames.has(name)) {
+      return res.status(400).json({
+        message: `Duplicate project name found: ${name}`,
+        data: project,
+      });
+    }
+    projectNames.add(name);
+
+    // Date validation
+    const StartDate = DateChecker(start);
+    const EndDate = DateChecker(end);
+
+    if (StartDate.getTime() === EndDate.getTime()) {
+      return res.status(400).json({
+        message: 'The start and end date should not be the same',
+        success: false,
+        data: project,
+      });
+    }
+
+    if (StartDate > EndDate) {
+      return res.status(400).json({
+        message: 'The start date cannot be later than the end date',
+        success: false,
+        data: project,
+      });
+    }
+  }
+
+  // console.log("This is the project data", Project);
+} else {
+  Project = [];
+}
+
+const DistKeys = Object.keys(req.body).filter(key => key.startsWith("distributions["))
+let Dist = []
+if(Distribution && Distribution.toString().trim().toLowerCase() === "true"){
+
+  const DistMaps = new Map()
+  DistKeys.forEach(key => {
+      const match = key.match(/distributions\[(\d+)\]\[(.+)\]/);
+    if (match) {
+      const index = match[1];
+      const field = match[2];
+      if (!DistMaps.has(index)) DistMaps.set(index, {});
+      DistMaps.get(index)[field] = req.body[key];
+    }
+  })
+
+  Dist = Array.from(DistMaps.values());
+
+  const DuplicateName = []
+  const Names = new Set()
+
+  for(let index = 0 ; index < Dist.length ; index++ ){
+    const Distribute =  Dist[index]
+
+   const {name,budget,role,date} = Distribute 
+
+   if(!name || !budget || !role || !date){
+      return res.status(400).json({
+        message: "The input fields are required",
+        data: Distribute,
+      });
+   }
+   
+    if (Names.has(name)) DuplicateName.push(index,name); else Names.add(name);
+
+      if (DuplicateName.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Duplicate entries found  Distributions",
+    data: DuplicateName,
+  });
+}
+  }
+
+}else{
+  Dist = []
+}
+
+
+if (Assistance && Assistance.toString().trim().toLowerCase() === 'true') {
+  if (!support || support.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Support field is required when Assistance is true",
+    });
+  }
+}
+
+
+// certifications, cert = []
+const Certficatekeys = Object.keys(req.body).filter(key => key.startsWith('Cert['))
+let cert = []
+if(certifications && certifications.toString().toLowerCase() === 'true'){
+  let certmaps = new Map()
+  
+  Certficatekeys.forEach(key =>{
+    const match = key.match(/Cert\[(\d+)\]\[(.+)\]/);
+    if (match) {
+      const index = match[1];
+      const field = match[2];
+      if (!certmaps.has(index)) certmaps.set(index, {});
+      certmaps.get(index)[field] = req.body[key];
+    }
+  })
+
+cert = Array.from(certmaps.values())
+console.log("THis is the certifications",cert)
+
+const Certname = new Set()
+const certCertificates = new Set()
+const Duplicatename = []
+const DuplicateCertificate = []
+
+for(let index ; index<cert.index ;index++){
+  const certficate = cert[index]
+  const {name,date} = certficate
+
+
+  if(!name || !date){
+    return res.status(400).json({
+      message:"The input fields are required",
+      success:false
+    })
+  }
+    if (Certname.has(name)) Duplicatename.push(index,name); else Certname.add(name);
+
+      if (Duplicatename.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Duplicate entries found in Certificate  with the same name",
+    data: Duplicatename,
+  });
+}
+
+  const script = req.files?.[`Cert[${index}][certificate]`];
+  const fileType = 'application/pdf'
+
+    if (certCertificates.has(script.name)) DuplicateCertificate.push(index,script.name); else certCertificates.add(script.name);
+
+    if (!script) {
+      return res.status(400).json({
+        message:"The file is not taken in the input",
+        success:false
+      })
+    }
+
+     if (Array.isArray(script)) {
+    return res.status(400).json({
+      success: false,
+      message: `Only one file is allowed for Cert[${index}][certificate]`,
+    });
+  }
+
+  if (script.mimetype !== fileType) {
+    return res.status(400).json({
+      index,
+      message: `Invalid file type for Cert[${index}][certificate]. Expected: ${fileType}, Received: ${script.mimetype}`,
+    });
+  }
+
+  
+ if (DuplicateCertificate.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Duplicate Script taken for this project",
+    data: DuplicateCertificate,
+  });
+}
+
+}
+
+}else{
+  cert = []
+}
 
     // Validate required fields
     const RequiredFields = {
@@ -428,7 +749,8 @@ const errors = [];
       Target, Distribution, mainreason, certifications, ExperienceCollabrating,
       collabrotion, role, experience
     };
-    
+
+
     const missingFields = Object.keys(RequiredFields).filter((key) => {
       const value = RequiredFields[key];
       if (value === undefined || value === null) return true;
