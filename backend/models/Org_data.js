@@ -5,7 +5,6 @@ const OrgDataSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    // THis is for the personal information 
     username:{
         type: String,
         required: true
@@ -26,6 +25,10 @@ const OrgDataSchema = new mongoose.Schema({
     minlength: 10,
     maxlength: 10,
     match: [/^\d{10}$/, 'Phone number must be exactly 10 digits']
+    },
+    Country:{
+       type: String,
+        required: true
     },
     state:{
         type: String,
@@ -56,7 +59,7 @@ const OrgDataSchema = new mongoose.Schema({
     },
     image:{
         type: String,
-        // required: true
+        required: true
     },
 
     // Professional Background
@@ -68,7 +71,7 @@ const OrgDataSchema = new mongoose.Schema({
         required: true
     },
     yearsexperience:{
-        type: Number,
+        type: String,
         required: true  
     },
     Shortbio:{
@@ -89,7 +92,7 @@ const OrgDataSchema = new mongoose.Schema({
   items: [
     {
       Name: { type: String, maxlength: 100 },
-      Budget: { type: Number},
+      Budget: { type: String},
       Role: { type: String, required:true },
       link: { type: String ,required:true}
     }
@@ -101,7 +104,7 @@ const OrgDataSchema = new mongoose.Schema({
   profiles: [
     {
       Platform: { type: String, required: function() { return this.active; } },
-      followers: { type: Number, required: function() { return this.active; } },
+      followers: { type: String, required: function() { return this.active; } },
       link: { type: String, required: function() { return this.active; } }
     }
   ]
@@ -110,7 +113,6 @@ const OrgDataSchema = new mongoose.Schema({
 
     // Projects
     // THis is for the ongoing projects
-Projects: {
   ongoing: {
     active: { type: Boolean, default: false, required: true },
     items: [
@@ -147,9 +149,7 @@ Projects: {
   SubGenre: {
     type: [String], // ✅ Same here
     required: true
-  }
-}
-,
+  },
 
     // Distribution 
 Screening: {
@@ -216,12 +216,14 @@ MainReason: {
     }
 },
 
-Certifications: [
-  {
-    Name: {
+Certifications: {
+   active: { type: Boolean, default: false },
+   items:[
+    {
+      Name: {
       type: String,
       required: true,
-      maxlength: 200 // optional, you can remove if no limit
+      maxlength: 200 
     },
     Certificate: {
       type: String,
@@ -231,8 +233,9 @@ Certifications: [
       type: String, 
       required: true
     }
-  }
-],
+    }
+   ]
+},
 
 Collaboration: {
     type: Boolean,
@@ -256,29 +259,30 @@ Comfortable: {
     required: true,
     enum: ["Fresher", "Experienced"] // Experience options
   },
-
-  directorFresher:{
+  DirectorFresher:{
     type: mongoose.Schema.Types.ObjectId,
-        ref: 'DirectorFresher'
+        ref: 'directorfresher'
   },
   DirectorExperience:{
     type: mongoose.Schema.Types.ObjectId,
-        ref: 'DirectorExperience'
+        ref: 'directorexperience'
   },
   ProducerFresher:{
     type: mongoose.Schema.Types.ObjectId,
-        ref: 'ProducerFresher'
+        ref: 'producerfresher'
   },
   ProducerExperience:{
      type: mongoose.Schema.Types.ObjectId,
-        ref: 'ProducerExperience'
+        ref: 'producerexperience'
   }
 
 },{timestamps:true})
 
-module.exports = mongoose.model("OrgainezerData", OrgDataSchema);
+const Orgdata =  mongoose.model("OrgainezerData", OrgDataSchema);
 
-module.exports = {
+const CONSTANTS = {
   ROLES: ["Director", "Producer"],
   EXPERIENCE_LEVELS: ["Fresher", "Experienced"],
 };
+
+module.exports = {Orgdata,CONSTANTS}

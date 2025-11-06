@@ -11,40 +11,28 @@ const DirectorExperienceSchema = new mongoose.Schema({
         enum: EXPERIENCE_LEVELS,
         required: true
     },
-    TeamSize:{
-        type:String,
-        required:true
-    },
-    PreviousProjets:{
-        type:Boolean,
-        required:true,
-        default:false
-    },
-    Projects:{
-        type:new mongoose.Schema({
-            Category:{type:String,required:true},
-            AwardName:{type:String,required:true,maxlength:100},
-            MovieName:{type:String,required:true,maxlength:100},
-            ReleaseDate:{type:String,required:true},
-            Currency:{type:String,required:true},
-            TotalBudget:{type:String,required:true},
-            TotalEarned:{type:String,required:true},
-        },{_id:false})
+    Awards:{
+      needed:{type:Boolean,default:false,required:true},
+      items:[
+        {
+          AwardCategory:{type:String,required:true},
+          AwardFestival:{type:String,required:true,maxlength:100},
+          MovieName:{type:String,required:true,maxlength:100},
+          ReleaseDate:{type:String,required:true},
+          Currency:{type:String,required:true},
+          TotalBudget:{type:String,required:true},
+          TotalEarned:{type:String,required:true}
+        }
+      ]
     },
     ToolsSoftware:{
-        type:Boolean,
-        required:true,
-        default:false
+      needed:{type:Boolean,default:false,required:true},
+      Software:{type:[String],required:true},
+      Tools:{type:[String],required:true}
     },
-    Tools:{
-        type:[String],
-        required:true,
-        default:[]
-    },
-    Software:{
-        type:[String],
-        required:true,
-        default:[]
+    TeamSize:{
+      type:String,
+      required:true
     }
 
 })
@@ -99,4 +87,4 @@ DirectorExperienceSchema.pre('validate', function(next) {
     return next(err);
   }
 });
-module.exports = mongoose.model("DirectorExperience",DirectorExperienceSchema)
+module.exports = mongoose.model("directorexperience",DirectorExperienceSchema)

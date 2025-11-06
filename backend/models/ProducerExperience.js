@@ -1,13 +1,6 @@
 // ...existing code...
 const mongoose = require('mongoose')
 const { ROLES, EXPERIENCE_LEVELS } = require('./Org_data')
-const AffiliationSchema = new mongoose.Schema({
-  unionName: { type: String, trim: true, required: true },
-  membershipId: { type: String, trim: true, required: true },
-  yearJoined: { type: Number, required: true },
-  expiryDate: { type: Date, required: true }
-}, { _id: false })
-
 const ProducerExperienceSchema = new mongoose.Schema({
   Resume: {
     type: String,
@@ -35,20 +28,20 @@ const ProducerExperienceSchema = new mongoose.Schema({
     
   Funding: {
     type: [String],
-    default: []
+    required:true
   },
 
   Affiliation: {
-    type: Boolean,
-    required: true,
-    default: false
+    needed:{  type: Boolean,required: true,default: false },
+    items:[
+      {
+        union:{type:String,required:true},
+        Membershipid:{type:String,required:true,maxlength:30},
+        Yearjoined:{type:String,required:true},
+        ExpiryDate:{type:String,required:true}
+      }
+    ]
   },
-
-  AffiliationDetails: {
-    type: AffiliationSchema,
-    required: function () { return this.Affiliation === true }
-  },
-
   TeamSize: {
     type: Number,
     required: true,
@@ -77,5 +70,5 @@ const ProducerExperienceSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-module.exports = mongoose.model("ProducerExperience", ProducerExperienceSchema)
+module.exports = mongoose.model("producerexperience", ProducerExperienceSchema)
 // ...existing code...

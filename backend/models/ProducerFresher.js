@@ -1,13 +1,7 @@
 // ...existing code...
 const mongoose = require('mongoose')
-const { ROLES , EXPERIENCE_LEVELS } = require("./Org_data")
-
-const FundingDataSchema = new mongoose.Schema({
-  internshipName: { type: String, trim: true },
-  certificateDocuments: { type: [String], default: [] },
-  startDate: { type: Date },
-  endDate: { type: Date }
-}, { _id: false })
+const { CONSTANTS } = require('./Org_data')
+const {ROLES,EXPERIENCE_LEVELS} = CONSTANTS
 
 const wordLimitValidator = (max = 250) => ({
   validator: function(v) {
@@ -37,7 +31,7 @@ const ProducerFresherSchema = new mongoose.Schema({
     message: 'Producerinspiration cannot exceed 250 words'
   },
   ProjectsCount: {
-    type: Number,
+    type: String,
     required: true,
     min: 0
   },
@@ -60,13 +54,15 @@ const ProducerFresherSchema = new mongoose.Schema({
     validate: wordLimitValidator(250)
   },
   CrowdFunding: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  FundingData: {
-    type: FundingDataSchema,
-    default: undefined
+    needed :{type: Boolean,required: true,default: false},
+    items:[
+      {
+       Name: { type: String, maxlength: 100,required:function (){return this.active} },
+      StartDate: { type: String, required: function() { return this.active; } },
+      EndDate: { type: String, required: function() { return this.active; } },
+      link: { type: String ,required:true}
+      }
+    ]
   }
 }, { timestamps: true })
 
@@ -93,5 +89,5 @@ ProducerFresherSchema.pre('validate', function(next) {
   next();
 })
 
-module.exports = mongoose.model("ProducerFresher", ProducerFresherSchema)
+module.exports = mongoose.model("producerfresher", ProducerFresherSchema)
 // ...existing code...

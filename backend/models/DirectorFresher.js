@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-const { ROLES, EXPERIENCE_LEVELS } = require('./Org_data')
+const { CONSTANTS } = require('./Org_data')
+const {ROLES,EXPERIENCE_LEVELS} = CONSTANTS
 
 const wordLimitValidator = (maxWords = 250) => ({
     validator: function (v) {
@@ -59,4 +60,4 @@ const DirectorFresherSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // ...existing code...
-module.exports = mongoose.model("DirectorFresher", DirectorFresherSchema)
+module.exports = mongoose.model("directorfresher", DirectorFresherSchema)

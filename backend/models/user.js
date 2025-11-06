@@ -132,6 +132,10 @@ const userSchema =  new mongoose.Schema({
     TheatreDataSend:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"TheatreRequests"
+    },
+    orgainezerdata:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"OrgainezerData"
     }
 },{timestamps:true})
 module.exports = mongoose.model('User',userSchema)

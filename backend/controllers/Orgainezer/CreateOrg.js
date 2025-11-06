@@ -4,10 +4,13 @@ const date = require('date-and-time')
 const jwt = require('jsonwebtoken')
 const cookieParser  = require('cookie-parser')
 const OTP = require('../../models/otp')
-const ORGData = require('../../models/Org_data')
+const {Orgdata} = require('../../models/Org_data')
 const {uploadDatatoCloudinary}= require('../../utils/imageUploader')
 const qs = require('qs')
-
+const directorfresher = require('../../models/DirectorFresher')
+const directorexperience = require('../../models/DirectorExperience')
+const producerexperience = require("../../models/ProducerExperience")
+const producerfresher = require('../../models/ProducerFresher')
 
 // This is the function that is going to create the route in the orgainezer in the line no 10   
 exports.CreateOrgainezer = async(req,res)=>{
@@ -208,6 +211,16 @@ exports.OrgData = async (req, res) => {
   try {
     const parsedBody = req.body;
 
+    const ID = req?.USER.id
+
+    const Finding = await Orgdata.findOne({id:ID})
+    if(Finding){
+      return res.status(400).json({
+        message:"You have already registered the data in the orgainzation form",
+        success:false
+      })
+    }
+
     const {
       First, Last, Email, Countrycode, number, countryname, statename, cityname,
       Sameforlocalandpermanent, local, permanent, gender, website, totalProjects,
@@ -217,7 +230,33 @@ exports.OrgData = async (req, res) => {
       ExperienceCollabrating, collabrotion, role, experience
     } = parsedBody;
 
+    const Image = req.files?.Image
+    const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
 
+    const Max_Size = 5 * 1024 * 1024 //The max size is 5 mb
+
+    // console.log("This is the image type",Image)
+
+    if(!allowedImageTypes.includes(Image.mimetype)){
+      return res.status(400).json({
+        message:`The file is not allowed the allowed types are ${allowedImageTypes}`,
+        success:false 
+      })
+    }
+
+    if(Image.size > Max_Size){
+      return res.status(400).json({
+        message:"Your Image Exceeds the max limit size  allowed limit is 5 MB",
+        success:false
+      })
+    }
+
+
+    const ImageUpload = await uploadDatatoCloudinary(Image,process.env.CLOUDINARY_FOLDER_NAME,1000,1000)
+    // console.log("THis ist he check the image uplaod",ImageUpload)
+
+
+const Username = First + Last
 
 const NotableKeys = Object.keys(req.body).filter(key => key.startsWith("notable["))
 let notable = []
@@ -244,7 +283,7 @@ let notable = []
 
       for (const project of notable) {
         const { name, url,Role } = project;
-
+// console.log("THis is the name from the notable",name)
           if (!name || !Role || !url) {
       return res.status(400).json({
         success: false,
@@ -354,140 +393,130 @@ if (SocialMedia && SocialMedia.toString().trim().toLowerCase() === "true") {
 
 
     // Parse ongoing[] from form-data
-    const ongoingKeys = Object.keys(req.body).filter(key => key.startsWith("ongoing["));
-    let ongoing =[]
+   // Parse ongoing[] from form-data
+const ongoingKeys = Object.keys(req.body).filter(k => k.startsWith("ongoing["));
+let ongoing = [];
 
-    if(ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true"){
-       const ongoingMap = new Map();
-
-    ongoingKeys.forEach(key => {
-      const match = key.match(/ongoing\[(\d+)\]\[(.+)\]/);
-      if (match) {
-        const index = match[1];
-        const field = match[2];
-        if (!ongoingMap.has(index)) ongoingMap.set(index, {});
-        ongoingMap.get(index)[field] = req.body[key];
-      }
-    });
-   
-     ongoing = Array.from(ongoingMap.values())
-
-
-    // const script = req.files?.
-    // .map((item, index) => ({
-    //   ...item,
-    //   script: req.files?.[`ongoing[${index}][script]`] || null
-    // }));
-    // console.log("✅ Parsed Ongoing:", ongoing);
-
-const errors = [];
- const Name = new Set()
- const ScriptName = new Set()
-  const DuplicateNames = []
-  const DuplicateScript = []
-
-  for (let index = 0; index < ongoing.length; index++) {
-    const project = ongoing[index];
-
-    const {name,startdate,enddate,released} = project
-
-    // Validate fields
-    if (!name || !startdate || !enddate || !released) {
-      errors.push({ index, message: "Missing required fields", data: project });
-    }
-
-    const ParseDate = (str) =>{
-      const [day,month,year] = str.split('/')
-      return new Date(`20${year}-${month}-${day}`);
-    }
-
-    // console.log('THis is the start date',typeof startdate)
-    // console.log('This is the end date',typeof enddate)
-
-    if (Name.has(name)) DuplicateNames.push(index,name); else Name.add(name);
-
-    const Start = ParseDate(startdate)
-    const End = ParseDate(enddate)
-
-    if( Start.getTime() === End.getTime()){
-      return res.status(400).json({
-        message:'The start and the end date should not be the same',
-        success:false,
-        data:project
-      })
-    }
-
-   if (Start > End) {
-  return res.status(400).json({
-    message: 'The start date cannot be later than the end date',
-    success: false,
-    data: project,
+if (ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true") {
+  const ongoingMap = new Map();
+  ongoingKeys.forEach(key => {
+    const m = key.match(/ongoing\[(\d+)\]\[(.+)\]/);
+    if (!m) return;
+    const idx = m[1], field = m[2];
+    if (!ongoingMap.has(idx)) ongoingMap.set(idx, {});
+    ongoingMap.get(idx)[field] = req.body[key];
   });
-}
-    // Validate script file
-    const script = req.files?.[`ongoing[${index}][script]`];
-// const {name} = script 
 
-    const fileType = 'application/pdf'
+  ongoing = Array.from(ongoingMap.values());
 
-    
-    if (!script) {
-      errors.push({ index, message: "Missing script file", data: project });
+  const errors = [];
+  const seenNames = new Set();
+  const seenScriptNames = new Set();
+  const duplicateNames = [];
+  const duplicateScripts = [];
+
+  const parseDate = (str) => {
+    // supports dd/mm/yy or dd/mm/yyyy
+    const [day, month, year] = (str || "").split("/");
+    const fullYear = year && year.length === 2 ? `20${year}` : year;
+    return new Date(`${fullYear}-${month}-${day}`);
+  };
+
+  // 1) VALIDATE ONLY. Collect files to upload later.
+  const uploads = []; // { index, file }
+  for (let i = 0; i < ongoing.length; i++) {
+    const project = ongoing[i];
+    const { name, startdate, enddate, released } = project || {};
+
+    // required fields
+    if (!name || !startdate || !enddate || typeof released === "undefined") {
+      errors.push({ index: i, message: "Missing required fields", data: project });
     }
 
-      if (ScriptName.has(script.name)) DuplicateScript.push(index,script.name); else ScriptName.add(script.name);
+    // duplicate names (track as objects for clarity)
+    if (name) {
+      if (seenNames.has(name)) duplicateNames.push({ index: i, name });
+      else seenNames.add(name);
+    }
 
-     if (Array.isArray(script)) {
+    // date checks (only if parseable)
+    const Start = parseDate(startdate);
+    const End = parseDate(enddate);
+    if (!isNaN(Start) && !isNaN(End)) {
+      if (Start.getTime() === End.getTime()) {
+        errors.push({ index: i, message: "Start and end date cannot be the same" });
+      } else if (Start > End) {
+        errors.push({ index: i, message: "Start date cannot be later than end date" });
+      }
+    } else {
+      errors.push({ index: i, message: "Invalid date format (expected dd/mm/yy or dd/mm/yyyy)" });
+    }
+
+    // file validation — guard every access
+    const script = req.files?.[`ongoing[${i}][script]`];
+    const expectedType = "application/pdf";
+
+    if (!script) {
+      errors.push({ index: i, message: "Missing script file" });
+      continue; // IMPORTANT: don't touch script.name when it's missing
+    }
+
+    if (Array.isArray(script)) {
+      errors.push({ index: i, message: `Only one file is allowed for ongoing[${i}][script]` });
+      continue;
+    }
+
+    if (script.mimetype !== expectedType) {
+      errors.push({
+        index: i,
+        message: `Invalid file type for ongoing[${i}][script]. Expected: ${expectedType}, Received: ${script.mimetype}`,
+      });
+      continue;
+    }
+
+    // duplicates by file name (safe now because script exists)
+    if (seenScriptNames.has(script.name)) {
+      duplicateScripts.push({ index: i, name: script.name });
+    } else {
+      seenScriptNames.add(script.name);
+    }
+
+    // queue upload for later
+    uploads.push({ index: i, file: script });
+  }
+
+  // duplicates summaries
+  if (duplicateNames.length) {
+    errors.push({ message: "Duplicate project names in ongoing[]", items: duplicateNames });
+  }
+  if (duplicateScripts.length) {
+    errors.push({ message: "Duplicate script filenames in ongoing[]", items: duplicateScripts });
+  }
+
+  // if any validation errors, bail out BEFORE uploading
+  if (errors.length) {
     return res.status(400).json({
       success: false,
-      message: `Only one file is allowed for ongoing[${index}][script]`,
+      message: "Some ongoing projects are invalid",
+      errors,
     });
   }
 
-  if (script.mimetype !== fileType) {
-    errors.push({
-      index,
-      message: `Invalid file type for ongoing[${index}][script]. Expected: ${fileType}, Received: ${script.mimetype}`,
-    });
-  }
-
-// if (released?.toString() === "No") {
-//   ongoing[index].name = "";
-//   ongoing[index].startdate = "";
-//   ongoing[index].enddate = "";
-// }
-
-  }
-
-  // console.log(DuplicateNames)
-  if (DuplicateNames.length > 0) {
-  return res.status(400).json({
-    success: false,
-    message: "Duplicate entries found in ongoing projects with the same name",
-    data: DuplicateNames,
-  });
-}
-
- if (DuplicateScript.length > 0) {
-  return res.status(400).json({
-    success: false,
-    message: "Duplicate Script taken for this project",
-    data: DuplicateScript,
-  });
-}
-
-if (errors.length > 0) {
-  return res.status(400).json({
-    success: false,
-    message: "Some ongoing projects are invalid",
-    errors,
-  });
-}
-
-  // console.log("✅ Parsed Ongoing:", ongoing);
-    }else{
-      ongoing = []
+  // 2) UPLOAD after validation passes
+  for (const { index, file } of uploads) {
+    const fileUrl = await uploadDatatoCloudinary(file, process.env.CLOUDINARY_FOLDER_NAME, 1000, 1000);
+    if (!fileUrl?.secure_url) {
+      return res.status(400).json({
+        success: false,
+        message: `Error uploading script for ongoing[${index}]`,
+      });
     }
+    ongoing[index].scriptUrl = fileUrl.secure_url;
+  }
+} else {
+  ongoing = [];
+}
+
 
 
     const projectKeys = Object.keys(req.body).filter(key => key.startsWith("projects["));
@@ -540,6 +569,7 @@ const projectStatusReleaseMap = {
   for (let index = 0; index < Project.length; index++) {
     const project = Project[index];
     const { name, type, status, start, end, released } = project;
+// console.log("THis is the name from the project",name)
 
     // Required fields check
     if (!name || !type || !status || !released || !start || !end) {
@@ -621,6 +651,7 @@ if(Distribution && Distribution.toString().trim().toLowerCase() === "true"){
     const Distribute =  Dist[index]
 
    const {name,budget,role,date} = Distribute 
+// console.log("THis is the name from the Distribution",name)
 
    if(!name || !budget || !role || !date){
       return res.status(400).json({
@@ -644,7 +675,6 @@ if(Distribution && Distribution.toString().trim().toLowerCase() === "true"){
   Dist = []
 }
 
-
 if (Assistance && Assistance.toString().trim().toLowerCase() === 'true') {
   if (!support || support.trim() === "") {
     return res.status(400).json({
@@ -656,12 +686,13 @@ if (Assistance && Assistance.toString().trim().toLowerCase() === 'true') {
 
 
 // certifications, cert = []
-const Certficatekeys = Object.keys(req.body).filter(key => key.startsWith('Cert['))
-let cert = []
-if(certifications && certifications.toString().toLowerCase() === 'true'){
-  let certmaps = new Map()
-  
-  Certficatekeys.forEach(key =>{
+const Certficatekeys = Object.keys(req.body).filter(key => key.startsWith('Cert['));
+let cert = [];
+
+if (certifications && certifications.toString().toLowerCase() === 'true') {
+  const certmaps = new Map();
+
+  Certficatekeys.forEach(key => {
     const match = key.match(/Cert\[(\d+)\]\[(.+)\]/);
     if (match) {
       const index = match[1];
@@ -669,76 +700,89 @@ if(certifications && certifications.toString().toLowerCase() === 'true'){
       if (!certmaps.has(index)) certmaps.set(index, {});
       certmaps.get(index)[field] = req.body[key];
     }
-  })
-
-cert = Array.from(certmaps.values())
-console.log("THis is the certifications",cert)
-
-const Certname = new Set()
-const certCertificates = new Set()
-const Duplicatename = []
-const DuplicateCertificate = []
-
-for(let index ; index<cert.index ;index++){
-  const certficate = cert[index]
-  const {name,date} = certficate
-
-
-  if(!name || !date){
-    return res.status(400).json({
-      message:"The input fields are required",
-      success:false
-    })
-  }
-    if (Certname.has(name)) Duplicatename.push(index,name); else Certname.add(name);
-
-      if (Duplicatename.length > 0) {
-  return res.status(400).json({
-    success: false,
-    message: "Duplicate entries found in Certificate  with the same name",
-    data: Duplicatename,
   });
-}
 
-  const script = req.files?.[`Cert[${index}][certificate]`];
-  const fileType = 'application/pdf'
+  cert = Array.from(certmaps.values());
 
-    if (certCertificates.has(script.name)) DuplicateCertificate.push(index,script.name); else certCertificates.add(script.name);
+  const Certname = new Set();
+  const certCertificates = new Set();
+  const Duplicatename = [];
+  const DuplicateCertificate = [];
 
-    if (!script) {
+  for (let index = 0  ; index < cert.length; index++) {
+    const certficate = cert[index];
+    const { name, date } = certficate;
+    const script = req.files?.[`Cert[${index}][certificate]`];
+    const fileType = 'application/pdf'
+// console.log("THis is the name from the Certificate",name)
+
+    if (!name || !date) {
       return res.status(400).json({
-        message:"The file is not taken in the input",
-        success:false
-      })
+        message: "The input fields are required",
+        success: false,
+      });
     }
 
-     if (Array.isArray(script)) {
+    if (Certname.has(name)) Duplicatename.push(index, name);
+    else Certname.add(name);
+    
+    
+    if (!script) {
+      return res.status(400).json({
+        message: "The file is not taken in the input",
+        success: false
+      });
+    }
+
+    
+    if (Array.isArray(script)) {
+      return res.status(400).json({
+        success: false,
+        message: `Only one file is allowed for Cert[${index}][certificate]`,
+      });
+    }
+
+      if (script.mimetype !== fileType) {
+      return res.status(400).json({
+        index,
+        message: `Invalid file type for Cert[${index}][certificate]. Expected: ${fileType}, Received: ${script.mimetype}`,
+      });
+    }
+
+    if (certCertificates.has(script.name)) DuplicateCertificate.push(index, script.name);
+    else certCertificates.add(script.name);
+
+     if (Duplicatename.length > 0) {
     return res.status(400).json({
       success: false,
-      message: `Only one file is allowed for Cert[${index}][certificate]`,
+      message: "Duplicate entries found in Certificate with the same name",
+      data: Duplicatename,
     });
   }
 
-  if (script.mimetype !== fileType) {
+  if (DuplicateCertificate.length > 0) {
     return res.status(400).json({
-      index,
-      message: `Invalid file type for Cert[${index}][certificate]. Expected: ${fileType}, Received: ${script.mimetype}`,
+      success: false,
+      message: "Duplicate certificate file uploaded",
+      data: DuplicateCertificate,
     });
   }
+const fileUrl = await uploadDatatoCloudinary(script, process.env.CLOUDINARY_FOLDER_NAME, 1000, 1000);
+      cert[index].certificateUrl = fileUrl.secure_url;
+      // console.log("This is the file url",fileUrl)
 
-  
- if (DuplicateCertificate.length > 0) {
-  return res.status(400).json({
-    success: false,
-    message: "Duplicate Script taken for this project",
-    data: DuplicateCertificate,
-  });
-}
+      if(!fileUrl){
+        return res.status(400).json({
+          message:"The file is required",
+          success:false
+        })
+      }
 
-}
+  }
 
-}else{
-  cert = []
+
+} else {
+  cert = [];
 }
 
     // Validate required fields
@@ -747,7 +791,7 @@ for(let index ; index<cert.index ;index++){
       Sameforlocalandpermanent, local, permanent, gender, totalProjects, Experience,
       shortbio, notableProjects, SocialMedia, ongoingProject, Genre, subGenre, Screen,
       Target, Distribution, mainreason, certifications, ExperienceCollabrating,
-      collabrotion, role, experience
+      collabrotion, role, experience,Image
     };
 
 
@@ -783,105 +827,996 @@ for(let index ; index<cert.index ;index++){
       });
     }
 
-    // Notable Projects Duplicate Check
-    // if (notableProjects && notableProjects === true) {
-    //   if (Array.isArray(notable)) {
-    //     const nameSet = new Set();
-    //     const urlSet = new Set();
-    //     const duplicateNames = [];
-    //     const duplicateUrls = [];
+    // console.log("This is the data from the notable",notable)
+    // console.log("This is the data from the social media",social)
+    // console.log("This is the data from the ongoing projects",ongoing)
 
-    //     for (const project of notable) {
-    //       const { name, url } = project;
-    //       if (nameSet.has(name)) duplicateNames.push(name); else nameSet.add(name);
-    //       if (urlSet.has(url)) duplicateUrls.push(url); else urlSet.add(url);
-    //     }
+    // console.log("This is the data from the planned projects",Project)
+    // console.log("This is the data from the Distributions",Dist)
+    // console.log("This is the data from the certifications",cert)
 
-    //     if (duplicateNames.length > 0) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: "Duplicate entries found in notable projects",
-    //         names: duplicateNames,
-    //       });
-    //     }
-    //     if (duplicateUrls.length > 0) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: "Duplicate URLs found in notable projects",
-    //         urls: duplicateUrls
-    //       });
-    //     }
-    //   } else {
-    //     return res.status(400).json({
-    //       success: false,
-    //       message: "Notable must be an array of objects"
-    //     });
-    //   }
-    // }
 
-    // // Social Media Validation
-    // if (SocialMedia && String(SocialMedia).toLowerCase() === "true") {
-    //   const MediaMap = {
-    //     LinkedIn: "https://www.linkedin.com/",
-    //     YouTube: "https://www.youtube.com/",
-    //     Instagram: "https://www.instagram.com/",
-    //     IMDB: "https://www.imdb.com/",
-    //     Twitter: "https://x.com/"
-    //   };
+      // Experience, shortbio, notableProjects, SocialMedia, ongoingProject,
+      // projectspllanned, Genre, subGenre, Screen, Target, Distribution,
+      // Promotions, Assistance, support, mainreason, certifications,
+      // ExperienceCollabrating, collabrotion, role, experience
+//  console.log(typeof Sameforlocalandpermanent)
+try{
+  const Uploading = await Orgdata.create({
+    id:ID,
+      username:Username,
+      email:Email,
+      CountryCode:Countrycode,
+      number:number,
+      Country:countryname,
+      state:statename,
+      City:cityname,
+      sameforlocalandpermanent:Boolean(Sameforlocalandpermanent),
+      localaddress:local,
+      permanentaddress:permanent,
+      gender:gender,
+      image:ImageUpload.secure_url,
+      website:website,
+      totalprojects:totalProjects,
+      yearsexperience:Experience,
+      Shortbio:shortbio,
+      NotableProjects:{
+        needed:Boolean(notableProjects), 
+        items:notable.map((data)=>({
+          Name:data.name,
+          Budget:data.budget,
+          Role:data.Role,
+          link:data.url
+        }))
+      },
+      SocialMedia:{
+        active:Boolean(SocialMedia),
+        profiles:social.map((data)=>({
+          Platform:data.mediaName,
+          followers:data.follwers,
+          link:data.Countrycodeurls
+        }))
+      },
+      ongoing:{
+        active:Boolean(ongoingProject),
+        items:ongoing.map((data)=>({
+          ProjectName:data.name,
+          Script:data.scriptUrl,
+          StartDate:data.startdate,
+          EndDate:data.enddate,
+          Released:data.released
+        }))
+      },
+      planned:{
+        active:Boolean(projectspllanned),
+        items:Project.map((data)=>({
+          ProjectName:data.name,
+          ProjectType:data.type,
+          ProjectStatus:data.status,
+          StartDate:data.start,
+          EndDate:data.end,
+          Released:data.released
+        }))
+      },
+      Genre:Genre,
+      SubGenre:subGenre,
+      Screening:Screen,
+      Audience:Target,
+      Distribution:{
+        needed:Boolean(Distribution),
+        projects:Dist.map((data)=>({
+          ProjectName:data.name,
+          Budget:data.budget,
+          Role:data.role,
+          ReleaseDate:data.date
+        }))
+      },
+      Promotions:Boolean(Promotions),
+      Support:{
+        needed:Boolean(Assistance),
+        type:support
+      },
+      MainReason:mainreason,
+      Certifications:{
+        active:Boolean(certifications),
+        items:cert.map((data)=>({
+          Name:data.name,
+          Certificate:data.certificateUrl,
+          Date:data.date
+        }))
+      },
+      Collaboration:Boolean(ExperienceCollabrating),
+      Comfortable:Boolean(collabrotion),
+      Role:role,
+      ExperienceLevel:experience,
+})
 
-    //   for (const soc of social) {
-    //     if (!soc || !soc.mediaName || !soc.urls || !soc.follwers) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: "Each social item must include 'mediaName', 'urls', and 'follwers'."
-    //       });
-    //     }
+await USER.findByIdAndUpdate(ID,{orgainezerdata:Uploading._id})
+// await Orgdata.save()
 
-    //     const baseUrl = MediaMap[soc.mediaName];
-    //     if (!baseUrl) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: `Unsupported mediaName: ${soc.mediaName}`
-    //       });
-    //     }
+// console.log(Uploading)
 
-    //     if (!soc.urls.startsWith(baseUrl)) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: `Invalid URL for ${soc.mediaName}. It should start with '${baseUrl}'`
-    //       });
-    //     }
-    //   }
-    // }
-
-    // Ongoing Projects File Handling
-    // if (String(ongoingProject).toLowerCase() === "true") {
-    //   ongoing.forEach((project, index) => {
-    //     const { name, script } = project;
-    //     if (script) {
-    //       if (script.mimetype !== "application/pdf") {
-    //         return res.status(400).json({
-    //           success: false,
-    //           message: `Invalid file type for ${name}. Only PDFs allowed.`,
-    //         });
-    //       }
-    //       console.log(`✅ File received for ${name}: ${script.name}`);
-    //     } else {
-    //       console.log(`⚠️ No file uploaded for ${name}`);
-    //     }
-    //   });
-    // }
-
-    return res.status(200).json({
+  return res.status(200).json({
       success: true,
-      message: "All required fields are present and validated!",
+      message: "Data Submitted Succesfully",
     });
+
+}catch(error){
+  console.log(error)
+  console.log(error.message)
+  return res.status(400).json({
+    message:"There is an error in uploading the data",
+    success:false,
+    error:error.message
+  })
+}
 
   } catch (error) {
     console.log("❌ Error:", error.message);
     return res.status(400).json({
       success: false,
       message: "There is an error in the Organizer Data code",
+      error:error
+    });
+  }
+};
+
+
+exports.DirectorFresher = async(req,res)=>{
+  try{
+    const parsedBody = req.body;
+
+    const Id = req?.USER.id
+
+    const Finding = await Orgdata.findOne({id:Id})
+    if(!Finding){
+      return res.status(400).json({
+        message:"You have not filled the form in the org data",
+        success:false
+      })
+    }
+
+    const {
+      Inspirtion,Projects,ChallengedFaced,Marketing,DirectorInspirtion,sceneVisualization
+    } = parsedBody;
+
+    const requiredFields = {Inspirtion,ChallengedFaced,Marketing,DirectorInspirtion,sceneVisualization}
+
+    const missingFields = Object.keys(requiredFields).filter((key) => {
+      const value = requiredFields[key];
+      if (value === undefined || value === null) return true;
+      if (typeof value === "string" && value.trim() === "") return true;
+      return false;
+    });
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `These fields are required: ${missingFields.join(", ")}`,
+      });
+    }
+
+      const textareaFields = ['Inspirtion','ChallengedFaced','Marketing','DirectorInspirtion','sceneVisualization'];
+    const textareaErrors = textareaFields
+      .map(field => {
+        if (!Object.prototype.hasOwnProperty.call(req.body, field)) return null;
+        const val = req.body[field];
+        if (typeof val !== 'string' || val.trim() === '') return null;
+        const err = WordCounts(val); // assuming WordCounts function exists
+        return err ? `${field}: ${err}` : null;
+      })
+      .filter(Boolean);
+
+    if (textareaErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'One or more text fields exceed the 250-word limit',
+        fields: textareaErrors
+      });
+    }
+
+const {Role , ExperienceLevel} = Finding
+    try{
+// Inspirtion,Projects,ChallengedFaced,Marketing,DirectorInspirtion,sceneVisualization
+      const Uploading = await directorfresher.create({
+        Role:Role,
+        ExperienceLevel:ExperienceLevel,
+        DirectorInspiration:Inspirtion,
+        ProjectsDone:Projects,
+        EarlyChalenges:ChallengedFaced,
+        ProjectPlanning:Marketing,
+        PromotionMarketing:DirectorInspirtion,
+        SceneVisualization:sceneVisualization
+      })
+
+      await Orgdata.updateOne({DirectorFresher:Uploading._id})
+
+      return res.status(200).json({
+        message:"The Director Fresher data is been created",
+        success:true,
+        data:Uploading
+      })
+    }catch(error){
+      console.log(error)
+      console.log(error.message)
+      return res.status(500).json({
+        message:"There is an error while creating the data",
+        success:false,
+        error:error.message
+      })
+    }
+
+
+  }catch(error){
+    console.log(error)
+    console.log(error.message)
+    return res.status(400).json({
+      message:"There is an something wrong in the DirectorFresher code",
+      success:false
+    })
+  }
+}
+
+exports.DirectorExperience = async (req, res) => {
+  try {
+    const parsedBody = req.body;
+    const Id = req?.USER?.id;
+
+    const Finding = await Orgdata.findOne({ id: Id });
+    if (!Finding) {
+      return res.status(400).json({
+        message: "You have not filled the form in the org data",
+        success: false
+      });
+    }
+
+    // --- REQUIRED: TeamSize & Awards must be provided (Awards can be "true"/"false")
+    const {  Awards, ToolsSoftware ,TeamSize } = parsedBody;
+
+    if (TeamSize === undefined || TeamSize === null || String(TeamSize).trim() === "") {
+      return res.status(400).json({
+        message: "TeamSize is required",
+        success: false
+      });
+    }
+    const teamSizeNum = Number(TeamSize);
+    if (!Number.isFinite(teamSizeNum) || teamSizeNum < 0) {
+      return res.status(400).json({
+        message: "TeamSize must be a non-negative number",
+        success: false
+      });
+    }
+
+    if (Awards === undefined || Awards === null || String(Awards).trim() === "") {
+      return res.status(400).json({
+        message: "Awards is required and must be 'true' or 'false'",
+        success: false
+      });
+    }
+
+    // ---------------------------------------------
+    // Awards[]
+    // ---------------------------------------------
+    const AwardsObjects = Object.keys(req.body).filter(key => key.startsWith("Awards["));
+    let Award = [];
+
+    if (String(Awards).trim().toLowerCase() === "true") {
+      const AwardsMap = new Map();
+
+      AwardsObjects.forEach(key => {
+        const match = key.match(/Awards\[(\d+)\]\[(.+)\]/);
+        if (match) {
+          const index = match[1];
+          const field = match[2]; // IMPORTANT: use capture group 2
+          if (!AwardsMap.has(index)) AwardsMap.set(index, {});
+          AwardsMap.get(index)[field] = req.body[key];
+        }
+      });
+
+      Award = Array.from(AwardsMap.values());
+
+      const AwardFestival = new Set();
+      const DuplicateAward = [];
+      const WebSeries = new Set(); // you used this name to track Festival duplicates
+      const DuplicateWebSeries = [];
+
+      const ParseDate = (str) => {
+        const [day, month, year] = (str || "").split("/");
+        if (!day || !month || !year) return new Date("Invalid");
+        const fullYear = year.length === 2 ? `20${year}` : year;
+        return new Date(`${fullYear}-${month}-${day}`);
+      };
+
+      for (let index = 0; index < Award.length; index++) {
+        const Awarding = Award[index];
+        const { AwardCat, Festival, Movie, releaseDate, Curency, Currency, budget, earned } = Awarding || {};
+
+        // support both Curency and Currency (your screenshot uses Curency)
+        const money = Currency ?? Curency;
+
+        // required checks (keep your style)
+        if (!AwardCat || !Festival || !Movie || !releaseDate || !money || budget === undefined || earned === undefined) {
+          return res.status(400).json({
+            message: "This fields are required",
+            success: false
+          });
+        }
+
+        // numbers must be non-negative
+        const budgetNum = Number(budget);
+        const earnedNum = Number(earned);
+        if (!Number.isFinite(budgetNum) || budgetNum < 0) {
+          return res.status(400).json({
+            message: "budget must be a non-negative number",
+            success: false
+          });
+        }
+        if (!Number.isFinite(earnedNum) || earnedNum < 0) {
+          return res.status(400).json({
+            message: "earned must be a non-negative number",
+            success: false
+          });
+        }
+
+        // date
+        let ReleaseDate = ParseDate(releaseDate);
+        if (isNaN(ReleaseDate.getTime())) {
+          return res.status(400).json({
+            message: "Invalid releaseDate (use dd/mm/yy or dd/mm/yyyy)",
+            success: false
+          });
+        }
+
+        // duplicates (keep your push(index, value) style)
+        if (AwardFestival.has(AwardCat)) DuplicateAward.push(index, AwardCat); else AwardFestival.add(AwardCat);
+        if (WebSeries.has(Festival)) DuplicateWebSeries.push(index, Festival); else WebSeries.add(Festival);
+
+        // normalize back onto object if you need later
+        Award[index].Curency = money;        // keep original key
+        Award[index].budget = budgetNum;
+        Award[index].earned = earnedNum;
+        Award[index].releaseDate = ReleaseDate.toISOString();
+      }
+
+      if (DuplicateAward.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Duplicate entries found with the same AwardCat",
+          data: DuplicateAward
+        });
+      }
+
+      if (DuplicateWebSeries.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Duplicate entries found with the same Festival",
+          data: DuplicateWebSeries
+        });
+      }
+    } else {
+      Award = [];
+    }
+
+    // ---------------------------------------------
+    // Tools & Software — your Postman style (repeated keys)
+    // ---------------------------------------------
+    let Tools = [];
+    let Software = [];
+
+    if (String(ToolsSoftware).trim().toLowerCase() === "true") {
+      // accept both repeated "Tools" and "Tools[]" just in case
+      const rawTools = parsedBody.Tools ?? parsedBody["Tools[]"];
+      const rawSoftware = parsedBody.Software ?? parsedBody["Software[]"];
+
+      const toList = (v) => {
+        if (v === undefined || v === null) return [];
+        if (Array.isArray(v)) return v;
+        return [v]; // single string -> array
+      };
+
+      Tools = toList(rawTools).map(x => String(x).trim()).filter(Boolean);
+      Software = toList(rawSoftware).map(x => String(x).trim()).filter(Boolean);
+
+      // de-dup (keep your simple style; case-sensitive)
+      Tools = [...new Set(Tools)];
+      Software = [...new Set(Software)];
+
+      // require BOTH lists? or at least one?
+      // You said both are coming — make both required:
+      if (Tools.length === 0) {
+        return res.status(400).json({
+          message: "This Tools are required",
+          success: false
+        });
+      }
+      if (Software.length === 0) {
+        return res.status(400).json({
+          message: "This Software are required",
+          success: false
+        });
+      }
+    } else {
+      Tools = [];
+      Software = [];
+    }
+
+    // console.log("This are all the tools", Tools);
+    // console.log("This are all the software", Software);
+// 
+    const {Role,ExperienceLevel} = Finding
+    try{
+      // Awards, ToolsSoftware ,TeamSize
+      // AwardCat, Festival, Movie, releaseDate, Curency, Currency, budget, earned
+      const Updating = await directorexperience.create({
+        Role:Role,
+        ExperienceLevel:ExperienceLevel,
+        Awards:{
+          needed:Awards,
+          items:Award.map((data)=>({
+            AwardCategory:data.AwardCat,
+            AwardFestival:data.Festival,
+            MovieName:data.Movie,
+            ReleaseDate:data.releaseDate,
+            Currency:data.Curency,
+            TotalBudget:data.budget,
+            TotalEarned:data.earned
+          }))
+        },
+        ToolsSoftware:{
+          needed:ToolsSoftware,
+          Software:Software,
+          Tools:Tools        
+        },
+        TeamSize:TeamSize
+      })
+
+    await Orgdata.updateOne({ DirectorExperience: Updating._id });
+
+       return res.status(200).json({
+      message: "THe data is been send succesfully",
+      success: true,
+      data:Updating
+    });
+    }catch(error){
+      console.log(error)
+      console.log(error.message)
+      return res.status(400).json({
+        message:"There is an erro while uploading the director experience data",
+        success:false,
+        error:error
+      })
+    }
+
+    // return res.status(200).json({
+    //   message: "THIS IS THE AWARD DATTA",
+    //   success: true,
+    //   data: {
+    //     TeamSize: teamSizeNum,
+    //     AwardsActive: String(Awards).trim().toLowerCase() === "true",
+    //     Award,
+    //     ToolsSoftware: String(ToolsSoftware).trim().toLowerCase() === "true",
+    //     Tools,
+    //     Software
+    //   }
+    // });
+
+  } catch (error) {
+    console.log(error);
+    console.log(error.message);
+    return res.status(400).json({
+      message: "There is an something wrong in the DirectorExperienced code",
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
+exports.ProducerFresher = async (req, res) => {
+  try {
+    const Id = req?.USER?.id;
+    if (!Id) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+
+    const parsedBody = req.body;
+
+    // ✅ Find organization record
+    const Finding = await Orgdata.findOne({ id: Id });
+    if (!Finding) {
+      return res.status(400).json({
+        message: "You have not filled the form in the org data",
+        success: false,
+      });
+    }
+
+    const {
+      Inspiration,
+      ProjectCount,
+      budget,
+      CrowdFunding,
+      Network,
+      Funding,
+    } = parsedBody;
+
+    const CrowdKeys = Object.keys(req.body).filter((key) => key.startsWith("Crowd["));
+    let Crowd = [];
+
+    // ✅ Only process crowd data if crowdfunding is true
+    if (CrowdFunding && CrowdFunding.toString().toLowerCase() === "true") {
+      const Crowdmaps = new Map();
+
+      // Group crowd data by index
+      CrowdKeys.forEach((key) => {
+        const match = key.match(/Crowd\[(\d+)\]\[(.+)\]/);
+        if (match) {
+          const index = match[1];
+          const field = match[2];
+          if (!Crowdmaps.has(index)) Crowdmaps.set(index, {});
+          Crowdmaps.get(index)[field] = req.body[key];
+        }
+      });
+
+      Crowd = Array.from(Crowdmaps.values());
+      const Name = new Set();
+      const Certificate = new Set();
+      const DuplicateName = [];
+      const DuplicateCertificate = [];
+
+      const DateChecker = (str) => {
+        if (!str) return null;
+        const [day, month, year] = str.split("/");
+        return new Date(`${year}-${month}-${day}`);
+      };
+
+      // ✅ Loop through each crowd entry
+      for (let index = 0; index < Crowd.length; index++) {
+        const crowd = Crowd[index];
+        const { name, start, completion } = crowd;
+
+        // Validate presence
+        if (!name || !start || !completion) {
+          return res.status(400).json({
+            success: false,
+            message: `Missing required fields for Crowd[${index}] — name, start, completion`,
+            received: { name, start, completion },
+          });
+        }
+
+        // Duplicate name check
+        if (Name.has(name)) DuplicateName.push({ index, name });
+        else Name.add(name);
+
+        // Validate dates
+        const StartDate = DateChecker(start);
+        const CompletionDate = DateChecker(completion);
+
+        if (isNaN(StartDate.getTime()) || isNaN(CompletionDate.getTime())) {
+          return res.status(400).json({
+            message: `Invalid date format for Crowd[${index}]`,
+          });
+        }
+
+        if (StartDate.getTime() === CompletionDate.getTime()) {
+          return res.status(400).json({
+            message: `Start and completion date cannot be same for Crowd[${index}]`,
+          });
+        }
+
+        if (CompletionDate <= StartDate) {
+          return res.status(400).json({
+            message: `Completion date cannot be earlier than start date for Crowd[${index}]`,
+          });
+        }
+
+        // ✅ Handle file (fixed part)
+        const script = req.files?.[`Crowd[${index}][documents]`]
+        const fileType = "application/pdf";
+
+        if (!script) {
+          return res.status(400).json({
+            index,
+            message: "Missing documents file",
+            data: crowd,
+          });
+        }
+
+        console.log(`✅ Found file for Crowd[${index}]:`, script.name);
+
+        // Duplicate file name check
+        if (Certificate.has(script.name)) {
+          DuplicateCertificate.push({ index, name: script.name });
+        } else {
+          Certificate.add(script.name);
+        }
+
+        if (Array.isArray(script)) {
+          return res.status(400).json({
+            success: false,
+            message: `Only one file is allowed for Crowd[${index}][documents]`,
+          });
+        }
+
+        if (script.mimetype !== fileType) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid file type for Crowd[${index}][documents]. Expected: ${fileType}`,
+            received: script.mimetype,
+          });
+        }
+
+        // ✅ Upload file to Cloudinary
+        const fileUrl = await uploadDatatoCloudinary(
+          script,
+          process.env.CLOUDINARY_FOLDER_NAME,
+          1000,
+          1000
+        );
+
+        if (!fileUrl?.secure_url) {
+          return res.status(400).json({
+            message: `Error uploading file for Crowd[${index}]`,
+            success: false,
+          });
+        }
+
+        // Add file URL to crowd entry
+        Crowd[index].scriptUrl = fileUrl.secure_url;
+      }
+
+      // ✅ Duplicate checks
+      if (DuplicateName.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Duplicate entries found with the same project name",
+          data: DuplicateName,
+        });
+      }
+
+      if (DuplicateCertificate.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Duplicate script files found",
+          data: DuplicateCertificate,
+        });
+      }
+    } else {
+      Crowd = [];
+    }
+
+    // ✅ Required fields check
+    const requiredFields = {
+      Inspiration,
+      ProjectCount,
+      budget,
+      CrowdFunding,
+      Network,
+      Funding,
+    };
+    const missingFields = Object.keys(requiredFields).filter((key) => {
+      const val = requiredFields[key];
+      return (
+        val === undefined ||
+        val === null ||
+        (typeof val === "string" && val.trim() === "")
+      );
+    });
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `These fields are required: ${missingFields.join(", ")}`,
+      });
+    }
+
+    // ✅ Word limit check (250 words)
+    const WordCounts = (text, limit = 250) => {
+      const words = text.trim().split(/\s+/);
+      return words.length > limit ? `Exceeded ${limit} words` : null;
+    };
+
+    const textareaFields = ["Inspiration", "budget", "Network", "Funding"];
+    const textareaErrors = textareaFields
+      .map((field) => {
+        const val = req.body[field];
+        if (!val || typeof val !== "string" || !val.trim()) return null;
+        const err = WordCounts(val);
+        return err ? `${field}: ${err}` : null;
+      })
+      .filter(Boolean);
+
+    if (textareaErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "One or more text fields exceed the 250-word limit",
+        fields: textareaErrors,
+      });
+    }
+
+    const { Role, ExperienceLevel } = Finding;
+// console.log("This is the crowd data",Crowd)
+    // ✅ Create entry
+    const Uploading = await producerfresher.create({
+      Role,
+      ExperienceLevel,
+      Producerinspiration: Inspiration,
+      ProjectsCount: ProjectCount,
+      BudgetPlanning: budget,
+      industryRelation: Network,
+      FundingDelays: Funding,
+      CrowdFunding:{
+        needed:CrowdFunding,
+        items:Crowd.map((data)=>({
+          Name:data.name,
+          StartDate:data.start,
+          EndDate:data.completion,
+          link:data.scriptUrl
+        }))
+      }
+
+    });
+    await Orgdata.updateOne({ ProducerFresher: Uploading._id });
+
+    return res.status(200).json({
+      success: true,
+      message: "Producer data sent successfully",
+      Crowd,
+    });
+  } catch (error) {
+    console.error("❌ Error in producerfresher:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong in producerfresher",
+      error: error.message,
+    });
+  }
+};
+
+exports.ProducerExperience = async (req, res) => {
+  try {
+    const parsedBody = req.body;
+
+    const Id = req?.USER?.id;
+
+    const Finding = await Orgdata.findOne({ id: Id });
+    if (!Finding) {
+      return res.status(400).json({
+        message: "You have not filled the form in the org data",
+        success: false,
+      });
+    }
+
+    const { affiliated, teamSize, projectcount, riskmanagement } = parsedBody;
+
+    // Required: EMPTY string check only (your requirement)
+    if (
+      String(affiliated).trim() === "" ||
+      String(teamSize).trim() === "" ||
+      String(projectcount).trim() === "" ||
+      String(riskmanagement).trim() === ""
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "affiliated, teamSize, projectcount, and riskmanagement are required",
+      });
+    }
+
+    // (Optional) If you want numbers to be valid non-negative:
+    // const teamSizeNum = Number(teamSize);
+    // const projectCountNum = Number(projectcount);
+    // if (!Number.isFinite(teamSizeNum) || teamSizeNum < 0) {
+    //   return res.status(400).json({ message: "teamSize must be a non-negative number", success: false });
+    // }
+    // if (!Number.isFinite(projectCountNum) || projectCountNum < 0) {
+    //   return res.status(400).json({ message: "projectcount must be a non-negative number", success: false });
+    // }
+
+    // -------- Resume (PDF) --------
+    // Expecting a single file field named "Resume" (or "resume")
+    let Resume = req.files?.Resume || req.files?.resume;
+
+    if (!Resume) {
+      return res.status(400).json({
+        message: "This resume fields is required",
+        success: false,
+      });
+    }
+
+    if (Array.isArray(Resume)) {
+      return res.status(400).json({
+        message: "Only one file is allowed",
+        success: false,
+      });
+    }
+
+    const MaxLimit = 5 * 1024 * 1024; // 5 MB
+    const fileType = "application/pdf";
+
+    if (Resume.mimetype !== fileType) {
+      return res.status(400).json({
+        message: `Invalid file type. Expected: ${fileType}, Received: ${Resume.mimetype}`,
+        success: false,
+      });
+    }
+
+    if (Resume.size > MaxLimit) {
+      return res.status(400).json({
+        message: "Your resume exceeds the 5 MB limit",
+        success: false,
+      });
+    }
+
+    // Upload resume
+    const fileUrl = await uploadDatatoCloudinary(
+      Resume,
+      process.env.CLOUDINARY_FOLDER_NAME,
+      1000,
+      1000
+    );
+
+    if (!fileUrl || !fileUrl.secure_url) {
+      return res.status(400).json({
+        message: "The file was not converted into a URL due to some issue",
+        success: false,
+      });
+    }
+
+    // -------- riskmanagement word limit (if you use WordCounts like before) --------
+    // If WordCounts returns an error message when exceeding limit, keep your pattern:
+    const WordsErr = WordCounts(riskmanagement);
+    if (WordsErr) {
+      return res.status(400).json({
+        success: false,
+        message: `riskmanagement: ${WordsErr}`,
+      });
+    }
+
+    // -------- Funding (array) from form-data --------
+    // You referenced Fund / Fund[] – parse either repeated keys or [] keys.
+    const toList = (v) => {
+      if (v === undefined || v === null) return [];
+      if (Array.isArray(v)) return v;
+      return [v]; 
+    };
+
+    // Accept multiple possible keys the frontend might send
+  let Funding = toList(
+  parsedBody.Fund ??
+  parsedBody["Fund[]"] ??
+  parsedBody.Funding ??
+  parsedBody["Funding[]"]
+);
+
+   if (Funding.length === 1) {
+  const fundIdxKeys = Object.keys(parsedBody)
+    .filter(k => /^Fund\[\d+\]$/.test(k))
+    .sort((a, b) => {
+      const ai = Number(a.match(/\[(\d+)\]/)[1]);
+      const bi = Number(b.match(/\[(\d+)\]/)[1]);
+      return ai - bi;
+    });
+
+  if (fundIdxKeys.length > 0) {
+    Funding = fundIdxKeys.map(k => String(parsedBody[k]).trim());
+  }
+}
+
+// Final cleanup
+Funding = Funding.map(x => String(x).trim()).filter(Boolean);
+Funding = [...new Set(Funding)];
+
+if (Funding.length === 0) {
+  return res.status(400).json({
+    message: "Funding is required (provide at least one item in Fund/Fund[]/Funding)",
+    success: false,
+  });
+}
+
+    // -------- Affiliations (dynamic objects) --------
+    const affiliatedObjects = Object.keys(req.body).filter((key) =>
+      key.startsWith("Affili[")
+    );
+    let Affilition = [];
+
+    if (affiliated && affiliated.toString().toLowerCase() === "true") {
+      const AwardsMap = new Map();
+
+      affiliatedObjects.forEach((key) => {
+        const match = key.match(/Affili\[(\d+)\]\[(.+)\]/);
+        if (match) {
+          const index = match[1];
+          const field = match[2];
+          if (!AwardsMap.has(index)) AwardsMap.set(index, {});
+          AwardsMap.get(index)[field] = req.body[key];
+        }
+      });
+
+      Affilition = Array.from(AwardsMap.values());
+
+      for(let index =0 ;index<Affilition.length ; index++){
+        const Aff = Affilition[index]
+        const {name,membership,yearjoined,expirydate} = Aff
+
+        if(!name || !membership || !yearjoined || !expirydate){
+          return res.status(400).json({
+            message:"This fields are required",
+            success:false
+          })
+        }
+      }
+      // (Optional) Validate each affiliation row here if needed
+      // for (let i = 0; i < Affilition.length; i++) {
+      //   const row = Affilition[i];
+      //   if (!row.name || !row.role) {
+      //     return res.status(400).json({ message: "Affiliation fields are required", success: false });
+      //   }
+      // }
+    } else {
+      Affilition = [];
+    }
+
+
+    // console.log("This is the affiliated data",Affilition)
+    // -------- Respond (or save to DB) --------
+    // If you want to persist, add your model create/update here.\\\
+
+    const {Role,ExperienceLevel} = Finding
+    // name,membership,yearjoined,expirydate
+    // affiliated, teamSize, projectcount, riskmanagement
+    try{
+      const Updating = await producerexperience.create({
+        Resume:fileUrl.secure_url,
+        Role:Role,
+        ExperienceLevel:ExperienceLevel,
+        Funding:Funding,
+        Affiliation:{
+          needed:affiliated,
+          items:Affilition.map((data)=>({
+            union:data.name[0],
+            Membershipid:data.membership[0],
+            Yearjoined:data.yearjoined[0],
+            ExpiryDate:data.expirydate[0]
+          }))
+        },
+        TeamSize:teamSize,
+        TotalProjects:projectcount,
+        RiskManagement:riskmanagement
+      })
+
+    await Orgdata.updateOne({ ProducerExperience: Updating._id });
+
+
+      return res.status(200).json({
+        message:"This data is send to the producer experience",
+        success:true,
+        data:Updating
+      })
+    }catch(error){
+      console.log(error)
+      return res.status(500).json({
+        message:"There is an error while creating the producer experieence data"
+      })
+    }
+
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "ProducerExperience validated",
+    //   data: {
+    //     affiliated,
+    //     teamSize,
+    //     projectcount,
+    //     riskmanagement,
+    //     resumeUrl: fileUrl.secure_url,
+    //     Funding,
+    //     Affilition,
+    //   },
+    // });
+  } catch (error) {
+    console.log(error);
+    console.log(error.message);
+    return res.status(400).json({
+      message: "There is an something wrong in the ProducerFresher code",
+      success: false,
+      error: error.message,
     });
   }
 };
