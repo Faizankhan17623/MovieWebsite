@@ -50,3 +50,6 @@ const response = await apiConnector("POST", login, {
 
 
 <!-- Rememebr when  the appis build like 100 percentage make the HttpOnly  true so that it can be blocked byt the atackers  -->
+
+
+<!-- // "dev": "concurrently -n \"client,server\" -c \"bgRed,bgBlue\" \"npm start\" \"npm run server\"" -->

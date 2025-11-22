@@ -1,15 +1,14 @@
 import toast from 'react-hot-toast'
 import {apiConnector} from '../apiConnector'
-import {CreateOrgainezer,Ticket,AllotTheatre,GetAllSHowsDetails,GetAllTheatreDetails} from "../Apis/OranizaerApi"
+import {CreateOrgainezer,Ticket,AllotTheatre,GetAllSHowsDetails,GetAllTheatreDetails,orgainezerdata} from "../Apis/OranizaerApi"
 import { setLoading} from '../../Slices/orgainezerSlice'
 import {setToken,setLogin,setUserImage,setUser} from '../../Slices/authSlice.js'
-import {setuser} from '../../Slices/ProfileSlice.js'
+import {setloading, setuser} from '../../Slices/ProfileSlice.js'
 import Cookies from "js-cookie";
 
-
-
-
 const {createorgainezer,orgainezerlogin} = CreateOrgainezer
+const {OrgainezerData,DirectorFresher,DirectorExperience,ProducerFresher,ProducerExperience} = orgainezerdata
+
 export function Creation(name,password,email,number,otp,code){
     return async (dispatch) => {
         dispatch(setLoading(true));
@@ -61,6 +60,7 @@ export function OrgainezerLogin(email,password,navigate){
                 password:password
             })
 
+            console.log("THis is the response",response)
                  console.log("User is been logged in ")
                 toast.success('Congragulations you are logged in')
                 // console.log(response.data.user.verified)
@@ -98,3 +98,372 @@ export function OrgainezerLogin(email,password,navigate){
         }
     }    
 }
+// keep the same export name and structure you used
+export function Orgainezer_Data(data, token) {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      // Build FormData that matches backend names exactly
+      // console.log("THis is the data",data)
+     
+      let tokenStr = token;
+      try {
+        // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
+        if (typeof token === "string" && (token.startsWith('"') || token.startsWith("{"))) {
+          tokenStr = JSON.parse(token);
+        }
+      } catch (e) {
+        // ignore parse error and use original token
+        console.error(e)
+      }
+      // console.log("DEBUG tokenStr:", tokenStr);
+
+      const fd = new FormData();
+
+      // Basic scalar fields (match backend variable names / casing)
+      // fd.append("Id",userId || "")
+      fd.append("First", data.First || "");
+      fd.append("Last", data.Last || "");
+      fd.append("Email", data.Email || "");
+      fd.append("Countrycode", data.CountryCode || ""); // backend uses Countrycode
+      fd.append("number", data.MobileNumber || "");
+      fd.append("countryname", data.CountryName || "");
+      fd.append("statename", data.StateName || "");
+      fd.append("cityname", data.CityName || "");
+      fd.append("Sameforlocalandpermanent", data.SameAddress   || "No");
+      fd.append("local", data.LocalAddress || "");
+      fd.append("permanent", data.PermanentAddress || "");
+      fd.append("gender", data.Gender || "");
+      fd.append("website", data.Portfolio || "");
+      fd.append("totalProjects", data.TotalProjects || "");
+      fd.append("Experience", data.YearExperience || "");
+      fd.append("shortbio", data.bio || "");
+      fd.append("notableProjects", data.Work ||"No");
+      fd.append("SocialMedia", data.mediaChoice ||"No");
+      fd.append("ongoingProject", data.Ongoing ||"No");
+      fd.append("projectspllanned", data.Planned ||"No");
+      fd.append("Genre" , data.genres || [])
+      fd.append("subGenre",data.subgenres || [])
+      fd.append("Screen",data.screenFormats || [])
+      fd.append("Target", data.audienceTypes || [])
+      fd.append("Distribution", data.distributions ||"No");
+      fd.append("Promotions", data.promotions ||"No");
+      fd.append("Assistance", data.AssistanceRequired ||"No");
+      fd.append("support", data.AssistanceType || "");
+      fd.append("mainreason", data.JoiningReason || "");
+      fd.append("certifications", data.Certified ||"No");
+        fd.append("ExperienceCollabrating", data.Experience ||"No");
+      fd.append("collabrotion", data.Collaboration ||"No");
+// Screen, Target
+      fd.append("role", data.selectedRole || "");
+      fd.append("experience", data.experiences || "");
+
+      // Boolean-like toggles (backend expects these keys)
+     
+     
+  
+
+      // MAIN IMAGE: backend expects req.files?.Image
+      if (data.posterImage) {
+        // posterImage must be a File object (from input[type=file])
+        fd.append("Image", data.posterImage);
+      }
+
+      // Socials -> social[i][mediaName], social[i][follwers], social[i][urls]
+      if (Array.isArray(data.socials)) {
+        data.socials.forEach((s, i) => {
+          fd.append(`social[${i}][mediaName]`, s.mediaName || "");
+          // backend expects 'follwers' typo, match it
+          fd.append(`social[${i}][follwers]`, s.followers || s.follwers || "");
+          fd.append(`social[${i}][urls]`, s.link || s.url || "");
+        });
+      }
+
+      // Ongoing projects: ongoing[i][name], ongoing[i][startdate], ongoing[i][enddate], ongoing[i][released]
+      // and file key ongoing[i][script] (PDF)
+      if (Array.isArray(data.ongoingProjects)) {
+        data.ongoingProjects.forEach((p, i) => {
+          fd.append(`ongoing[${i}][name]`, p.Proname || p.name || "");
+          fd.append(`ongoing[${i}][startdate]`, p.Start_Date || p.start || "");
+          fd.append(`ongoing[${i}][enddate]`, p.End_Date || p.end || "");
+          fd.append(`ongoing[${i}][released]`, p.Release ||"No");
+          if (p.ProFile) {
+            // must be a File (PDF), backend checks mimetype === application/pdf
+            fd.append(`ongoing[${i}][script]`, p.ProFile);
+          }
+        });
+      }
+
+      // Planned projects -> projects[i][name], projects[i][type], projects[i][status], projects[i][start], projects[i][end], projects[i][released]
+      if (Array.isArray(data.plannedProjects)) {
+        data.plannedProjects.forEach((p, i) => {
+          fd.append(`projects[${i}][name]`, p.PName || "");
+          fd.append(`projects[${i}][type]`, p.PType || "");
+          fd.append(`projects[${i}][status]`, p.PStatus || "");
+          fd.append(`projects[${i}][start]`, p.PStart || "");
+          fd.append(`projects[${i}][end]`, p.PEnd || "");
+          fd.append(`projects[${i}][released]`, p.PReles ||"No");
+        });
+      }
+
+      // Certificates -> Cert[i][name], Cert[i][date], and file key Cert[i][certificate]
+      if (Array.isArray(data.certifications)) {
+        data.certifications.forEach((c, i) => {
+          fd.append(`Cert[${i}][name]`, c.CertificateName || c.name || "");
+          fd.append(`Cert[${i}][date]`, c.CertDate || "");
+          if (c.Certificateafile) {
+            // must be a File (PDF)
+            fd.append(`Cert[${i}][certificate]`, c.Certificateafile);
+          }
+        });
+      }
+
+      // Distributions -> distributions[i][name], distributions[i][budget], distributions[i][role], distributions[i][date]
+      if (Array.isArray(data.distributionsEntries)) {
+        data.distributionsEntries.forEach((d, i) => {
+          fd.append(`distributions[${i}][name]`, d.projectname || d.ProjectName || "");
+          fd.append(`distributions[${i}][budget]`, d.Budget || "");
+          fd.append(`distributions[${i}][role]`, d.Role || "");
+          fd.append(`distributions[${i}][date]`, d.ReleaseDate || "");
+        });
+      }
+
+      // DEBUG: log all formdata keys (useful during dev)
+      // eslint-disable-next-line no-console
+      // for (const pair of fd.entries()) {
+      //   console.log("FD", pair[0], pair[1]);
+      // }
+
+       const config = {
+        headers: {
+          // do NOT set 'Content-Type' here
+          ...(tokenStr ? { Authorization: `Bearer ${tokenStr}` } : {})
+        },
+        // if server expects cookie-based auth or you need cookies sent do this:
+        withCredentials: true
+      };
+
+   const response = await apiConnector("POST", OrgainezerData, fd, config.headers, null);
+      // If apiConnector returns axios response, prefer returning response.data
+      // console.log("DEBUG response:", response?.data || response);
+      return (response && response.data) ? response.data : response;
+    } catch (error) {
+      console.log("Error in the org code", error);
+      try {
+        toast.error(error?.response?.data?.message || error.message);
+      } catch (e) {
+        console.error(e);
+      }
+  // toast.success("done from the ")
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+}
+
+export function DirectorFres (data,token){
+  return async (dispatch)=>{
+    dispatch(setloading(true))
+    try{
+
+        let tokenStr = token;
+      try {
+        // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
+        if (typeof token === "string" && (token.startsWith('"') || token.startsWith("{"))) {
+          tokenStr = JSON.parse(token);
+        }
+      } catch (e) {
+        // ignore parse error and use original token
+        console.error(e)
+      }
+
+      const fd = new FormData()
+      fd.append("Inspirtion", data.DirectorInspiration || "")
+      fd.append("Projects", data.fresherProjects || "")
+      fd.append("ChallengedFaced", data.EarlyChallengs || "")
+      fd.append("Marketing", data.ProjectPlanning || "")
+      fd.append("DirectorInspirtion", data.ProjectPromotion || "")
+      fd.append("sceneVisualization", data.SceneVisualize || "")
+
+        const config = {
+        headers: {
+          // do NOT set 'Content-Type' here
+          ...(tokenStr ? { Authorization: `Bearer ${tokenStr}` } : {})
+        },
+        // if server expects cookie-based auth or you need cookies sent do this:
+        withCredentials: true
+      };
+       const response = await apiConnector("POST", DirectorFresher, fd, config.headers, null);
+      // If apiConnector returns axios response, prefer returning response.data
+      // console.log("DEBUG response:", response?.data || response);
+      return (response && response.data) ? response.data : response;
+    }catch(error){
+      console.log(error)
+      console.log(error.message)
+    }finally{
+      dispatch(setloading(false))
+    }
+
+  }
+}
+
+
+export function DirectorExperien (data,token){
+  return async(dispatch)=>{
+      dispatch(setloading(true))
+    try{
+
+   let tokenStr = token;
+      try {
+        // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
+        if (typeof token === "string" && (token.startsWith('"') || token.startsWith("{"))) {
+          tokenStr = JSON.parse(token);
+        }
+      } catch (e) {
+        // ignore parse error and use original token
+        console.error(e)
+      }
+
+      // console.log(typeof data.teamSize)
+      const fd = new FormData()
+      // Awards, ToolsSoftware ,TeamSize
+      fd.append("Awards", data.hasAwards === "Yes" ? "Yes" : "No");
+      fd.append("ToolsSoftware", data.ToolsChoice || "")
+
+     if (Array.isArray(data.tools) && data.tools.length > 0) {
+        data.tools.forEach(t => fd.append("Tools[]", t));
+      } else {
+        // append empty to keep shape (backend also checks presence)
+        fd.append("Tools", "");
+      }
+      if (Array.isArray(data.software) && data.software.length > 0) {
+        data.software.forEach(s => fd.append("Software[]", s));
+      } else {
+        fd.append("Software", "");
+      }
+
+
+      fd.append("TeamSize",data.teamSize.toString() || "")
+      
+      // AwardCat, Festival, Movie, releaseDate, Curency, Currency, budget, earned
+
+       if (Array.isArray(data.Awards)) {
+        data.Awards.forEach((p, i) => {
+           const Release = p.releaseDate.split('-').reverse().join('/')
+          console.log("Releasse",Release)
+          fd.append(`Awards[${i}][AwardCat]`, p.category || "");
+          fd.append(`Awards[${i}][Festival]`, p.awardName || "");
+          fd.append(`Awards[${i}][Movie]`, p.movieName || "");
+          fd.append(`Awards[${i}][releaseDate]`, Release || "");
+          fd.append(`Awards[${i}][Curency]`, p.Currencey || "");
+          fd.append(`Awards[${i}][budget]`, p.budget ||"");
+          fd.append(`Awards[${i}][earned]`, p.earned ||"");
+        });
+      }
+
+        const config = {
+        headers: {
+          // do NOT set 'Content-Type' here
+          ...(tokenStr ? { Authorization: `Bearer ${tokenStr}` } : {})
+        },
+        // if server expects cookie-based auth or you need cookies sent do this:
+        withCredentials: true
+      };
+
+       const response = await apiConnector("POST", DirectorExperience, fd, config.headers, null);
+      // If apiConnector returns axios response, prefer returning response.data
+      // console.log("DEBUG response:", response?.data || response);
+      return (response && response.data) ? response.data : response;
+    } catch (error) {
+      console.log("Error in the org code", error);
+      try {
+        toast.error(error?.response?.data?.message || error.message);
+      } catch (e) {
+        console.error(e);
+      }
+      throw error;
+    }finally{
+      dispatch(setloading(false))
+
+    }
+  }
+}
+
+
+export function ProducerFreshe (data,token){
+   return async(dispatch)=>{
+      dispatch(setloading(true))
+    try{
+
+        let tokenStr = token;
+      try {
+        // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
+        if (typeof token === "string" && (token.startsWith('"') || token.startsWith("{"))) {
+          tokenStr = JSON.parse(token);
+        }
+      } catch (e) {
+        // ignore parse error and use original token
+        console.error(e)
+      }
+
+    // console.log(data,"This is thte like form the producer fresher")
+      const fd = new FormData()
+      fd.append("Inspiration",data.DirectorInspiration || "")
+      fd.append("ProjectCount",data.fresherProjects || "")
+      fd.append("budget",data.BudgetHandling || "")
+      fd.append("CrowdFunding",data.internshipExperience || "No")
+      fd.append("Network",data.Networking|| "")
+      fd.append("Funding",data.FundDelays || "")
+
+
+        if (Array.isArray(data.internships)) {
+        data.internships.forEach((s, i) => {
+          fd.append(`Crowd[${i}][name]`, s.InternshipName || "");
+          fd.append(`Crowd[${i}][start]`, s.StartDate || "");
+          fd.append(`Crowd[${i}][completion]`, s.EndDate ||  "");
+          fd.append(`Crowd[${i}][documents]`, s.InternshipDocs[0] || "");
+          // console.log(s,"This is the s data")
+        });
+      }
+
+   const config = {
+        headers: {
+          // do NOT set 'Content-Type' here
+          ...(tokenStr ? { Authorization: `Bearer ${tokenStr}` } : {})
+        },
+        // if server expects cookie-based auth or you need cookies sent do this:
+        withCredentials: true
+      };
+
+       const response = await apiConnector("POST", ProducerFresher, fd, config.headers, null);
+      // If apiConnector returns axios response, prefer returning response.data
+      // console.log("DEBUG response:", response?.data || response);
+      return (response && response.data) ? response.data : response;
+    } catch (error) {
+      console.log("Error in the org code", error);
+      try {
+        toast.error(error?.response?.data?.message || error.message);
+      } catch (e) {
+        console.error(e);
+      }
+      throw error;
+    }finally{
+      dispatch(setloading(false))
+    }
+  }
+}
+
+// export function ProducerExperienced (data,token){
+//    return async(dispatch)=>{
+//       dispatch(setloading(true))
+//     try{
+
+//     }catch(error){
+
+//     }finally{
+//       dispatch(setloading(false))
+
+//     }
+//   }
+// }

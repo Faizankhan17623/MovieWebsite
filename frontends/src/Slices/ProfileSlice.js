@@ -28,7 +28,7 @@ const ProfileSlice = createSlice({
       const safeUser = {
         userName: value.payload.userName,
         usertype: value.payload.usertype,
-        _id: value.payload._id
+         _id: value.payload._id?.toString()
       };
       state.user = safeUser;
       localStorage.setItem("user", JSON.stringify(safeUser));

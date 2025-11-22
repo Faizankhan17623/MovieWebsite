@@ -21,3 +21,11 @@ export const GetAllSHowsDetails = {
 export const GetAllTheatreDetails = {
     Getalltheatredetails:BASE_URL+"/Get-All-Theatre-Details"
 }
+
+export const orgainezerdata = {
+    OrgainezerData:BASE_URL + "/Org-Data",
+    DirectorFresher:BASE_URL + "/Dir-Fresh",
+    DirectorExperience:BASE_URL + "/Dir-Experience",
+    ProducerFresher:BASE_URL + "/Pro-Fresh",
+    ProducerExperience:BASE_URL + "/Pro-Experience"
+}

@@ -161,14 +161,12 @@
     { "name": "Peruvian Sol", "code": "PEN", "symbol": "S/." }
   ],
   "typicalTeamSizeRanges": [
-    "1",
-    "2-5",
-    "6-10",
-    "11-20",
-    "21-30",
-    "31-50",
-    "51-100",
+    "10+",
     "100+",
+    "200+",
+    "300+",
+    "400+",
+    "500+",
     "Depends On Project"
   ],
     "years": [ 

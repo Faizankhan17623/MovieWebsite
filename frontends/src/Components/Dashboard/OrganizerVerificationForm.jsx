@@ -19,12 +19,13 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {GetAllUserDetails} from '../../Services/operations/User'
 import Loader from '../extra/Loading'
-
+import {Orgainezer_Data,DirectorFres,DirectorExperien,ProducerFreshe} from '../../Services/operations/orgainezer'
 
 const OrganizerVerificationForm = () => {
    const navigate = useNavigate()
     const dispatch = useDispatch()
     const {token} = useSelector((state)=>state.auth)
+    //  const userId = useSelector((state) => state.Profile?.user?._id);
 
   const {
     register,
@@ -62,25 +63,98 @@ const OrganizerVerificationForm = () => {
     FaXTwitter: FaXTwitter,
   };
 
-  const Proceed = async()=>{
+const Proceed = async (data) => {
 
-    localStorage.setItem("Data Submitted",true)
+  const JsonString = JSON.stringify(data)
+  console.log("This is the json data",JsonString)
+  // make sure your data.posterImage is a File (not a data URL or string)
+  // and other files are present in arrays (ongoingProjects[].ProFile, certifications[].Certificateafile)
 
-    Swal.fire({
-      title:"Success !",
-      text:"Your Data is Been Submitted",
-      icon:"success",
-      showConfirmButton: false,
-      timer: 4000
-    })
+  // if (!userId) {
+  //     console.error("No user ID available");
+  //     return;
+  //   }
 
-    setTimeout(()=>{
-      navigate("/Dashboard/My-Profile")
-    },3000)
+  //          console.log("This is the user id",userId)
 
 
+  try {
+    setloading(true)
+    const Response = await dispatch(Orgainezer_Data(data, token));
+      // const userId = getState().Profile.user?._id;
+      // console.log(Response)
+
+      // if(data.selectedRole === "Director" && data.experiences === "Fresher"){
+      //   try{
+      //     const RoleExperience = await dispatch(DirectorFres(data,token))
+      //     if(RoleExperience?.success === false){
+      //       stop()
+      //       toast.error("error in the Director Fresher code")
+      //     }
+      //   }catch(error){
+      //     console.log(error,error.message)
+      //   }
+      // }
+
+
+      //  if(data.selectedRole === "Director" && data.experiences === "Experienced"){
+      //   try{
+      //     const RoleExperience = await dispatch(DirectorExperien(data,token))
+      //     if(RoleExperience?.success === false){
+      //       stop()
+      //       toast.error("error in the Director Fresher code")
+      //     }
+      //   }catch(error){
+      //     console.log(error,error.message)
+      //   }
+
+      // }
+
+
+
+         if(data.selectedRole === "Producer" && data.experiences === "Fresher"){
+        try{
+          const RoleExperience = await dispatch(ProducerFreshe(data,token))
+          if(RoleExperience?.success === false){
+            stop()
+            toast.error("error in the Producer Fresher code")
+          }
+        }catch(error){
+          console.log(error,error.message)
+        }
+
+      }
+
+
+    if (Response?.success) {
+      toast.success("Data send Succesfully")
+    }
+     if (!Response?.success) {
+      // main failed — show server message if available and stop
+      toast.error(Response?.message || "Failed to submit main organizer data");
+      return;
+    }
+    setloading(false)
+
+  } catch (error) {
+    console.log(error, error.message);
   }
-  
+
+  Swal.fire({
+    title: "Success !",
+    text: "Your Data is Been Submitted",
+    icon: "success",
+    showConfirmButton: true,
+    timer: 4000
+  });
+
+  // localStorage.setItem("Data Submitted", true);
+
+  setTimeout(() => {
+    navigate("/Dashboard/My-Profile");
+  }, 3000);
+};
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
   const [open, setOpen] = useState(true);
@@ -187,6 +261,8 @@ const [duplicateAwardFestival, setduplicateAwardFestival] = useState(new Set());
 const [duplicateMovieName, setduplicateMovieName] = useState(new Set());
 const [data,setdata] = useState()
   const [loading,setloading] = useState(false)
+  const [budget,setbudget] = useState("")
+  const [earned,setearned] = useState("")
 
 
 
@@ -421,7 +497,7 @@ const onSubmit = async (data) => {
                             text2: "I take full responsibility for my data. If the data is false, my account may be suspended.",
                             btn1Text: 'Submit Data',
                             btn2Text: 'Review my Details',
-                            btn1Handler: () => Proceed(),
+                            btn1Handler: () => Proceed(data),
                             btn2Handler: () => setConfirmationModal(null),
             })
     console.log("Form submitted", data);
@@ -489,6 +565,14 @@ useEffect(() => {
   }
 }, [Name, setValue, data, open]);
 
+
+if(loading){
+  return (
+    <div className='w-full h-full flex justify-center items-center'>
+      <Loader/>
+    </div>
+  )
+}
 
 // console.log(Name)
 
@@ -751,12 +835,12 @@ useEffect(() => {
                       <input
                         type="radio"
                         name="Gender"
-                        id="None"
-                        value="None"
+                        id="Other"
+                        value="Other"
                         {...register("Gender", { required: "Gender is required" })}
                         className="mr-2"
                       />
-                      <label htmlFor="None">Rather Not To Disclose</label>
+                      <label htmlFor="Other">Rather Not To Disclose</label>
                     </div>
                     {errors.Gender && <span className="text-red-500">{errors.Gender.message}</span>}
                   </div>
@@ -1966,7 +2050,7 @@ useEffect(() => {
     type="button"
     id="genres"
     className={`p-3 w-full bg-richblack-600 h-11 form-style rounded-lg outline-none transition 
-      ${errors.genres ? "ring-2 ring-red-500" : "focus:ring-2 focus:ring-blue-400"}`}
+      ${errors.genres === 0  ? "ring-2 ring-red-500" : "focus:ring-2 focus:ring-blue-400"}`}
     value={showGenreDropdown ? "Genre" : "Select Genre"}
     onClick={() => setShowGenreDropdown((prev) => !prev)}
   />
@@ -1976,7 +2060,7 @@ useEffect(() => {
     type="hidden"
     {...register("genres", {
       required: "Please select at least one genre",
-      validate: () => genres.length > 0 || "Please select at least one genre",
+       validate: () => genres.length > 0 ,
     })}
     value={genres.join(",")}
   />
@@ -3132,7 +3216,7 @@ useEffect(() => {
           checked={hasAwards === "Yes"}
           onChange={(e)=>{
             setHasAwards(e.target.value)
-            setValue("Awards", "Yes");
+            setValue("hasAwards", "Yes");
           }}
         />
         <span className='text-white'>Yes</span>
@@ -3147,7 +3231,7 @@ useEffect(() => {
           checked={hasAwards === "No"}
           onChange={(e)=>{
             setHasAwards(e.target.value)
-            setValue("Awards", "No");
+            setValue("hasAwards", "No");
           }}
         />
         <span className='text-white'>No</span>
@@ -3356,10 +3440,33 @@ useEffect(() => {
            {errors?.Awards?.[index]?.budget && <span className='text-red-500 text-sm'>{errors.Awards[index].budget.message}</span>}
           <span>* Total Budget</span>
           <input
-            type="number"
+            type="tel"
             placeholder="Enter Budget"
             className="form-style h-9 w-[220px] bg-richblack-800 rounded-2xl px-3 awar"
+            value={budget}
             {...register(`Awards.${index}.budget`, { required: "Budget is required" })}
+              onChange={(e) => {
+  let CurrentValue = e.target.value;
+
+  // Only keep digits
+  CurrentValue = CurrentValue.replace(/\D/g, "");
+
+  // ✅ Stop if more than 13 digits → slice it back
+  if (CurrentValue.length > 13) {
+    CurrentValue = CurrentValue.slice(0, 13);
+    toast.error("Bhai sahab kuch zeyada nahi ho raha hain Zara Aukath main");
+    setview(true);
+  }
+
+  // Format with commas
+  if (CurrentValue) {
+    CurrentValue = Number(CurrentValue).toLocaleString("en-US");
+  }
+
+  setbudget(CurrentValue);
+  // budget,setbudget
+  // earned,setearned
+}}
           />
         </label>
 
@@ -3368,10 +3475,31 @@ useEffect(() => {
            {errors?.Awards?.[index]?.earned && <span className='text-red-500 text-sm'>{errors.Awards[index].earned.message}</span>}
           <span>* Total Earned</span>
           <input
-            type="number"
+            type="tel"
             placeholder="Total Earned"
             className="form-style h-9 w-[220px] bg-richblack-800 rounded-2xl px-3 awar"
+            value={earned}
             {...register(`Awards.${index}.earned`, { required: "Total earned is required" })}
+              onChange={(e) => {
+  let CurrentValue = e.target.value;
+
+  // Only keep digits
+  CurrentValue = CurrentValue.replace(/\D/g, "");
+
+  // ✅ Stop if more than 13 digits → slice it back
+  if (CurrentValue.length > 13) {
+    CurrentValue = CurrentValue.slice(0, 13);
+    toast.error("Bhai sahab kuch zeyada nahi ho raha hain Zara Aukath main");
+    setview(true);
+  }
+
+  // Format with commas
+  if (CurrentValue) {
+    CurrentValue = Number(CurrentValue).toLocaleString("en-US");
+  }
+
+  setearned(CurrentValue);
+}}
           />
         </label>
 
@@ -3610,9 +3738,12 @@ useEffect(() => {
                           <span className='flex justify-center items-center gap-2'> * <label className='block text-sm font-medium text-gray-300'>What Can be Your Typical Team Size For a Project ? {errors.teamSize&&<span className='text-red-500 text-xl'>{errors.teamSize.message}</span>}</label></span>
                             <select defaultValue="" className='w-full px-3 py-2 bg-richblack-800 border border-richblack-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400' {...register("teamSize",{required:"Team Size is required"})}>
                               <option value="" disabled>Select Team Size</option>
-                              {Projects.typicalTeamSizeRanges.map((data, index) => (
-                                <option key={index} value={data}>{data}</option>
-                              ))}
+                              {Projects.typicalTeamSizeRanges.map((data, index) => {
+                                const value = data === "Depends On Project" ? "" :data.replace("+", "")
+                                return (
+                                  <option key={index} value={value}>{data}</option>
+                                )
+                              })}
                             </select>
                           </div>
                         </div>
