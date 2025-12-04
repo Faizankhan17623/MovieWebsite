@@ -40,12 +40,12 @@ const OrganizerVerificationForm = () => {
   } = useForm({
     defaultValues: {
       distributions: "No",
-      promotions: "No",
+      promotions:"No",
       Work: "No",
-      mediaChoice: "No",
+      mediaChoice:"No",
       Ongoing: "No",
       Planned: "No",
-      AssistanceRequired: "No",
+      AssistanceRequired:"No",
       Certified: "No",
       Experience: "No",
       Collaboration: "No",
@@ -63,10 +63,12 @@ const OrganizerVerificationForm = () => {
     FaXTwitter: FaXTwitter,
   };
 
+
 const Proceed = async (data) => {
 
   const JsonString = JSON.stringify(data)
   console.log("This is the json data",JsonString)
+  console.log("THis is the data",data)
   // make sure your data.posterImage is a File (not a data URL or string)
   // and other files are present in arrays (ongoingProjects[].ProFile, certifications[].Certificateafile)
 
@@ -84,31 +86,31 @@ const Proceed = async (data) => {
       // const userId = getState().Profile.user?._id;
       // console.log(Response)
 
-      // if(data.selectedRole === "Director" && data.experiences === "Fresher"){
-      //   try{
-      //     const RoleExperience = await dispatch(DirectorFres(data,token))
-      //     if(RoleExperience?.success === false){
-      //       stop()
-      //       toast.error("error in the Director Fresher code")
-      //     }
-      //   }catch(error){
-      //     console.log(error,error.message)
-      //   }
-      // }
+      if(data.selectedRole === "Director" && data.experiences === "Fresher"){
+        try{
+          const RoleExperience = await dispatch(DirectorFres(data,token))
+          if(RoleExperience?.success === false){
+            stop()
+            toast.error("error in the Director Fresher code")
+          }
+        }catch(error){
+          console.log(error,error.message)
+        }
+      }
 
 
-      //  if(data.selectedRole === "Director" && data.experiences === "Experienced"){
-      //   try{
-      //     const RoleExperience = await dispatch(DirectorExperien(data,token))
-      //     if(RoleExperience?.success === false){
-      //       stop()
-      //       toast.error("error in the Director Fresher code")
-      //     }
-      //   }catch(error){
-      //     console.log(error,error.message)
-      //   }
+       if(data.selectedRole === "Director" && data.experiences === "Experienced"){
+        try{
+          const RoleExperience = await dispatch(DirectorExperien(data,token))
+          if(RoleExperience?.success === false){
+            stop()
+            toast.error("error in the Director Fresher code")
+          }
+        }catch(error){
+          console.log(error,error.message)
+        }
 
-      // }
+      }
 
 
 
@@ -144,7 +146,7 @@ const Proceed = async (data) => {
     title: "Success !",
     text: "Your Data is Been Submitted",
     icon: "success",
-    showConfirmButton: true,
+    showConfirmButton: false,
     timer: 4000
   });
 
@@ -159,8 +161,8 @@ const Proceed = async (data) => {
   const [submittedData, setSubmittedData] = useState(null);
   const [open, setOpen] = useState(true);
   const [add, setAdd] = useState(true);
-  const [work, setWork] = useState('No');
-  const [media, setMedia] = useState('No');
+  const [work, setWork] = useState("No");
+  const [media, setMedia] = useState("No");
   const [socialError, setSocialError] = useState("");
 
   const [projects, setProjects] = useState(false);
@@ -191,10 +193,10 @@ const Proceed = async (data) => {
   const [promotions, setPromotions] = useState("No");
   const [notable, setNotable] = useState(false);
   const [notableError, setNotableError] = useState("");
-  const [support, setSupport] = useState('No');
-  const [certified, setCertified] = useState('No');
-  const [experience, setExperience] = useState('No');
-  const [collabration, setCollabration] = useState('No');
+  const [support, setSupport] = useState("No");
+  const [certified, setCertified] = useState("No");
+  const [experience, setExperience] = useState("No");
+  const [collabration, setCollabration] = useState("No");
   const [cert, setCert] = useState(false);
   const [certError, setCertError] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -212,7 +214,7 @@ const Proceed = async (data) => {
 const [confirmationModal, setConfirmationModal] = useState(null);
 const [openIntern, setOpenIntern] = useState(false);
 const [internError, setInternError] = useState("");
-  const [Awards, setAwards] = useState("Yes");
+  const [Awards, setAwards] = useState(true);
   const [awardError, setAwardError] = useState("");
 const [hasAwards, setHasAwards] = useState("No");  
 const [awardSectionOpen, setAwardSectionOpen] = useState(false);
@@ -226,7 +228,7 @@ const [toolError, setToolError] = useState("");
   const [funding,setfunding] = useState(false)
   const [finance,setfinance] = useState([])
   const[financeError,setfinanceError] = useState("")
-const [Funding,setFunding] = useState("No")
+const [Funding,setFunding] = useState(false)
 
 const [Duplication,setduplication] = useState(false)
 const [urlDuplication,seturlduplication] = useState(false)
@@ -263,6 +265,7 @@ const [data,setdata] = useState()
   const [loading,setloading] = useState(false)
   const [budget,setbudget] = useState("")
   const [earned,setearned] = useState("")
+  const [affilitions,setaffilition] = useState("No")
 
 
 
@@ -329,7 +332,7 @@ useEffect(() => {
     });
   }
 
-  if (Awards === "No" && awards.length > 0) {
+  if (Awards === false && awards.length > 0) {
     awards.forEach((_, i) => removeAward(i));
   }
 }, [Awards, awards, appendAward, removeAward]);
@@ -398,7 +401,7 @@ useEffect(() => {
     });
   }
 
-  if (distribution === "No" && distributionsEntries.length > 0) {
+  if (distribution === "Yes" && distributionsEntries.length > 0) {
     distributionsEntries.forEach((_, i) => removeDistribution(i));
   }
 }, [distribution, distributionsEntries, appendDistribution, removeDistribution]);
@@ -579,7 +582,7 @@ if(loading){
   return (
     <div className="flex justify-center h-fit w-full min-h-screen bg-richblack-900 overflow-y-scroll overflow-x-hidden">
       <div className="w-full max-w-5xl bg-richblack-900 rounded-xl shadow-lg p-8 Secondss text-white">
-        <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center Verificationss">Organizer Data</h2>
+        <h2 className="text-3xl font-bold text-yellow-400 mb-6 text-center Verificationss">Organizer Data</h2>
         <p className="text-gray-400 font-italic text-center Verificationss">
           {isSubmitted
             ? 'Your verification data has been submitted and is under review. You can only view it now.'
@@ -995,7 +998,7 @@ if(loading){
                       <label>
                         <input
                           type="radio"
-                          name="Work"
+                          name="Work "
                           value="Yes"
                           checked={work === "Yes"}
                           onChange={() => {
@@ -1013,7 +1016,7 @@ if(loading){
                           checked={work === "No"}
                           onChange={() => {
                             setWork("No");
-                            setValue("Work", "No");
+                            setValue("Work","No");
                           }}
                         />
                         No
@@ -3223,7 +3226,7 @@ if(loading){
       </label>
       <label className='flex items-center gap-2 cursor-pointer'>
         <input
-          type="radio"
+          type="radio" 
           name="Awards"
           value="No"
           className='w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400'
@@ -3926,7 +3929,12 @@ if(loading){
           type="radio"
           value="Yes"
           className="w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400"
+          checked={affilitions === "Yes"}
           {...register("affiliation", { required: "Affiliation selection is required" })}
+          onChange={()=>{
+            setaffilition("Yes")
+            setValue("affiliation","Yes")
+          }}
         />
         <span className="text-white">Yes</span>
       </label>
@@ -3935,7 +3943,12 @@ if(loading){
           type="radio"
           value="No"
           className="w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400"
+          checked={affilitions === "No"}
           {...register("affiliation", { required: "Affiliation selection is required" })}
+          onChange={()=>{
+            setaffilition("No")
+            setValue("affiliation","No")
+          }}
         />
         <span className="text-white">No</span>
       </label>
@@ -3945,8 +3958,7 @@ if(loading){
       <p className="text-red-500 text-sm">{errors.affiliation.message}</p>
     )}
 
-    {/* Watch affiliation value directly from RHF */}
-    {watch("affiliation") === "Yes" && (
+    {affilitions === "Yes" && (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         {/* Guild/Union */}
         <div className="space-y-2">

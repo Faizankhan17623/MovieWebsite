@@ -104,7 +104,7 @@ export function Orgainezer_Data(data, token) {
     dispatch(setLoading(true));
     try {
       // Build FormData that matches backend names exactly
-      // console.log("THis is the data",data)
+      console.log("THis is the data",data)
      
       let tokenStr = token;
       try {
@@ -120,6 +120,28 @@ export function Orgainezer_Data(data, token) {
 
       const fd = new FormData();
 
+// function yesNoToBool(value){
+//    if (value === "Yes") return true;
+//   if (value === "No") return false;
+//   return "";
+// }
+
+
+// const yesNoFields = {
+//   Work: "notableProjects",
+//   mediaChoice: "SocialMedia",
+//   Ongoing: "ongoingProject",
+//   Planned: "projectsplanned",
+//   distributions: "Distribution",
+//   promotions: "Promotions",
+//   AssistanceRequired: "Assistance",
+//   Certified: "certifications",
+//   Experience: "ExperienceCollabrating",
+//   Collaboration: "collabrotion"
+// };
+
+// console.log(Works)
+
       // Basic scalar fields (match backend variable names / casing)
       // fd.append("Id",userId || "")
       fd.append("First", data.First || "");
@@ -130,7 +152,7 @@ export function Orgainezer_Data(data, token) {
       fd.append("countryname", data.CountryName || "");
       fd.append("statename", data.StateName || "");
       fd.append("cityname", data.CityName || "");
-      fd.append("Sameforlocalandpermanent", data.SameAddress   || "No");
+      fd.append("Sameforlocalandpermanent", data.SameAddress   || "false");  
       fd.append("local", data.LocalAddress || "");
       fd.append("permanent", data.PermanentAddress || "");
       fd.append("gender", data.Gender || "");
@@ -138,7 +160,7 @@ export function Orgainezer_Data(data, token) {
       fd.append("totalProjects", data.TotalProjects || "");
       fd.append("Experience", data.YearExperience || "");
       fd.append("shortbio", data.bio || "");
-      fd.append("notableProjects", data.Work ||"No");
+      fd.append("notableProjects", data.Work || "No");
       fd.append("SocialMedia", data.mediaChoice ||"No");
       fd.append("ongoingProject", data.Ongoing ||"No");
       fd.append("projectspllanned", data.Planned ||"No");
@@ -161,6 +183,11 @@ export function Orgainezer_Data(data, token) {
       // Boolean-like toggles (backend expects these keys)
      
      
+//       for (const key in yesNoFields) {
+//   const backendField = yesNoFields[key];
+//   // console.log("This")
+//   fd.append(backendField, yesNoToBool(data[key]));
+// }
   
 
       // MAIN IMAGE: backend expects req.files?.Image
@@ -254,7 +281,7 @@ export function Orgainezer_Data(data, token) {
       } catch (e) {
         console.error(e);
       }
-  // toast.success("done from the ")
+  toast.success("done from the ")
       throw error;
     } finally {
       dispatch(setLoading(false));
@@ -262,11 +289,13 @@ export function Orgainezer_Data(data, token) {
   };
 }
 
+
 export function DirectorFres (data,token){
   return async (dispatch)=>{
     dispatch(setloading(true))
     try{
 
+      console.log(data)
         let tokenStr = token;
       try {
         // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
