@@ -88,7 +88,7 @@ const OrgDataSchema = new mongoose.Schema({
     },
 
    NotableProjects: {
-  needed: { type: Boolean, required: true, default: false },
+  needed: { type: String, required: true, default: false },
   items: [
     {
       Name: { type: String, maxlength: 100 },
@@ -100,12 +100,12 @@ const OrgDataSchema = new mongoose.Schema({
 },
 
     SocialMedia: {
-  active: { type: Boolean, required: true, default: false },
+  active: { type: String, required: true, default: false },
   profiles: [
     {
-      Platform: { type: String, required: function() { return this.active; } },
-      followers: { type: String, required: function() { return this.active; } },
-      link: { type: String, required: function() { return this.active; } }
+      Platform: { type: String, required:true },
+      followers: { type: String, required:true },
+      link: { type: String, required:true }
     }
   ]
 },
@@ -114,7 +114,7 @@ const OrgDataSchema = new mongoose.Schema({
     // Projects
     // THis is for the ongoing projects
   ongoing: {
-    active: { type: Boolean, default: false, required: true },
+    active: { type: String, default: false , required: true },
     items: [
       {
         ProjectName: { type: String, required: function() { return this.active; }, maxlength: 100 },
@@ -128,7 +128,7 @@ const OrgDataSchema = new mongoose.Schema({
 
 //   THis is for the planned projects
   planned: {
-    active: { type: Boolean, default: false },
+    active: { type: String, default: false },
     items: [
       {
         ProjectName: { type: String, required: function() { return this.active; }, maxlength: 100 },
@@ -165,9 +165,9 @@ Audience: {
 
 Distribution: {
   needed: { 
-    type: Boolean, 
+    type: String, 
     required: true, 
-    default: false 
+    default: false
   },
 
   projects: [
@@ -192,14 +192,14 @@ Distribution: {
 
 
     Promotions:{
-        type: Boolean,
+        type: String,
         required: true,
         default: false
     },
 
     // Support & Motivation
    Support: {
-  needed: { type: Boolean, default: false },
+  needed: { type: String, default: false },
   type: { type: String, default: null } // only set when needed = true
 },
 
@@ -217,7 +217,7 @@ MainReason: {
 },
 
 Certifications: {
-   active: { type: Boolean, default: false },
+   active: { type: String, default: false },
    items:[
     {
       Name: {
@@ -238,13 +238,13 @@ Certifications: {
 },
 
 Collaboration: {
-    type: Boolean,
+    type: String,
     required: true,
-    default: false // false = No, true = Yes
+    default: false 
 },
 
 Comfortable: {
-    type: Boolean,
+    type: String,
     required: true,
     default: false // false = Not comfortable, true = Comfortable
 },
@@ -259,7 +259,8 @@ Comfortable: {
     required: true,
     enum: ["Fresher", "Experienced"] // Experience options
   },
-  DirectorFresher:{
+  
+  DirectFresh:{
     type: mongoose.Schema.Types.ObjectId,
         ref: 'directorfresher'
   },

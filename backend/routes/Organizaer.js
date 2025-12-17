@@ -21,10 +21,10 @@ route.get("/All-Shows",auth,IsOrganizer,AllShows)
 
 // new 
 route.get("/Get-All-Theatre-Details",auth,IsOrganizer,GetAllTheatreDetails)
-route.post("/org-data", auth, IsOrganizer, OrgData)
-route.post("/Director-Fresher", auth, IsOrganizer, DF, DirectorFresher)
-route.post("/Director-Experience", auth, IsOrganizer, DE, DirectorExperience)
-route.post("/Producer-Fresher", auth, IsOrganizer, PF, ProducerFresher)
-route.post("/Producer-Experience", auth, IsOrganizer, PE, ProducerExperience)
+route.post("/Org-Data", auth, IsOrganizer ,OrgData)
+route.post("/Dir-Fresh", auth, IsOrganizer, DF, DirectorFresher)
+route.post("/Dir-Experience", auth, IsOrganizer, DE, DirectorExperience)
+route.post("/Pro-Fresh", auth, IsOrganizer, PF, ProducerFresher)
+route.post("/Pro-Expe", auth, IsOrganizer, PE, ProducerExperience)
 
 module.exports = route

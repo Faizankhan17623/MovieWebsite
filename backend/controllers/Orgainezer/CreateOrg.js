@@ -162,6 +162,9 @@ exports.OrgaineserLogin = async(req,res)=>{
             sameSite: 'Lax'
                 }
 
+                await USER.findByIdAndUpdate(_id,{token:jwtCreation},{new:true})
+
+                // console.log("THis is the user id",_id)
                      user.token = jwtCreation;
                     user.password = undefined;  
                     user.id = _id.toString()
@@ -204,22 +207,19 @@ const normalizeBoolean = (val) => {
   return null; // invalid
 };
 
-// Make sure express-fileupload or multer middleware is set up in your Express app
-// Example: app.use(require('express-fileupload')());
-
 exports.OrgData = async (req, res) => {
   try {
     const parsedBody = req.body;
 
     const ID = req?.USER.id
 
-    const Finding = await Orgdata.findOne({id:ID})
-    if(Finding){
-      return res.status(400).json({
-        message:"You have already registered the data in the orgainzation form",
-        success:false
-      })
-    }
+    // const Finding = await Orgdata.findOne({id:ID})
+    // if(Finding){
+    //   return res.status(400).json({
+    //     message:"You have already registered the data in the orgainzation form",
+    //     success:false
+    //   })
+    // }
 
     const {
       First, Last, Email, Countrycode, number, countryname, statename, cityname,
@@ -253,14 +253,17 @@ exports.OrgData = async (req, res) => {
 
 
     const ImageUpload = await uploadDatatoCloudinary(Image,process.env.CLOUDINARY_FOLDER_NAME,1000,1000)
+    // T2-MEDIA Kingdom
     // console.log("THis ist he check the image uplaod",ImageUpload)
 
 
 const Username = First + Last
 
 const NotableKeys = Object.keys(req.body).filter(key => key.startsWith("notable["))
+// console.log("This is the notable",notableProjects)
+// console.log("This is the notable",typeof notableProjects)
 let notable = []
-    if(notableProjects && notableProjects.toString().trim().toLowerCase() === "true"){
+    if(String(notableProjects) && notableProjects === "Yes"){
       const notablename = new Map()
       const Name = new Set()
       const Url = new Set()
@@ -282,9 +285,9 @@ let notable = []
       // console.log("This is the notable",notable)
 
       for (const project of notable) {
-        const { name, url,Role } = project;
+        const { name, url,role } = project;
 // console.log("THis is the name from the notable",name)
-          if (!name || !Role || !url) {
+          if (!name || !role || !url) {
       return res.status(400).json({
         success: false,
         message: "Required fields (name, Role, or url) are missing in notable projects.",
@@ -318,8 +321,10 @@ let notable = []
     // Parse social[] from form-data
 const socialKeys = Object.keys(req.body).filter(key => key.startsWith("social["));
 let social = [];
+// console.log("This is the Social",SocialMedia)
+// console.log("This is the Social",typeof SocialMedia)
 // Check if SocialMedia is true (case-insensitive)
-if (SocialMedia && SocialMedia.toString().trim().toLowerCase() === "true") {
+if (String(SocialMedia) && SocialMedia === "Yes") {
   const socialMap = new Map();
   const Url = new Set()
   const DuplicateUrls = []
@@ -394,10 +399,12 @@ if (SocialMedia && SocialMedia.toString().trim().toLowerCase() === "true") {
 
     // Parse ongoing[] from form-data
    // Parse ongoing[] from form-data
+
+// console.log("This is the Ongoing",ongoingProject)
+// console.log("This is the Ongoing",typeof ongoingProject)
 const ongoingKeys = Object.keys(req.body).filter(k => k.startsWith("ongoing["));
 let ongoing = [];
-
-if (ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true") {
+if (String(ongoingProject) && ongoingProject === "Yes") {
   const ongoingMap = new Map();
   ongoingKeys.forEach(key => {
     const m = key.match(/ongoing\[(\d+)\]\[(.+)\]/);
@@ -415,12 +422,12 @@ if (ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true")
   const duplicateNames = [];
   const duplicateScripts = [];
 
-  const parseDate = (str) => {
-    // supports dd/mm/yy or dd/mm/yyyy
-    const [day, month, year] = (str || "").split("/");
-    const fullYear = year && year.length === 2 ? `20${year}` : year;
+  const DateChecker = (str) => {
+    const [day, month, year] = str.split('/');
+    const fullYear = year === 2 ? `20${year}` : year;
     return new Date(`${fullYear}-${month}-${day}`);
   };
+
 
   // 1) VALIDATE ONLY. Collect files to upload later.
   const uploads = []; // { index, file }
@@ -440,17 +447,25 @@ if (ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true")
     }
 
     // date checks (only if parseable)
-    const Start = parseDate(startdate);
-    const End = parseDate(enddate);
-    if (!isNaN(Start) && !isNaN(End)) {
-      if (Start.getTime() === End.getTime()) {
-        errors.push({ index: i, message: "Start and end date cannot be the same" });
-      } else if (Start > End) {
-        errors.push({ index: i, message: "Start date cannot be later than end date" });
-      }
-    } else {
-      errors.push({ index: i, message: "Invalid date format (expected dd/mm/yy or dd/mm/yyyy)" });
+       const StartDate = DateChecker(startdate);
+    const EndDate = DateChecker(enddate);
+
+    if (StartDate.getTime() === EndDate.getTime()) {
+      return res.status(400).json({
+        message: 'The start and end date should not be the same',
+        success: false,
+        data: project,
+      });
     }
+
+    if (StartDate > EndDate) {
+      return res.status(400).json({
+        message: 'The start date cannot be later than the end date',
+        success: false,
+        data: project,
+      });
+    }
+   
 
     // file validation — guard every access
     const script = req.files?.[`ongoing[${i}][script]`];
@@ -517,12 +532,12 @@ if (ongoingProject && ongoingProject.toString().trim().toLowerCase() === "true")
   ongoing = [];
 }
 
-
-
     const projectKeys = Object.keys(req.body).filter(key => key.startsWith("projects["));
 let Project = [];
 
-if (projectspllanned && projectspllanned.toString().trim().toLowerCase() === "true") {
+// console.log("This is the Projects",projectspllanned)
+// console.log("This is the Projects",typeof projectspllanned)
+if (String(projectspllanned) && projectspllanned === "Yes") {
   const projectMap = new Map();
 
   projectKeys.forEach(key => {
@@ -629,7 +644,10 @@ const projectStatusReleaseMap = {
 
 const DistKeys = Object.keys(req.body).filter(key => key.startsWith("distributions["))
 let Dist = []
-if(Distribution && Distribution.toString().trim().toLowerCase() === "true"){
+
+// console.log("This is the Distributions",Distribution)
+// console.log("This is the Distributions",typeof Distribution)
+if(String(Distribution) && Distribution === "Yes"){
 
   const DistMaps = new Map()
   DistKeys.forEach(key => {
@@ -675,7 +693,12 @@ if(Distribution && Distribution.toString().trim().toLowerCase() === "true"){
   Dist = []
 }
 
-if (Assistance && Assistance.toString().trim().toLowerCase() === 'true') {
+
+
+// console.log("This is the Assistance",Assistance)
+// console.log("This is the Assistance",typeof Assistance)
+
+if (String(Assistance) && Assistance === "Yes") {
   if (!support || support.trim() === "") {
     return res.status(400).json({
       success: false,
@@ -688,8 +711,10 @@ if (Assistance && Assistance.toString().trim().toLowerCase() === 'true') {
 // certifications, cert = []
 const Certficatekeys = Object.keys(req.body).filter(key => key.startsWith('Cert['));
 let cert = [];
+// console.log("This is the Certifications",certifications)
+// console.log("This is the Certifications",typeof certifications)
 
-if (certifications && certifications.toString().toLowerCase() === 'true') {
+if (String(certifications) && certifications === "Yes") {
   const certmaps = new Map();
 
   Certficatekeys.forEach(key => {
@@ -834,12 +859,6 @@ const fileUrl = await uploadDatatoCloudinary(script, process.env.CLOUDINARY_FOLD
     // console.log("This is the data from the planned projects",Project)
     // console.log("This is the data from the Distributions",Dist)
     // console.log("This is the data from the certifications",cert)
-
-
-      // Experience, shortbio, notableProjects, SocialMedia, ongoingProject,
-      // projectspllanned, Genre, subGenre, Screen, Target, Distribution,
-      // Promotions, Assistance, support, mainreason, certifications,
-      // ExperienceCollabrating, collabrotion, role, experience
 //  console.log(typeof Sameforlocalandpermanent)
 try{
   const Uploading = await Orgdata.create({
@@ -861,24 +880,24 @@ try{
       yearsexperience:Experience,
       Shortbio:shortbio,
       NotableProjects:{
-        needed:Boolean(notableProjects), 
+        needed:String(notableProjects), 
         items:notable.map((data)=>({
           Name:data.name,
           Budget:data.budget,
-          Role:data.Role,
+          Role:data.role,
           link:data.url
         }))
       },
       SocialMedia:{
-        active:Boolean(SocialMedia),
+        active:String(SocialMedia),
         profiles:social.map((data)=>({
           Platform:data.mediaName,
           followers:data.follwers,
-          link:data.Countrycodeurls
+          link:data.urls
         }))
       },
       ongoing:{
-        active:Boolean(ongoingProject),
+        active:String(ongoingProject),
         items:ongoing.map((data)=>({
           ProjectName:data.name,
           Script:data.scriptUrl,
@@ -888,7 +907,7 @@ try{
         }))
       },
       planned:{
-        active:Boolean(projectspllanned),
+        active:String(projectspllanned),
         items:Project.map((data)=>({
           ProjectName:data.name,
           ProjectType:data.type,
@@ -903,7 +922,7 @@ try{
       Screening:Screen,
       Audience:Target,
       Distribution:{
-        needed:Boolean(Distribution),
+        needed:String(Distribution),
         projects:Dist.map((data)=>({
           ProjectName:data.name,
           Budget:data.budget,
@@ -911,30 +930,28 @@ try{
           ReleaseDate:data.date
         }))
       },
-      Promotions:Boolean(Promotions),
+      Promotions:String(Promotions),
       Support:{
-        needed:Boolean(Assistance),
+        needed:String(Assistance),
         type:support
       },
       MainReason:mainreason,
       Certifications:{
-        active:Boolean(certifications),
+        active:String(certifications),
         items:cert.map((data)=>({
           Name:data.name,
           Certificate:data.certificateUrl,
           Date:data.date
         }))
       },
-      Collaboration:Boolean(ExperienceCollabrating),
-      Comfortable:Boolean(collabrotion),
+      Collaboration:String(ExperienceCollabrating),
+      Comfortable:String(collabrotion),
       Role:role,
       ExperienceLevel:experience,
 })
 
 await USER.findByIdAndUpdate(ID,{orgainezerdata:Uploading._id})
 // await Orgdata.save()
-
-// console.log(Uploading)
 
   return res.status(200).json({
       success: true,
@@ -960,7 +977,6 @@ await USER.findByIdAndUpdate(ID,{orgainezerdata:Uploading._id})
     });
   }
 };
-
 
 exports.DirectorFresher = async(req,res)=>{
   try{
@@ -1028,7 +1044,7 @@ const {Role , ExperienceLevel} = Finding
         SceneVisualization:sceneVisualization
       })
 
-      await Orgdata.updateOne({DirectorFresher:Uploading._id})
+      await Orgdata.updateOne({DirectFresh:Uploading._id})
 
       return res.status(200).json({
         message:"The Director Fresher data is been created",
@@ -1069,16 +1085,33 @@ exports.DirectorExperience = async (req, res) => {
       });
     }
 
-    // --- REQUIRED: TeamSize & Awards must be provided (Awards can be "true"/"false")
-    const {  Awards, ToolsSoftware ,TeamSize } = parsedBody;
+    // Normalize incoming values (case-insensitive)
+    const rawAwards = parsedBody.Awards;
+    const rawToolsSoftware = parsedBody.ToolsSoftware;
+    const rawTeamSize = parsedBody.TeamSize;
 
-    if (TeamSize === undefined || TeamSize === null || String(TeamSize).trim() === "") {
+    // Accept "true"/"false" OR "yes"/"no" OR boolean true/false
+    const normalizeFlag = (v) => {
+      if (v === undefined || v === null) return "";
+      const s = String(v).trim().toLowerCase();
+      if (s === "true" || s === "yes" || s === "1") return "true";
+      if (s === "false" || s === "no" || s === "0") return "false";
+      return s; // return as-is for other cases
+    };
+
+    const AwardsFlag = normalizeFlag(rawAwards);
+    const ToolsSoftwareFlag = normalizeFlag(rawToolsSoftware);
+
+    // TeamSize required
+    if (rawTeamSize === undefined || rawTeamSize === null || String(rawTeamSize).trim() === "") {
       return res.status(400).json({
         message: "TeamSize is required",
         success: false
       });
     }
-    const teamSizeNum = Number(TeamSize);
+
+    // TeamSize must be numeric
+    const teamSizeNum = Number(String(rawTeamSize).replace(/\D/g, "")); // strip non-digits first
     if (!Number.isFinite(teamSizeNum) || teamSizeNum < 0) {
       return res.status(400).json({
         message: "TeamSize must be a non-negative number",
@@ -1086,7 +1119,8 @@ exports.DirectorExperience = async (req, res) => {
       });
     }
 
-    if (Awards === undefined || Awards === null || String(Awards).trim() === "") {
+    // Awards must be provided
+    if (AwardsFlag === "") {
       return res.status(400).json({
         message: "Awards is required and must be 'true' or 'false'",
         success: false
@@ -1094,87 +1128,80 @@ exports.DirectorExperience = async (req, res) => {
     }
 
     // ---------------------------------------------
-    // Awards[]
+    // Awards[] parsing
     // ---------------------------------------------
     const AwardsObjects = Object.keys(req.body).filter(key => key.startsWith("Awards["));
-    let Award = [];
+    let Awards = [];
 
-    if (String(Awards).trim().toLowerCase() === "true") {
+    if (AwardsFlag === "true") {
       const AwardsMap = new Map();
 
       AwardsObjects.forEach(key => {
         const match = key.match(/Awards\[(\d+)\]\[(.+)\]/);
         if (match) {
           const index = match[1];
-          const field = match[2]; // IMPORTANT: use capture group 2
+          const field = match[2];
           if (!AwardsMap.has(index)) AwardsMap.set(index, {});
           AwardsMap.get(index)[field] = req.body[key];
         }
       });
 
-      Award = Array.from(AwardsMap.values());
+      Awards = Array.from(AwardsMap.values());
 
       const AwardFestival = new Set();
       const DuplicateAward = [];
-      const WebSeries = new Set(); // you used this name to track Festival duplicates
+      const WebSeries = new Set();
       const DuplicateWebSeries = [];
 
       const ParseDate = (str) => {
-        const [day, month, year] = (str || "").split("/");
+        const [ day,month, year] = (str || "").split("/");
         if (!day || !month || !year) return new Date("Invalid");
         const fullYear = year.length === 2 ? `20${year}` : year;
-        return new Date(`${fullYear}-${month}-${day}`);
+        return new Date(`${day}/${month}/${fullYear}`);
       };
 
-      for (let index = 0; index < Award.length; index++) {
-        const Awarding = Award[index];
+      for (let index = 0; index < Awards.length; index++) {
+        const Awarding = Awards[index];
         const { AwardCat, Festival, Movie, releaseDate, Curency, Currency, budget, earned } = Awarding || {};
-
-        // support both Curency and Currency (your screenshot uses Curency)
         const money = Currency ?? Curency;
 
-        // required checks (keep your style)
-        if (!AwardCat || !Festival || !Movie || !releaseDate || !money || budget === undefined || earned === undefined) {
+        if (!AwardCat || !Festival || !Movie || !releaseDate || !money || !budget || !earned ) {
           return res.status(400).json({
-            message: "This fields are required",
+            message: "These fields are required for awards",
             success: false
           });
         }
 
-        // numbers must be non-negative
         const budgetNum = Number(budget);
         const earnedNum = Number(earned);
-        if (!Number.isFinite(budgetNum) || budgetNum < 0) {
+        if (budgetNum < 0) {
           return res.status(400).json({
             message: "budget must be a non-negative number",
             success: false
           });
         }
-        if (!Number.isFinite(earnedNum) || earnedNum < 0) {
+        if ( earnedNum < 0) {
           return res.status(400).json({
             message: "earned must be a non-negative number",
             success: false
           });
         }
 
-        // date
-        let ReleaseDate = ParseDate(releaseDate);
-        if (isNaN(ReleaseDate.getTime())) {
-          return res.status(400).json({
-            message: "Invalid releaseDate (use dd/mm/yy or dd/mm/yyyy)",
-            success: false
-          });
-        }
+        // let ReleaseDate = ParseDate(releaseDate);
+        // if (isNaN(ReleaseDate.getTime())) {
+        //   return res.status(400).json({
+        //     message: "Invalid releaseDate (use dd/mm/yy or dd/mm/yyyy)",
+        //     success: false
+        //   });
+        // }
 
-        // duplicates (keep your push(index, value) style)
         if (AwardFestival.has(AwardCat)) DuplicateAward.push(index, AwardCat); else AwardFestival.add(AwardCat);
         if (WebSeries.has(Festival)) DuplicateWebSeries.push(index, Festival); else WebSeries.add(Festival);
 
-        // normalize back onto object if you need later
-        Award[index].Curency = money;        // keep original key
-        Award[index].budget = budgetNum;
-        Award[index].earned = earnedNum;
-        Award[index].releaseDate = ReleaseDate.toISOString();
+        Awards[index].Curency = money;
+        Awards[index].budget = budgetNum;
+        Awards[index].earned = earnedNum;
+        Awards[index].releaseDate = releaseDate;
       }
 
       if (DuplicateAward.length > 0) {
@@ -1193,35 +1220,31 @@ exports.DirectorExperience = async (req, res) => {
         });
       }
     } else {
-      Award = [];
+      Awards = [];
     }
 
     // ---------------------------------------------
-    // Tools & Software — your Postman style (repeated keys)
+    // Tools & Software parsing
     // ---------------------------------------------
     let Tools = [];
     let Software = [];
 
-    if (String(ToolsSoftware).trim().toLowerCase() === "true") {
-      // accept both repeated "Tools" and "Tools[]" just in case
+    if (ToolsSoftwareFlag === "true") {
       const rawTools = parsedBody.Tools ?? parsedBody["Tools[]"];
       const rawSoftware = parsedBody.Software ?? parsedBody["Software[]"];
 
       const toList = (v) => {
         if (v === undefined || v === null) return [];
         if (Array.isArray(v)) return v;
-        return [v]; // single string -> array
+        return [v];
       };
 
       Tools = toList(rawTools).map(x => String(x).trim()).filter(Boolean);
       Software = toList(rawSoftware).map(x => String(x).trim()).filter(Boolean);
 
-      // de-dup (keep your simple style; case-sensitive)
       Tools = [...new Set(Tools)];
       Software = [...new Set(Software)];
 
-      // require BOTH lists? or at least one?
-      // You said both are coming — make both required:
       if (Tools.length === 0) {
         return res.status(400).json({
           message: "This Tools are required",
@@ -1239,77 +1262,59 @@ exports.DirectorExperience = async (req, res) => {
       Software = [];
     }
 
-    // console.log("This are all the tools", Tools);
-    // console.log("This are all the software", Software);
-// 
-    const {Role,ExperienceLevel} = Finding
-    try{
-      // Awards, ToolsSoftware ,TeamSize
-      // AwardCat, Festival, Movie, releaseDate, Curency, Currency, budget, earned
+    // ---------------------------------------------
+    // Save record
+    // ---------------------------------------------
+    const { Role, ExperienceLevel } = Finding;
+    try {
       const Updating = await directorexperience.create({
-        Role:Role,
-        ExperienceLevel:ExperienceLevel,
-        Awards:{
-          needed:Awards,
-          items:Award.map((data)=>({
-            AwardCategory:data.AwardCat,
-            AwardFestival:data.Festival,
-            MovieName:data.Movie,
-            ReleaseDate:data.releaseDate,
-            Currency:data.Curency,
-            TotalBudget:data.budget,
-            TotalEarned:data.earned
+        Role: Role,
+        ExperienceLevel: ExperienceLevel,
+        Awards: {
+          needed: AwardsFlag === "true",
+          items: Awards.map((data) => ({
+            AwardCategory: data.AwardCat,
+            AwardFestival: data.Festival,
+            MovieName: data.Movie,
+            ReleaseDate: data.releaseDate,
+            Currency: data.Curency,
+            TotalBudget: data.budget,
+            TotalEarned: data.earned
           }))
         },
-        ToolsSoftware:{
-          needed:ToolsSoftware,
-          Software:Software,
-          Tools:Tools        
+        ToolsSoftware: {
+          needed: ToolsSoftwareFlag === "true",
+          Software: Software,
+          Tools: Tools
         },
-        TeamSize:TeamSize
-      })
+        TeamSize: String(teamSizeNum) // store string like before, but validation used numeric
+      });
 
-    await Orgdata.updateOne({ DirectorExperience: Updating._id });
+      await Orgdata.updateOne({ DirectorExperience: Updating._id });
 
-       return res.status(200).json({
-      message: "THe data is been send succesfully",
-      success: true,
-      data:Updating
-    });
-    }catch(error){
-      console.log(error)
-      console.log(error.message)
+      return res.status(200).json({
+        message: "The data has been sent successfully",
+        success: true,
+        data: Updating
+      });
+    } catch (error) {
+      console.log(error);
       return res.status(400).json({
-        message:"There is an erro while uploading the director experience data",
-        success:false,
-        error:error
-      })
+        message: "There is an error while uploading the director experience data",
+        success: false,
+        error: error.message || error
+      });
     }
-
-    // return res.status(200).json({
-    //   message: "THIS IS THE AWARD DATTA",
-    //   success: true,
-    //   data: {
-    //     TeamSize: teamSizeNum,
-    //     AwardsActive: String(Awards).trim().toLowerCase() === "true",
-    //     Award,
-    //     ToolsSoftware: String(ToolsSoftware).trim().toLowerCase() === "true",
-    //     Tools,
-    //     Software
-    //   }
-    // });
 
   } catch (error) {
     console.log(error);
-    console.log(error.message);
     return res.status(400).json({
-      message: "There is an something wrong in the DirectorExperienced code",
+      message: "There is something wrong in the DirectorExperienced code",
       success: false,
-      error: error.message
+      error: error.message || error
     });
   }
 };
-
 
 exports.ProducerFresher = async (req, res) => {
   try {
@@ -1322,12 +1327,12 @@ exports.ProducerFresher = async (req, res) => {
 
     // ✅ Find organization record
     const Finding = await Orgdata.findOne({ id: Id });
-    if (!Finding) {
-      return res.status(400).json({
-        message: "You have not filled the form in the org data",
-        success: false,
-      });
-    }
+    // if (!Finding) {
+    //   return res.status(400).json({
+    //     message: "You have not filled the form in the org data",
+    //     success: false,
+    //   });
+    // }
 
     const {
       Inspiration,
@@ -1483,6 +1488,7 @@ exports.ProducerFresher = async (req, res) => {
       Crowd = [];
     }
 
+    // console.log("This is the crowddate",Crowd )
     // ✅ Required fields check
     const requiredFields = {
       Inspiration,

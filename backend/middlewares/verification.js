@@ -8,12 +8,13 @@ exports.auth = async (req, res, next) => {
         const token =
             req.cookies.token ||
             req.body.token ||
-            req.header("Authorization")?.replace("Bearer ", "");
+            req.header("Authorization")?.replace("Bearer ", "")  ;
+            // console.log("This is the token",token)
+            // || req.USER.token
 
         if (!token) {
             return res.status(401).json({ success: false, message: "Token Missing" });
         }
-
         try {
             const decode = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
             // console.log("Decoded Token:", decode);
@@ -34,6 +35,7 @@ exports.auth = async (req, res, next) => {
         }
 
     } catch (error) {
+        console.log(error)
         console.log("Error in auth middleware:", error.message);
         return res.status(500).json({
             message: "There is an error in the auth middleware",
@@ -184,6 +186,7 @@ exports.DF = async (req,res,next)=>{
         }
 
       const roleInfo = await Orgdata.findById(orgainezerdata);
+      console.log(roleInfo)
     if (!roleInfo) {
       return res.status(400).json({
         message: "The user has not filled the Organizer form.",
@@ -191,7 +194,7 @@ exports.DF = async (req,res,next)=>{
       });
     }
 
-    if (roleInfo.Role === "Director" && roleInfo.ExperienceLevel === "Fresher") {
+    if (roleInfo. Role ===  'Director' && roleInfo.ExperienceLevel ===  'Fresher') {
       return next();
     }
 

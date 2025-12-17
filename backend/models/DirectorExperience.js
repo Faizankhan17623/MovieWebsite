@@ -12,7 +12,7 @@ const DirectorExperienceSchema = new mongoose.Schema({
         required: true
     },
     Awards:{
-      needed:{type:Boolean,default:false,required:true},
+      needed:{type:String,default:"No",required:true},
       items:[
         {
           AwardCategory:{type:String,required:true},
@@ -26,13 +26,14 @@ const DirectorExperienceSchema = new mongoose.Schema({
       ]
     },
     ToolsSoftware:{
-      needed:{type:Boolean,default:false,required:true},
+      needed:{type:String,default:"No",required:true},
       Software:{type:[String],required:true},
       Tools:{type:[String],required:true}
     },
     TeamSize:{
       type:String,
-      required:true
+      required:true,
+      default:0
     }
 
 })

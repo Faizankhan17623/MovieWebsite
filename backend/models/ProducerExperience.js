@@ -32,7 +32,7 @@ const ProducerExperienceSchema = new mongoose.Schema({
   },
 
   Affiliation: {
-    needed:{  type: Boolean,required: true,default: false },
+    needed:{  type: Boolean,required: true,default: "No" },
     items:[
       {
         union:{type:String,required:true},

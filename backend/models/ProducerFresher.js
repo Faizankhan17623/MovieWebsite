@@ -54,7 +54,7 @@ const ProducerFresherSchema = new mongoose.Schema({
     validate: wordLimitValidator(250)
   },
   CrowdFunding: {
-    needed :{type: Boolean,required: true,default: false},
+    needed :{type: String,required: true,default: "No"},
     items:[
       {
        Name: { type: String, maxlength: 100,required:function (){return this.active} },

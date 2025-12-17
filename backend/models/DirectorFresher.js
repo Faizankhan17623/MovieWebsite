@@ -29,7 +29,7 @@ const DirectorFresherSchema = new mongoose.Schema({
         validate: wordLimitValidator(250)
     },
     ProjectsDone: {
-        type: Number,
+        type: String,
         required: true,
         min: 0
     },
