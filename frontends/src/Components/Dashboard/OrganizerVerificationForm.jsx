@@ -377,7 +377,7 @@ useEffect(() => {
 useEffect(() => {
   if (planned === "Yes" && plannedProjects.length === 0) {
     appendPlanned({
-      PName: "",
+      Proname: "",
       PType: "",
       PStatus: "",
       PStart: "",
@@ -1849,10 +1849,10 @@ if(loading){
     className={`form-style h-9 w-[220px] bg-richblack-600 rounded-2xl px-3 ${
       duplicateProjectsplanned.has(index) ? "border-2 border-red-500" : ""
     }`}
-    {...register(`ongoingProjects.${index}.Proname`, {
+    {...register(`plannedProjects.${index}.Proname`, {
       required: ongoing === "Yes" ? "Project nmae is required" : false,
       validate: (val) => {
-        const allNames = getValues("ongoingProjects").map((entry, i) =>
+        const allNames = getValues("plannedProjects").map((entry, i) =>
           (i === index ? val : entry?.Proname || "")
             .toLowerCase()
             .replace(/\s+/g, "")
@@ -1869,12 +1869,12 @@ if(loading){
     onChange={(e) => {
       const value = e.target.value;
 
-      setValue(`ongoingProjects.${index}.Proname`, value, {
+      setValue(`plannedProjects.${index}.Proname`, value, {
         shouldValidate: true,
         shouldDirty: true,
       });
 
-      const allNames = getValues("ongoingProjects").map((entry, i) =>
+      const allNames = getValues("plannedProjects").map((entry, i) =>
         (i === index ? value : entry?.Proname || "")
           .toLowerCase()
           .replace(/\s+/g, "")
@@ -2026,7 +2026,7 @@ if(loading){
                         if (plannedProjects.length >= 4) {
                           setPlannedError("You can create 4 fields only");
                         } else {
-                          appendPlanned({ PName: "", PType: "", PStatus: "", PStart: "", PEnd: "", PReles: "" });
+                          appendPlanned({ Proname: "", PType: "", PStatus: "", PStart: "", PEnd: "", PReles: "" });
                           setPlannedError("");
                         }
                       }}

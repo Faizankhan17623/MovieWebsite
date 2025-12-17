@@ -104,7 +104,7 @@ export function Orgainezer_Data(data, token) {
     dispatch(setLoading(true));
     try {
       // Build FormData that matches backend names exactly
-      console.log("THis is the data",data)
+      // console.log("THis is the data",data)
      
       let tokenStr = token;
       try {
@@ -128,10 +128,10 @@ export function Orgainezer_Data(data, token) {
 
 
 // const yesNoFields = {
-//   Work: "notableProjects",
-//   mediaChoice: "SocialMedia",
-//   Ongoing: "ongoingProject",
-//   Planned: "projectsplanned",
+//   // Work: "notableProjects",
+//   // mediaChoice: "SocialMedia",
+//   // Ongoing: "ongoingProject",
+//   // Planned: "projectsplanned",
 //   distributions: "Distribution",
 //   promotions: "Promotions",
 //   AssistanceRequired: "Assistance",
@@ -142,8 +142,6 @@ export function Orgainezer_Data(data, token) {
 
 // console.log(Works)
 
-      // Basic scalar fields (match backend variable names / casing)
-      // fd.append("Id",userId || "")
       fd.append("First", data.First || "");
       fd.append("Last", data.Last || "");
       fd.append("Email", data.Email || "");
@@ -160,28 +158,29 @@ export function Orgainezer_Data(data, token) {
       fd.append("totalProjects", data.TotalProjects || "");
       fd.append("Experience", data.YearExperience || "");
       fd.append("shortbio", data.bio || "");
+      // console.log(data.Notable)
       fd.append("notableProjects", data.Work || "No");
       fd.append("SocialMedia", data.mediaChoice ||"No");
       fd.append("ongoingProject", data.Ongoing ||"No");
       fd.append("projectspllanned", data.Planned ||"No");
+      fd.append("Distribution", data.distributions ||"No");
+      fd.append("Promotions", data.promotions ||"No");
+      fd.append("Assistance", data.AssistanceRequired ||"No");
+      fd.append("certifications", data.Certified ||"No");
+      fd.append("ExperienceCollabrating", data.Experience ||"No");
+      fd.append("collabrotion", data.Collaboration ||"No");
+
+
       fd.append("Genre" , data.genres || [])
       fd.append("subGenre",data.subgenres || [])
       fd.append("Screen",data.screenFormats || [])
       fd.append("Target", data.audienceTypes || [])
-      fd.append("Distribution", data.distributions ||"No");
-      fd.append("Promotions", data.promotions ||"No");
-      fd.append("Assistance", data.AssistanceRequired ||"No");
       fd.append("support", data.AssistanceType || "");
       fd.append("mainreason", data.JoiningReason || "");
-      fd.append("certifications", data.Certified ||"No");
-        fd.append("ExperienceCollabrating", data.Experience ||"No");
-      fd.append("collabrotion", data.Collaboration ||"No");
-// Screen, Target
       fd.append("role", data.selectedRole || "");
       fd.append("experience", data.experiences || "");
 
-      // Boolean-like toggles (backend expects these keys)
-     
+    //  xundress.com
      
 //       for (const key in yesNoFields) {
 //   const backendField = yesNoFields[key];
@@ -196,13 +195,21 @@ export function Orgainezer_Data(data, token) {
         fd.append("Image", data.posterImage);
       }
 
+if (Array.isArray(data.Notable)) {
+  data.Notable.forEach((s, i) => {
+    fd.append(`notable[${i}][name]`, s.name || "");
+    fd.append(`notable[${i}][url]`, s.url || "");
+    fd.append(`notable[${i}][role]`, s.role || "");
+    fd.append(`notable[${i}][budget]`, s.budget || "");
+  });
+}
+
       // Socials -> social[i][mediaName], social[i][follwers], social[i][urls]
       if (Array.isArray(data.socials)) {
         data.socials.forEach((s, i) => {
           fd.append(`social[${i}][mediaName]`, s.mediaName || "");
-          // backend expects 'follwers' typo, match it
-          fd.append(`social[${i}][follwers]`, s.followers || s.follwers || "");
-          fd.append(`social[${i}][urls]`, s.link || s.url || "");
+          fd.append(`social[${i}][follwers]`, s.followers || "");
+          fd.append(`social[${i}][link]`, s.link ||  "");
         });
       }
 
@@ -210,21 +217,24 @@ export function Orgainezer_Data(data, token) {
       // and file key ongoing[i][script] (PDF)
       if (Array.isArray(data.ongoingProjects)) {
         data.ongoingProjects.forEach((p, i) => {
-          fd.append(`ongoing[${i}][name]`, p.Proname || p.name || "");
-          fd.append(`ongoing[${i}][startdate]`, p.Start_Date || p.start || "");
-          fd.append(`ongoing[${i}][enddate]`, p.End_Date || p.end || "");
+          fd.append(`ongoing[${i}][name]`, p.ProName || "");
+          fd.append(`ongoing[${i}][startdate]`, p.Start_Date ||  "");
+          fd.append(`ongoing[${i}][enddate]`, p.Start_End ||"");
           fd.append(`ongoing[${i}][released]`, p.Release ||"No");
-          if (p.ProFile) {
-            // must be a File (PDF), backend checks mimetype === application/pdf
-            fd.append(`ongoing[${i}][script]`, p.ProFile);
-          }
+               p.ProFile.forEach((file, fileIndex) => {
+    if (file instanceof File) {
+      fd.append(`ongoing[${i}][script]`, file);
+    }
+  });
         });
       }
+
+    
 
       // Planned projects -> projects[i][name], projects[i][type], projects[i][status], projects[i][start], projects[i][end], projects[i][released]
       if (Array.isArray(data.plannedProjects)) {
         data.plannedProjects.forEach((p, i) => {
-          fd.append(`projects[${i}][name]`, p.PName || "");
+          fd.append(`projects[${i}][name]`, p.Proname || "");
           fd.append(`projects[${i}][type]`, p.PType || "");
           fd.append(`projects[${i}][status]`, p.PStatus || "");
           fd.append(`projects[${i}][start]`, p.PStart || "");
@@ -236,11 +246,11 @@ export function Orgainezer_Data(data, token) {
       // Certificates -> Cert[i][name], Cert[i][date], and file key Cert[i][certificate]
       if (Array.isArray(data.certifications)) {
         data.certifications.forEach((c, i) => {
-          fd.append(`Cert[${i}][name]`, c.CertificateName || c.name || "");
+          fd.append(`Cert[${i}][name]`, c.CertificateName || "");
           fd.append(`Cert[${i}][date]`, c.CertDate || "");
-          if (c.Certificateafile) {
+          if (c.Certificatealink) {
             // must be a File (PDF)
-            fd.append(`Cert[${i}][certificate]`, c.Certificateafile);
+            fd.append(`Cert[${i}][certificate]`, c.Certificatealink);
           }
         });
       }
