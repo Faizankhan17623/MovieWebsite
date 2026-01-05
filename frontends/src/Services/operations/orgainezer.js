@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 import {apiConnector} from '../apiConnector'
 import {CreateOrgainezer,Ticket,AllotTheatre,GetAllSHowsDetails,GetAllTheatreDetails,orgainezerdata} from "../Apis/OranizaerApi"
-import { setLoading} from '../../Slices/orgainezerSlice'
+import {setLoading} from '../../Slices/orgainezerSlice'
 import {setToken,setLogin,setUserImage,setUser} from '../../Slices/authSlice.js'
 import {setloading, setuser} from '../../Slices/ProfileSlice.js'
 import Cookies from "js-cookie";
@@ -12,7 +12,7 @@ const {OrgainezerData,DirectorFresher,DirectorExperience,ProducerFresher,Produce
 export function Creation(name,password,email,number,otp,code){
     return async (dispatch) => {
         dispatch(setLoading(true));
-        const ToastId = toast.loading("Creating the orgainezer, please wait...");
+        const ToastId = toast.loading("Creating the orgainezer, please 234wait...");
         try{
             if (!name || !password || !email || !number || !otp ||!code) {
         throw new Error('Missing required fields');
@@ -60,7 +60,7 @@ export function OrgainezerLogin(email,password,navigate){
                 password:password
             })
 
-            console.log("THis is the response",response)
+            // console.log("THis is the response",response)
                  console.log("User is been logged in ")
                 toast.success('Congragulations you are logged in')
                 // console.log(response.data.user.verified)
@@ -71,15 +71,15 @@ export function OrgainezerLogin(email,password,navigate){
                      const userimage = response?.data?.user?.image
 
                       dispatch(setUserImage(userimage))
-                      localStorage.setItem('userImage', userimage)
-
-
+                    
                     dispatch(setuser({ ...response.data.user ,usertype:response.data.user.usertype, image:userimage }))
             dispatch(setUser(response.data.user))
 
-                                Cookies.set('token', response.data.token, { expires: 2 }); 
+                      Cookies.set('token', response.data.token, { expires: 3 }); 
                       localStorage.setItem('token', JSON.stringify(response.data.token))
                       localStorage.setItem('Verified', JSON.stringify(response.data.user.verified))
+                      localStorage.setItem('userImage', userimage)
+
 
             navigate('/Dashboard/My-Profile')
 
@@ -120,28 +120,6 @@ export function Orgainezer_Data(data, token) {
 
       const fd = new FormData();
 
-// function yesNoToBool(value){
-//    if (value === "Yes") return true;
-//   if (value === "No") return false;
-//   return "";
-// }
-
-
-// const yesNoFields = {
-//   // Work: "notableProjects",
-//   // mediaChoice: "SocialMedia",
-//   // Ongoing: "ongoingProject",
-//   // Planned: "projectsplanned",
-//   distributions: "Distribution",
-//   promotions: "Promotions",
-//   AssistanceRequired: "Assistance",
-//   Certified: "certifications",
-//   Experience: "ExperienceCollabrating",
-//   Collaboration: "collabrotion"
-// };
-
-// console.log(Works)
-
       fd.append("First", data.First || "");
       fd.append("Last", data.Last || "");
       fd.append("Email", data.Email || "");
@@ -180,15 +158,6 @@ export function Orgainezer_Data(data, token) {
       fd.append("role", data.selectedRole || "");
       fd.append("experience", data.experiences || "");
 
-    //  xundress.com
-     
-//       for (const key in yesNoFields) {
-//   const backendField = yesNoFields[key];
-//   // console.log("This")
-//   fd.append(backendField, yesNoToBool(data[key]));
-// }
-  
-
       // MAIN IMAGE: backend expects req.files?.Image
       if (data.posterImage) {
         // posterImage must be a File object (from input[type=file])
@@ -221,11 +190,13 @@ if (Array.isArray(data.Notable)) {
           fd.append(`ongoing[${i}][startdate]`, p.Start_Date ||  "");
           fd.append(`ongoing[${i}][enddate]`, p.Start_End ||"");
           fd.append(`ongoing[${i}][released]`, p.Release ||"No");
-               p.ProFile.forEach((file, fileIndex) => {
-    if (file instanceof File) {
-      fd.append(`ongoing[${i}][script]`, file);
-    }
+          if (p.ProFile instanceof FileList) {
+  Array.from(p.ProFile).forEach(file => {
+    fd.append(`ongoing[${i}][script]`, file);
   });
+} else if (p.ProFile instanceof File) {
+  fd.append(`ongoing[${i}][script]`, p.ProFile);
+}
         });
       }
 
@@ -248,10 +219,14 @@ if (Array.isArray(data.Notable)) {
         data.certifications.forEach((c, i) => {
           fd.append(`Cert[${i}][name]`, c.CertificateName || "");
           fd.append(`Cert[${i}][date]`, c.CertDate || "");
-          if (c.Certificatealink) {
-            // must be a File (PDF)
-            fd.append(`Cert[${i}][certificate]`, c.Certificatealink);
-          }
+
+           if (c.Certificatealink instanceof FileList) {
+  Array.from(c.Certificatealink).forEach(file => {
+    fd.append(`Cert[${i}][certificate]`, file);
+  });
+} else if (c.Certificatealink instanceof File) {
+  fd.append(`Cert[${i}][certificate]`, c.Certificatealink);
+}
         });
       }
 
@@ -264,12 +239,6 @@ if (Array.isArray(data.Notable)) {
           fd.append(`distributions[${i}][date]`, d.ReleaseDate || "");
         });
       }
-
-      // DEBUG: log all formdata keys (useful during dev)
-      // eslint-disable-next-line no-console
-      // for (const pair of fd.entries()) {
-      //   console.log("FD", pair[0], pair[1]);
-      // }
 
        const config = {
         headers: {
@@ -299,13 +268,12 @@ if (Array.isArray(data.Notable)) {
   };
 }
 
-
 export function DirectorFres (data,token){
   return async (dispatch)=>{
-    dispatch(setloading(true))
+   dispatch(setLoading(true));
     try{
 
-      console.log(data)
+      // console.log(data)
         let tokenStr = token;
       try {
         // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
@@ -341,16 +309,15 @@ export function DirectorFres (data,token){
       console.log(error)
       console.log(error.message)
     }finally{
-      dispatch(setloading(false))
+      dispatch(setLoading(false));
     }
 
   }
 }
 
-
 export function DirectorExperien (data,token){
   return async(dispatch)=>{
-      dispatch(setloading(true))
+     dispatch(setLoading(true));
     try{
 
    let tokenStr = token;
@@ -423,16 +390,15 @@ export function DirectorExperien (data,token){
       }
       throw error;
     }finally{
-      dispatch(setloading(false))
+      dispatch(setLoading(false));
 
     }
   }
 }
 
-
 export function ProducerFreshe (data,token){
    return async(dispatch)=>{
-      dispatch(setloading(true))
+     dispatch(setLoading(true));
     try{
 
         let tokenStr = token;
@@ -488,21 +454,68 @@ export function ProducerFreshe (data,token){
       }
       throw error;
     }finally{
-      dispatch(setloading(false))
+      dispatch(setLoading(false));
     }
   }
 }
 
-// export function ProducerExperienced (data,token){
-//    return async(dispatch)=>{
-//       dispatch(setloading(true))
-//     try{
+export function ProducerExpe (data,token){
+ return async (dispatch)=>{
+  dispatch(setLoading(true));
+  try {
+            let tokenStr = token;
+      try {
+        // If token is a quoted JSON string like "\"eyJ...\"", this will parse to real string.
+        if (typeof token === "string" && (token.startsWith('"') || token.startsWith("{"))) {
+          tokenStr = JSON.parse(token);
+        }
+      } catch (e) {
+        // ignore parse error and use original token
+        console.error(e)
+      }
 
-//     }catch(error){
+      const fd = new FormData()
+    if (data.supportingDocs?.[0] instanceof File) {
+        fd.append("resume", data.supportingDocs[0]);
+      }
 
-//     }finally{
-//       dispatch(setloading(false))
+      fd.append("teamSize",data.teamSize || "")
+      fd.append("projectcount", data.projectCount || "")
+      fd.append("riskmanagement",data.RiskManagement || "")
+       fd.append("Fund", JSON.stringify(data.fundingSources ?? []));
 
-//     }
-//   }
-// }
+        fd.append("affiliated", data.affiliation || "No");
+
+       if (data.affiliation) {
+        fd.append("Affili[0][name]", data.guildUnion);
+        fd.append("Affili[0][membership]", data.membershipId);
+        fd.append("Affili[0][yearjoined]", data.yearJoined);
+        fd.append("Affili[0][expirydate]", data.expiryDate);
+      }
+
+   const config = {
+        headers: {
+          // do NOT set 'Content-Type' here
+          ...(tokenStr ? { Authorization: `Bearer ${tokenStr}` } : {})
+        },
+        // if server expects cookie-based auth or you need cookies sent do this:
+        withCredentials: true
+      };
+
+       const response = await apiConnector("POST", ProducerExperience, fd, config.headers, null);
+      // If apiConnector returns axios response, prefer returning response.data
+      // console.log("DEBUG response:", response?.data || response);
+      return (response && response.data) ? response.data : response;
+  } catch (error) {
+     console.log("Error in the Producer Experience code", error);
+      try {
+        toast.error(error?.response?.data?.message || error.message);
+      } catch (e) {
+        console.error(e);
+      }
+      throw error;
+  }finally{
+      dispatch(setLoading(false));
+  }
+ } 
+}

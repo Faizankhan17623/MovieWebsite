@@ -1023,3 +1023,7 @@ input:checked + .slider:before {
 .b{
   margin-top: 20px;
 }
+
+.Seperation{
+  padding-left: 10px;
+}

@@ -21,22 +21,29 @@ const {TicketPurchase,TicketPurchasedFullDetail} = TicketData
 const {CreateRating,GetAverageRating,GetAllRatingReview} = Ratings
 const {GetAllDetails,FindUserNames,FindEmail,FindNumber} = AllDetails
 
-export function UserDetails (){
+export function UserDetails (token){
     return async (dispatch) => {
+        dispatch(setloading(true))
         const toastId = toast.loading("Loading...")
-        dispatch(setLoading(true))
         try {
-            const response = await apiConnector("GET", GetAllDetails)
-            console.log("Current user details fetched successfully", response)
+               if(!token){
+                          navigate("/Login")
+                          toast.error("Token is Expired Please Create a new One")
+                      }
+
+            const response = await apiConnector("GET", GetAllDetails,null, { Authorization: `Bearer ${token}` })
+            // console.log("Current user details fetched successfully", response)
             if (!response.data.success) {
                 throw new Error(response.data.message)
             }
             dispatch(setUser(response.data.user))
+             return { success: true, data: response.data };
         } catch (error) {
             console.error("Error fetching current user details", error)
-        }
-        dispatch(setLoading(false))
+        }finally{
+             dispatch(setloading(false))
         toast.dismiss(toastId)
+        }
     }
 }
 
@@ -181,10 +188,7 @@ export function UserCreation(name,password,email,number,otp,countrycode){
         }
     }
 }
-
-
-
-            
+         
 export function UserLogin(email,pass,navigate){
     return async(dispatch)=>{
         // const toastId = toast.loading("..loading")
@@ -239,8 +243,6 @@ export function UserLogin(email,pass,navigate){
     }
 }
 
-
-
 // and if any thing extra is needed to add we wil add that in the code in future
 export function UserLogout(){
     return async(dispatch)=>{
@@ -250,10 +252,12 @@ export function UserLogout(){
             dispatch(setToken(null))
             dispatch(setUser(null))
             localStorage.removeItem('token')
-            Cookies.remove('token'); // Remove cookie
+            Cookies.remove('token'); 
             localStorage.removeItem('userImage')
             localStorage.removeItem('user')
-            localStorage.removeItem('Verified')
+            // localStorage.removeItem('Verified')
+            // localStorage.removeItem('Data Submitted')
+
             dispatch(setLogin(false))
         }catch(error){
             console.log("There is an error in the logout process",error)
@@ -426,8 +430,6 @@ export function Updatenumber(newnumber){
     }
 }
 
-
-
 export function GetCurrentUserDetails(){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
@@ -451,9 +453,7 @@ export function GetCurrentUserDetails(){
 }
 
 
-
 // here w will put some data of the personal details and this are all the function that are like  using the peersonal details and the personal slice
-
 
 export function bannerLike(id){
     return async(dispatch)=>{
@@ -478,6 +478,7 @@ export function bannerLike(id){
         toast.dismiss(toastId)
     }
 }
+
 export function bannerDislike(id){
     return async(dispatch)=>{
         const toastId = toast.loading("..loading")
@@ -733,7 +734,6 @@ export function createRating(rating,showid,review){
         toast.dismiss(toastId)
     }
 }   
-
 
 export function getAverageRating(Showid){
     return async(dispatch)=>{

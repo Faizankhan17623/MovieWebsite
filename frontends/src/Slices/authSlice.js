@@ -8,7 +8,6 @@ const initialState = {
   image: localStorage.getItem("userImage") ? localStorage.getItem("userImage") : null
 };
 
-
 const authSlice = createSlice({
     name: "auth",
     initialState:initialState,

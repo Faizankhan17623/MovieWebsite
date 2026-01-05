@@ -59,7 +59,7 @@ const Org = () => {
        setLoading(true)
               try{
                 const Response = await dispatch(OrgainezerLogin(data.Email,data.Password,navigate))
-                console.log("This is the response",Response)
+                // console.log("This is the response",Response)
                 // OpenRoute()
                 if(Response?.success){
                   toast.success("user is loged in ")

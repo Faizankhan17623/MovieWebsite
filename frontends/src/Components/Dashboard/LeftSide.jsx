@@ -14,16 +14,25 @@ import { CiChat1 } from 'react-icons/ci';
 import { MdReviews } from 'react-icons/md';
 import { FaLock } from 'react-icons/fa';
 import isVerificationSubmitted from './OrganizerVerificationForm'
+import {UserDetails} from '../../Services/operations/Auth'
 
-const LeftSide = () => {
+const LeftSide = ({direction}) => {
   const { user } = useSelector((state) => state.profile);
+  const {token} = useSelector((state)=>state.auth)
+  const dispatch = useDispatch();
+// console.log("This ist he token",loadUserFromLocalStorage)
+
+// This are all the use States that I have used in my code 
   const [confirmationModal, setConfirmationModal] = useState(null);
   const [text, setText] = useState('My Profile');
   const [extra, setExtra] = useState('');
   const [show, setShow] = useState(false);
   const [ticket, setTicket] = useState(false);
   const [inside, setInside] = useState('');
-  const dispatch = useDispatch();
+  const [data,setdata] = useState()
+
+  const FormSubmited = localStorage.getItem("Data_Submitted") === "true";
+  const organizerLocked = localStorage.getItem("Verified") === "false";
 
   useEffect(() => {
     if (!user) {
@@ -31,11 +40,32 @@ const LeftSide = () => {
     }
   }, [dispatch, user]);
 
+
+  useEffect(()=>{
+    if (!token) return;
+
+  const timer = setTimeout(async() => {
+      try {
+        const response = await dispatch(UserDetails(token));
+
+        if (response?.success) {
+          setdata(response.data.data.orgainezerdata);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+  }, 5000); // ⏱️ 5 seconds
+
+  // cleanup (VERY important)
+  return () => clearTimeout(timer);
+  },[token,dispatch])
+// console.log("This is the data of the user details",data)
+
   const viewerNav = [
-    { icon: LuUserRound, label: 'My Profile', path: '/Dashboard/My-Profile', id: 1 },
-    { icon: FaBookBookmark, label: 'Purchased Tickets', path: '/Dashboard/Purchased-Tickets', id: 2 },
-    { icon: CiBookmark, label: 'Wishlist', path: '/Dashboard/Wishlist', id: 3 },
-    { icon: FaCartShopping, label: 'Purchase History', path: '/Dashboard/Purchase-History', id: 4 },
+    { icon: LuUserRound, label:'My Profile', path: '/Dashboard/My-Profile', id: 1 },
+    { icon: FaBookBookmark, label:'Purchased Tickets', path: '/Dashboard/Purchased-Tickets', id: 2 },
+    { icon: CiBookmark, label:'Wishlist', path: '/Dashboard/Wishlist', id: 3 },
+    { icon: FaCartShopping, label:'Purchase History', path: '/Dashboard/Purchase-History', id: 4 },
   ];
 
   const organizerNav = [
@@ -46,7 +76,7 @@ const LeftSide = () => {
       label: 'Create Show',
       path: '/Dashboard/Shows',
       id: 3,
-      disabled: !user.verified || !isVerificationSubmitted,
+      disabled:organizerLocked
     },
     { icon: CiChat1, label: 'Chat', path: '/Dashboard/My-Venues', id: 4 },
     { icon: MdReviews, label: 'Reviews', path: '/Dashboard/My-Venues', id: 5 },
@@ -55,6 +85,7 @@ const LeftSide = () => {
       label: 'Organizer Verification',
       path: '/Dashboard/Organizer-Verification',
       id: 6,
+      disabled: FormSubmited 
     },
   ];
 
@@ -73,7 +104,8 @@ const LeftSide = () => {
   const navigationItems = navMap[user?.usertype] || [];
 
   const isVerificatioasdefnSubmitted = localStorage.getItem("user");
-  // console.log(isVerificatioasdefnSubmitted.verified)
+  const Verification = localStorage.getItem("Verified")
+
   if (!user) {
     return (
       <div className="w-full h-full bg-richblack-800 flex items-center justify-center text-white">
@@ -83,34 +115,36 @@ const LeftSide = () => {
   }
 
   return (
-    <div className="w-full h-full bg-richblack-800 flex flex-col text-richblack-900">
+<div
+  className={`w-full h-full bg-richblack-800 flex flex-col text-richblack-900 transition duration-300 ease-in-out ${
+    direction ? "hidden" : "flex transition duration-300 ease-in-out h-full"
+  }`}
+>
       <nav className="flex flex-col gap-3 Sides text-richblack-100">
         {navigationItems.map(({ icon: Icon, label, path, id, disabled }) => (
           <div key={id} className="flex flex-col">
             {label === 'Create Show' ? (
               <>
-                <button
-                  className={`flex items-center justify-between w-full text-left p-2 Drop rounded ${
+                 <button
+                  disabled={disabled}
+                 className={`flex items-center justify-between w-full text-left p-2 Drop rounded ${
                     text === label ? 'bg-yellow-200 text-richblack-900' : 'hover:bg-richblack-700'
                   } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
                   onClick={() => {
-                    if (!disabled && user.verified) {
-                      setShow((prev) => !prev);
-                      setInside('');
-                      setText(label);
-                    }
+                    if (disabled) return;
+                    setShow(prev => !prev);
+                    setInside('');
+                    setText(label);
                   }}
-                  disabled={disabled}
                 >
                   <span className="flex items-center gap-2">
                     {disabled && <FaLock />}
-                    <Icon />
-                    {label}
+                    <Icon />{label}
                   </span>
                   <FaCaretDown className={`transition-transform ${show ? 'rotate-180' : ''}`} />
                 </button>
 
-                {show && (
+                {show && !organizerLocked && (
                   <div className="ml-8 mt-2 subMenu flex flex-col gap-2">
                     <div
                       className={
@@ -211,28 +245,25 @@ const LeftSide = () => {
                   </div>
                 )}
                 <div className="flex flex-col">
-                  <button
-                    className={`flex items-center justify-between w-full text-left p-2 Drop rounded ${
+                   <button
+                  disabled={organizerLocked}
+                  className={`flex items-center justify-between w-full text-left p-2 Drop rounded ${
                       text === 'Tickets' ? 'bg-yellow-200 text-richblack-900' : 'hover:bg-richblack-700'
                     } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
-                    onClick={() => {
-                      if (!disabled && user.verified) {
-                        setTicket((prev) => !prev);
-                        setInside('');
-                        setText('Tickets');
-                      }
-                    }}
-                    disabled={disabled}
-                  >
-                    <span className="flex items-center gap-2">
-                      {disabled && <FaLock />}
-                      <IoTicketSharp />
-                      Tickets
-                    </span>
-                    <FaCaretDown className={`transition-transform ${ticket ? 'rotate-180' : ''}`} />
-                  </button>
+                  onClick={() => {
+                    if (organizerLocked) return;
+                    setTicket(prev => !prev);
+                    setText('Tickets');
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    {organizerLocked && <FaLock />}
+                    <IoTicketSharp /> Tickets
+                  </span>
+                  <FaCaretDown className={`transition-transform ${ticket ? 'rotate-180' : ''}`} />
+                </button>
 
-                  {ticket && (
+                  {ticket && !organizerLocked &&(
                     <div className="ml-8 mt-2 subMenu1 flex flex-col gap-2">
                       <Link to="/Dashboard/Tickets/Create" className="hover:text-yellow-200">
                         Create Ticket
@@ -248,15 +279,15 @@ const LeftSide = () => {
                 </div>
               </>
             ) : (
-              <Link to={path}>
+               <Link to={disabled ? "#" : path} onClick={(e) => disabled && e.preventDefault()}>
                 <button
-                  className={`flex items-center gap-2 w-full text-left p-2 Close rounded ${
-                    text === label ? 'bg-yellow-200 text-richblack-900' : 'hover:bg-richblack-700'
-                  } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
-                  onClick={() => setText(label)}
+                  disabled={disabled}
+                  className={`flex items-center gap-2 w-full p-2 rounded ${
+                    disabled ? "cursor-not-allowed opacity-50" : "hover:bg-richblack-700"
+                  }`}
                 >
-                  <Icon />
-                  {label}
+                  {disabled && <FaLock />}
+                  <Icon /> {label}
                 </button>
               </Link>
             )}
@@ -266,8 +297,8 @@ const LeftSide = () => {
         {/* Verification Status Indicator */}
         {user.usertype === ACCOUNT_TYPE.ORGANIZER && (
           <div className="mt-4 text-richblack-200 text-sm">
-            {isVerificationSubmitted
-              ? 'Please submit verification data to unlock full features.' :'Verification Data Submitted'
+            {FormSubmited 
+              ? 'Verification Data Submitted' :'Please submit verification data to unlock full features.' 
               }
           </div>
         )}

@@ -8,7 +8,7 @@ const initialState = {
   cooldownDate: localStorage.getItem("cooldownDate") || null, // ⬅️ CHANGED - Added cooldown
   user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
   verification : localStorage.getItem("Verified") ? JSON.parse(localStorage.getItem("Verified")) : null,
-  FormSubmitted:localStorage.getItem("Data Submitted")
+  FormSubmitted:localStorage.getItem("Data_Submitted")
 };
 
 const ProfileSlice = createSlice({
@@ -26,7 +26,7 @@ const ProfileSlice = createSlice({
     },
     setuser: (state, value) => {
       const safeUser = {
-        userName: value.payload.userName,
+        // userName: value.payload.userName,
         usertype: value.payload.usertype,
          _id: value.payload._id?.toString()
       };

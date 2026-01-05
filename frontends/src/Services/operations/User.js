@@ -11,7 +11,7 @@ const {UpdateImage} = UpdatePersonalDetails
 
 export function GetAllUserDetails(token,navigate) {
     return async (dispatch) => {
-        dispatch(setloading(true));
+        dispatch(setLoading(true));
         const ToastId = toast.loading("Fetching user details, please wait...");
         try {
 
@@ -42,14 +42,14 @@ export function GetAllUserDetails(token,navigate) {
         } 
         finally {
             toast.dismiss(ToastId);
-            dispatch(setloading(false));
+            dispatch(setLoading(false));
         }
     };
 }
 
 export function Changeimage(token, newImage,navigate) {
     return async (dispatch) => {
-        dispatch(setloading(true));
+        dispatch(setLoading(true));
         const ToastId = toast.loading("Changing user image, please wait...");
         try {
              if(!token){
@@ -91,7 +91,7 @@ export function Changeimage(token, newImage,navigate) {
             return { success: false, error: error.message };
         } finally {
             toast.dismiss(ToastId);
-        dispatch(setloading(false));
+        dispatch(setLoading(false));
         }
     };
 }

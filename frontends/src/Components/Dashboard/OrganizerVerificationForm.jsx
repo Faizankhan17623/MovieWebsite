@@ -19,9 +19,10 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import {GetAllUserDetails} from '../../Services/operations/User'
 import Loader from '../extra/Loading'
-import {Orgainezer_Data,DirectorFres,DirectorExperien,ProducerFreshe} from '../../Services/operations/orgainezer'
+import {Orgainezer_Data,DirectorFres,DirectorExperien,ProducerFreshe,ProducerExpe} from '../../Services/operations/orgainezer'
 
-const OrganizerVerificationForm = () => {
+const OrganizerVerificationForm = (direction) => {
+  // console.log("This is the direction data",direction)
    const navigate = useNavigate()
     const dispatch = useDispatch()
     const {token} = useSelector((state)=>state.auth)
@@ -66,95 +67,72 @@ const OrganizerVerificationForm = () => {
 
 const Proceed = async (data) => {
 
-  const JsonString = JSON.stringify(data)
-  console.log("This is the json data",JsonString)
-  console.log("THis is the data",data)
-  // make sure your data.posterImage is a File (not a data URL or string)
-  // and other files are present in arrays (ongoingProjects[].ProFile, certifications[].Certificateafile)
-
-  // if (!userId) {
-  //     console.error("No user ID available");
-  //     return;
-  //   }
-
-  //          console.log("This is the user id",userId)
-
+  // const JsonString = JSON.stringify(data)
+  // console.log("This is the json data",JsonString)
+  // console.log("THis is the data",data)
 
   try {
     setloading(true)
     const Response = await dispatch(Orgainezer_Data(data, token));
       // const userId = getState().Profile.user?._id;
       // console.log(Response)
-
-      if(data.selectedRole === "Director" && data.experiences === "Fresher"){
-        try{
-          const RoleExperience = await dispatch(DirectorFres(data,token))
-          if(RoleExperience?.success === false){
-            stop()
-            toast.error("error in the Director Fresher code")
-          }
-        }catch(error){
-          console.log(error,error.message)
-        }
-      }
-
-
-       if(data.selectedRole === "Director" && data.experiences === "Experienced"){
-        try{
-          const RoleExperience = await dispatch(DirectorExperien(data,token))
-          if(RoleExperience?.success === false){
-            stop()
-            toast.error("error in the Director Fresher code")
-          }
-        }catch(error){
-          console.log(error,error.message)
-        }
-
-      }
-
-
-
-         if(data.selectedRole === "Producer" && data.experiences === "Fresher"){
-        try{
-          const RoleExperience = await dispatch(ProducerFreshe(data,token))
-          if(RoleExperience?.success === false){
-            stop()
-            toast.error("error in the Producer Fresher code")
-          }
-        }catch(error){
-          console.log(error,error.message)
-        }
-
-      }
-
-
-    if (Response?.success) {
-      toast.success("Data send Succesfully")
-    }
-     if (!Response?.success) {
-      // main failed — show server message if available and stop
-      toast.error(Response?.message || "Failed to submit main organizer data");
+       if (!Response?.success) {
+      toast.error(Response?.message || "Organizer data failed");
       return;
     }
-    setloading(false)
+      if (Response?.success) {
+      toast.success("Data send Succesfully")
+    }
 
-  } catch (error) {
-    console.log(error, error.message);
-  }
+       if (data.selectedRole === "Director") {
+      if (data.experiences === "Fresher") {
+        const res = await dispatch(DirectorFres(data, token));
+        if (!res?.success) throw new Error("Director Fresher failed");
+      } else {
+        const res = await dispatch(DirectorExperien(data, token));
+        if (!res?.success) throw new Error("Director Experienced failed");
+      }
+    }
 
-  Swal.fire({
+
+        if (data.selectedRole === "Producer") {
+      if (data.experiences === "Fresher") {
+        const res = await dispatch(ProducerFreshe(data, token));
+        if (!res?.success) throw new Error("Producer Fresher failed");
+      } else {
+        const res = await dispatch(ProducerExpe(data, token));
+        if (!res?.success) throw new Error("Producer Experienced failed");
+      }
+    }
+
+    // if (Response?.success) {
+    //   toast.success("Data send Succesfully")
+    // }
+    //  if (!Response?.success) {
+    //   // main failed — show server message if available and stop
+    //   toast.error(Response?.message || "Failed to submit main organizer data");
+    //   return;
+    // }
+     Swal.fire({
     title: "Success !",
     text: "Your Data is Been Submitted",
     icon: "success",
-    showConfirmButton: false,
-    timer: 4000
+    showConfirmButton: true,
+    timer: 5000
   });
 
-  // localStorage.setItem("Data Submitted", true);
+  localStorage.setItem("Data_Submitted", true);
 
   setTimeout(() => {
     navigate("/Dashboard/My-Profile");
   }, 3000);
+  
+  } catch (error) {
+    console.log(error)
+    console.log(error, error.message);
+  }finally{
+    setloading(false)
+  }
 };
 
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -437,7 +415,6 @@ useEffect(() => {
 }, [internship, internships, appendIntern, removeIntern]);
 
 
-
 const notableValue = watch("Notable");
 const socialsValue = watch("socials");
 const ongoingValue = watch("ongoingProjects");
@@ -503,13 +480,15 @@ const onSubmit = async (data) => {
                             btn1Handler: () => Proceed(data),
                             btn2Handler: () => setConfirmationModal(null),
             })
-    console.log("Form submitted", data);
+            // This are some of the extra things do not delete them keep them they are needed for some work that is going to be done 
+    // console.log("Form submitted", data);
     // console.log("Form errors", errors);
     // console.log("This is the film entries",filmEntries)
     // console.log(typeof filmEntries)
     // console.log(data.CountryCode)
     // console.log(typeof data.CountryCode)
     // Notables(filmEntries)
+
     setSubmittedData(data);
     setIsSubmitted(true);
     try {
@@ -568,7 +547,6 @@ useEffect(() => {
   }
 }, [Name, setValue, data, open]);
 
-
 if(loading){
   return (
     <div className='w-full h-full flex justify-center items-center'>
@@ -581,7 +559,7 @@ if(loading){
 
   return (
     <div className="flex justify-center h-fit w-full min-h-screen bg-richblack-900 overflow-y-scroll overflow-x-hidden">
-      <div className="w-full max-w-5xl bg-richblack-900 rounded-xl shadow-lg p-8 Secondss text-white">
+      <div className="w-full max-w-[63rem] bg-richblack-900 rounded-xl shadow-lg p-8 Secondss text-white">
         <h2 className="text-3xl font-bold text-yellow-400 mb-6 text-center Verificationss">Organizer Data</h2>
         <p className="text-gray-400 font-italic text-center Verificationss">
           {isSubmitted
@@ -639,7 +617,7 @@ if(loading){
                     <select
                       {...register("CountryCode", { required: "Country code is required" })}
                       className={`p-3 w-full bg-richblack-600 h-11 form-style rounded-lg outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.CountryCode ? "border-red-500" : ""} ${data?"cursor-not-allowed":"cursor-pointer"} `}
-                      defaultValue=""
+                      // defaultValue=""
                       value={data?.countrycode || ''}
                     >
                       <option value="" disabled>Select Your Country Code</option>
@@ -3252,7 +3230,7 @@ if(loading){
 )}
 
       {hasAwards === "Yes" && (
-  <div className={`${awardSectionOpen ? "hidden" : "w-full flex flex-col gap-2"}`}>
+  <div className={`${awardSectionOpen ? "w-full flex flex-col gap-2" : " hidden" }`}>
     <div className="flex flex-row">
       <FaCaretDown
         className="text-2xl cursor-pointer"
@@ -3931,9 +3909,9 @@ if(loading){
           className="w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400"
           checked={affilitions === "Yes"}
           {...register("affiliation", { required: "Affiliation selection is required" })}
-          onChange={()=>{
+          onChange={(e)=>{
             setaffilition("Yes")
-            setValue("affiliation","Yes")
+            setValue("affiliation",e.target.value)
           }}
         />
         <span className="text-white">Yes</span>
@@ -3945,9 +3923,9 @@ if(loading){
           className="w-4 h-4 text-yellow-400 bg-richblack-800 border-richblack-600 focus:ring-yellow-400"
           checked={affilitions === "No"}
           {...register("affiliation", { required: "Affiliation selection is required" })}
-          onChange={()=>{
+          onChange={(e)=>{
             setaffilition("No")
-            setValue("affiliation","No")
+            setValue("affiliation",e.target.value)
           }}
         />
         <span className="text-white">No</span>

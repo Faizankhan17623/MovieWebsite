@@ -90,7 +90,6 @@ export function MakePayment(showid,theatreid,ticketid,categories,totaltickets,ti
 }
 
 
-
 export function VERIFYPAYMENT(){
     return async(dispatch)=>{
         const toastId = toast.loading('...loading')
