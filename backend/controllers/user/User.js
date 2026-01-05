@@ -3,19 +3,21 @@ const USER = require('../../models/user')
 
 exports.GetAlluserDetails = async(req,res)=>{
     try{
-        const id = req.USER.id
-        const Details = await USER.findById(id)
-        if(!Details){
-            return res.status(400).json({
-                message:"There is no user present in the database",
-                success:false
-            })
-        }
-        return res.json({
-            success:true,
-            message:"All the user details are present",
-            data:Details
-        })
+       const id = req.USER.id;
+
+    const user = await USER.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+         return res.status(200).json({
+      success: true,
+      message: "User details fetched successfully",
+      data: user,
+    });
     }catch(error){
         console.log(error)
         return res.status(500).json({

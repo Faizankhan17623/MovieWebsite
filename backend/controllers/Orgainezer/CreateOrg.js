@@ -213,13 +213,13 @@ exports.OrgData = async (req, res) => {
 
     const ID = req?.USER.id
 
-    // const Finding = await Orgdata.findOne({id:ID})
-    // if(Finding){
-    //   return res.status(400).json({
-    //     message:"You have already registered the data in the orgainzation form",
-    //     success:false
-    //   })
-    // }
+    const Finding = await Orgdata.findOne({id:ID})
+    if(Finding){
+      return res.status(400).json({
+        message:"You have already registered the data in the orgainzation form",
+        success:false
+      })
+    }
 
     const {
       First, Last, Email, Countrycode, number, countryname, statename, cityname,
@@ -466,6 +466,9 @@ if (String(ongoingProject) && ongoingProject === "Yes") {
       });
     }
    
+if (StartDate >= EndDate) {
+  throw new Error("Start Date must be before End Date");
+}
 
     // file validation — guard every access
     const script = req.files?.[`ongoing[${i}][script]`];
@@ -554,11 +557,16 @@ if (String(projectspllanned) && projectspllanned === "Yes") {
 
   const projectNames = new Set();
 
-  const DateChecker = (str) => {
-    const [day, month, year] = str.split('/');
-    const fullYear = year === 2 ? `20${year}` : year;
-    return new Date(`${fullYear}-${month}-${day}`);
-  };
+const DateChecker = (str = "") => {
+  if (!str) return new Date("Invalid");
+
+  // supports YYYY-MM (from <input type="month">)
+  if (/^\d{4}-\d{2}$/.test(str)) {
+    return new Date(`${str}-01`);
+  }
+
+  return new Date(str);
+};
 
 
 const projectStatusReleaseMap = {
@@ -635,6 +643,11 @@ const projectStatusReleaseMap = {
         data: project,
       });
     }
+
+    if (StartDate >= EndDate) {
+  throw new Error("Start Date must be before End Date");
+}
+
   }
 
   // console.log("This is the project data", Project);
@@ -692,7 +705,6 @@ if(String(Distribution) && Distribution === "Yes"){
 }else{
   Dist = []
 }
-
 
 
 // console.log("This is the Assistance",Assistance)
@@ -1591,6 +1603,10 @@ exports.ProducerExperience = async (req, res) => {
       });
     }
 
+        // -------- Resume (PDF) --------
+    // Expecting a single file field named "Resume" (or "resume")
+    let Resum = req.files.Resume || req.files.resume;
+
     const { affiliated, teamSize, projectcount, riskmanagement } = parsedBody;
 
     // Required: EMPTY string check only (your requirement)
@@ -1616,18 +1632,16 @@ exports.ProducerExperience = async (req, res) => {
     //   return res.status(400).json({ message: "projectcount must be a non-negative number", success: false });
     // }
 
-    // -------- Resume (PDF) --------
-    // Expecting a single file field named "Resume" (or "resume")
-    let Resume = req.files?.Resume || req.files?.resume;
+// console.log(Resum)
 
-    if (!Resume) {
+    if (!Resum) {
       return res.status(400).json({
         message: "This resume fields is required",
         success: false,
       });
     }
 
-    if (Array.isArray(Resume)) {
+    if (Array.isArray(Resum)) {
       return res.status(400).json({
         message: "Only one file is allowed",
         success: false,
@@ -1637,14 +1651,14 @@ exports.ProducerExperience = async (req, res) => {
     const MaxLimit = 5 * 1024 * 1024; // 5 MB
     const fileType = "application/pdf";
 
-    if (Resume.mimetype !== fileType) {
+    if (Resum.mimetype !== fileType) {
       return res.status(400).json({
-        message: `Invalid file type. Expected: ${fileType}, Received: ${Resume.mimetype}`,
+        message: `Invalid file type. Expected: ${fileType}, Received: ${Resum.mimetype}`,
         success: false,
       });
     }
 
-    if (Resume.size > MaxLimit) {
+    if (Resum.size > MaxLimit) {
       return res.status(400).json({
         message: "Your resume exceeds the 5 MB limit",
         success: false,
@@ -1653,7 +1667,7 @@ exports.ProducerExperience = async (req, res) => {
 
     // Upload resume
     const fileUrl = await uploadDatatoCloudinary(
-      Resume,
+      Resum,
       process.env.CLOUDINARY_FOLDER_NAME,
       1000,
       1000
@@ -1723,8 +1737,9 @@ if (Funding.length === 0) {
     );
     let Affilition = [];
 
-    if (affiliated && affiliated.toString().toLowerCase() === "true") {
+    if (String(affiliated) && affiliated=== "Yes") {
       const AwardsMap = new Map();
+      // String(notableProjects) && notableProjects === "Yes"
 
       affiliatedObjects.forEach((key) => {
         const match = key.match(/Affili\[(\d+)\]\[(.+)\]/);
@@ -1768,7 +1783,11 @@ if (Funding.length === 0) {
     const {Role,ExperienceLevel} = Finding
     // name,membership,yearjoined,expirydate
     // affiliated, teamSize, projectcount, riskmanagement
+    // console.log("This is the affiliation data",affiliated)
+    // console.log("This isth details",Affilition)
+
     try{
+
       const Updating = await producerexperience.create({
         Resume:fileUrl.secure_url,
         Role:Role,
@@ -1777,10 +1796,10 @@ if (Funding.length === 0) {
         Affiliation:{
           needed:affiliated,
           items:Affilition.map((data)=>({
-            union:data.name[0],
-            Membershipid:data.membership[0],
-            Yearjoined:data.yearjoined[0],
-            ExpiryDate:data.expirydate[0]
+            union:data.name,
+            Membershipid:data.membership,
+            Yearjoined:data.yearjoined,
+            ExpiryDate:data.expirydate
           }))
         },
         TeamSize:teamSize,
@@ -1802,20 +1821,6 @@ if (Funding.length === 0) {
         message:"There is an error while creating the producer experieence data"
       })
     }
-
-    // return res.status(200).json({
-    //   success: true,
-    //   message: "ProducerExperience validated",
-    //   data: {
-    //     affiliated,
-    //     teamSize,
-    //     projectcount,
-    //     riskmanagement,
-    //     resumeUrl: fileUrl.secure_url,
-    //     Funding,
-    //     Affilition,
-    //   },
-    // });
   } catch (error) {
     console.log(error);
     console.log(error.message);

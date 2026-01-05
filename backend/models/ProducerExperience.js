@@ -5,13 +5,9 @@ const ProducerExperienceSchema = new mongoose.Schema({
   Resume: {
     type: String,
     required: true,
-    validate: {
-      validator: function (v) {
-        if (!v) return false;
-        const s = String(v).trim();
-        return /\.(pdf)(?:[?#].*)?$/i.test(s);
-      },
-      message: 'Resume must be a PDF file (filename or URL ending with .pdf)'
+     validate: {
+      validator: v => /\.pdf(\?|$)/i.test(v),
+      message: "Resume must be a PDF URL"
     }
   },
 
@@ -32,7 +28,7 @@ const ProducerExperienceSchema = new mongoose.Schema({
   },
 
   Affiliation: {
-    needed:{  type: Boolean,required: true,default: "No" },
+    needed:{  type: String,required: true,default: "No" },
     items:[
       {
         union:{type:String,required:true},
@@ -43,7 +39,7 @@ const ProducerExperienceSchema = new mongoose.Schema({
     ]
   },
   TeamSize: {
-    type: Number,
+    type: String,
     required: true,
     min: 0
   },
