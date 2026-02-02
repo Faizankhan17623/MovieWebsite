@@ -47,7 +47,7 @@ exports.auth = async (req, res, next) => {
 
 exports.IsAdmin = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ id: req.USER.id });
+        const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log("Finding in IsAdmin:", Finding);
         if (!Finding) {
             return res.status(404).json({
@@ -76,7 +76,7 @@ exports.IsAdmin = async (req, res, next) => {
 
 exports.IsOrganizer = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ id: USER.id });
+        const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log(Finding)
         // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {
@@ -107,7 +107,7 @@ exports.IsOrganizer = async (req, res, next) => {
 
 exports.IsUSER = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ id: req.USER.id  });
+        const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log("Finding in IsUSER:", Finding);
         if (!Finding) {
             return res.status(404).json({
@@ -136,7 +136,7 @@ exports.IsUSER = async (req, res, next) => {
 
 exports.IsTheatrer = async (req, res, next) => {
     try {
-        const Finding = await USER.findOne({ id: req.USER.id });
+        const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log("Finding in IsTheatrer:", Finding);
         if (!Finding) {
             return res.status(404).json({
@@ -165,7 +165,7 @@ exports.IsTheatrer = async (req, res, next) => {
 
 exports.DF = async (req,res,next)=>{
     try {
-           const Finding = await USER.findOne({ id: USER.id });
+           const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log(Finding)
         // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {
@@ -215,7 +215,7 @@ exports.DF = async (req,res,next)=>{
 
 exports.DE = async (req,res,next)=>{
     try {
-           const Finding = await USER.findOne({ id: USER.id });
+           const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log(Finding)
         // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {
@@ -264,7 +264,7 @@ exports.DE = async (req,res,next)=>{
 
 exports.PE = async (req,res,next)=>{
     try {
-           const Finding = await USER.findOne({ id: USER.id });
+           const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log(Finding)
         // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {
@@ -313,7 +313,7 @@ exports.PE = async (req,res,next)=>{
 
 exports.PF = async (req,res,next)=>{
     try {
-           const Finding = await USER.findOne({ id: USER.id });
+           const Finding = await USER.findOne({ _id: req.USER.id });
         // console.log(Finding)
         // console.log("Finding in IsOrganizer:", Finding);
         if (!Finding) {

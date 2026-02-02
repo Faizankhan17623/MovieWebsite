@@ -25,21 +25,19 @@ exports.login = async (req, res) => {
             .populate({path:'comment',model:'Comment'})
             .exec()
 
-            if(user.usertype === 'Organizer'){
-                return res.status(400).json({
-                    message:"The User is an Orgainezer Please Use The Orgainezer Login",
-                    success:false
-                })
-            }
-
-
-            
         if (!user) {
             return res.status(404).json({
                 message: "Email not found.",
                 success: false
             });
         }
+
+            if(user.usertype === 'Organizer'){
+                return res.status(400).json({
+                    message:"The User is an Orgainezer Please Use The Orgainezer Login",
+                    success:false
+                })
+            }
 
         const isPasswordValid = await bcrypt.compare(password, user.confirmpass);
 
@@ -61,7 +59,7 @@ exports.login = async (req, res) => {
         await USER.findByIdAndUpdate(_id, { verified: true }, { new: true });
         await USER.findByIdAndUpdate(_id, { $push: { lastlogin: lastLoginTime } }, { new: true });
 
-        const expiry = "5s";  // string is clearer
+        const expiry = "7d";  // string is clearer
 
         const jwtCreation = jwt.sign(
             {  usertype, verified, id: _id },
@@ -74,7 +72,7 @@ exports.login = async (req, res) => {
 
         // console.log(jwtCreation)
         const options = {
-             expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+             expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             httpOnly:true,
             secure: false, 
             sameSite: 'Lax'

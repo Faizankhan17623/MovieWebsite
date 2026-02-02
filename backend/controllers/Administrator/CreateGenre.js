@@ -189,7 +189,7 @@ exports.deleteAllgenre = async(req,res)=>{
 exports.getAllGenres = async(req,res)=>{
     try {
         const data = await genre.find()
-        console.log(data)
+        // console.log(data)
         if(!data){
             return res.status(404).json({
                 message:"no genres are been created till now",

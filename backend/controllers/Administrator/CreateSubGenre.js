@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const genre = require('../../models/genre')
 const subgenre = require('../../models/subgenre')
 // This function is present in the admin route on line no 33
@@ -114,6 +115,12 @@ exports.deletesubgenre = async(req,res)=>{
 
 
         const deletion = await subgenre.findByIdAndDelete(id,{new:true})
+
+        const objectId = new mongoose.Types.ObjectId(id)
+        await genre.updateMany(
+            { subgeneres: objectId },
+            { $pull: { subgeneres: objectId } }
+        )
 
         return res.status(200).json({
             message:"The sub genre is been deleted",

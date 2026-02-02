@@ -118,7 +118,7 @@ const userSchema =  new mongoose.Schema({
     lastImageUpdate: {
         type: String
     },
-    lastNumberUpdate: {
+    lastNumberUpdate: { 
         type: String
     },
     theatreCreated:{

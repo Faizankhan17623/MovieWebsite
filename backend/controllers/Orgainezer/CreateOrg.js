@@ -357,7 +357,7 @@ if (String(SocialMedia) && SocialMedia === "Yes") {
               if (!mediaName || !follwers || !urls) {
       return res.status(400).json({
         success: false,
-        message: "Required fields (mediaName, followers or urls) are missing in notable projects.",
+        message: "Required fields (mediaName, followers or urls) are missing in Social Media",
         data: project
       });
     }
@@ -591,11 +591,11 @@ const projectStatusReleaseMap = {
 
   for (let index = 0; index < Project.length; index++) {
     const project = Project[index];
-    const { name, type, status, start, end, released } = project;
+    const { name, status, start, end, released } = project;
 // console.log("THis is the name from the project",name)
 
     // Required fields check
-    if (!name || !type || !status || !released || !start || !end) {
+    if (!name  || !status || !released || !start || !end) {
       return res.status(400).json({
         message: "The input fields are required",
         data: project,
@@ -960,6 +960,7 @@ try{
       Comfortable:String(collabrotion),
       Role:role,
       ExperienceLevel:experience,
+      status:"pending"
 })
 
 await USER.findByIdAndUpdate(ID,{orgainezerdata:Uploading._id})

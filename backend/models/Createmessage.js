@@ -17,7 +17,6 @@ const CreateMessageSchema = new mongoose.Schema({
     },
     showid:{
         type:String
-        // required:true
     }
 },{timestamps:true})
 module.exports = mongoose.model("Message",CreateMessageSchema)

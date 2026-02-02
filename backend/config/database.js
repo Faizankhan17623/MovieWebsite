@@ -6,7 +6,7 @@ const DatabaseConnection = async ()=>{
         console.log("The databse connection is been done".bgBlue)
     })
     .catch((error)=>{
-        console.log("There is an error in the code",error)
+        console.log("There is an error in the code",error.message)
         console.log(error.message)
     });
 }

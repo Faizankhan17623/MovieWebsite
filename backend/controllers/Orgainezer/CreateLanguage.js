@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const language = require('../../models/CreateLanguage')
 // THis is the function which is present in the admin route on line no 61
 exports.CreateLanguage = async(req,res)=>{
@@ -45,8 +46,8 @@ exports.updateLanguage = async(req,res)=>{
                 success:false
             })
         }
-        
-        const updation = await language.findOneAndUpdate(id,{name:newname},{new:true})
+        const Ides = new ObjectId(id);
+        const updation = await language.findOneAndUpdate(Ides,{name:newname},{new:true})
         return res.status(200).json({
             message:"The new language is been created",
             success:true,

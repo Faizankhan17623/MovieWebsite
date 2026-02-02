@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const OrgDataSchema = new mongoose.Schema({
     id:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required:true
     },
     username:{
         type: String,
@@ -259,7 +260,6 @@ Comfortable: {
     required: true,
     enum: ["Fresher", "Experienced"] // Experience options
   },
-  
   DirectFresh:{
     type: mongoose.Schema.Types.ObjectId,
         ref: 'directorfresher'
@@ -275,8 +275,24 @@ Comfortable: {
   ProducerExperience:{
      type: mongoose.Schema.Types.ObjectId,
         ref: 'producerexperience'
+  },
+  status: {
+    type: String,
+    enum: ["pending", "rejected", "Approved", "locked"],
+    default: "pending",
+    required:true
+  },
+  attempts: {
+    type: Number,
+    default: 0,
+    max: 3
+  },
+  editUntil: {
+    type: String
+  },
+  lockedUntill:{
+    type:Date
   }
-
 },{timestamps:true})
 
 const Orgdata =  mongoose.model("OrgainezerData", OrgDataSchema);

@@ -3,20 +3,20 @@ const USER = require('../../models/user')
 
 exports.GetAlluserDetails = async(req,res)=>{
     try{
-       const id = req.USER.id;
+    const id = req.USER.id
 
-    const user = await USER.findById(id);
+    const users = await USER.findById(id).populate('orgainezerdata');
 
-    if (!user) {
+    if (!users || users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "No users found",
       });
     }
          return res.status(200).json({
       success: true,
       message: "User details fetched successfully",
-      data: user,
+      data: users,
     });
     }catch(error){
         console.log(error)

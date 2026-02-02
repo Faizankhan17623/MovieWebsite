@@ -1,6 +1,6 @@
 const express = require('express')
 const route = express.Router()
-const {auth,IsAdmin} = require('../middlewares/verification')
+const {auth,IsAdmin,IsOrganizer} = require('../middlewares/verification')
 const {Creategenre,Updategenre,deletegenre,deleteAllgenre,getAllGenres} = require('../controllers/Administrator/CreateGenre')
 const {GetAllTheatres,TheatreCreationRequest,CreateTheatres} = require('../controllers/Administrator/CreateTheatres')
 const {CreateSubgenre,UpdateSubGenre,deletesubgenre,deleteAllsubGenres,getAllgenre} = require('../controllers/Administrator/CreateSubGenre')
@@ -13,13 +13,14 @@ const {OrgainesersVerifylength,Theatrelength,GetAllUsersDetailsVerified,GetAllUs
 
 
 // This is the extra route that is been added so that the admin can delete all the comments
-// route.delete("/delete-Comment",auth,IsAdmin,deleteComment)
+
 // This one will work for all the orgaineser 
 // DONE
 route.put("/Org-Verification",auth,IsAdmin,VerifyOrgainezer)
 route.delete("/delete-Org",auth,IsAdmin,deleteOrgainezer)
 route.delete("/delete-allOrg",auth,IsAdmin,DeleteAllOrgainezers)
-route.get("/All-Orgainesers",auth,IsAdmin,GetAllorg)
+route.get("/Get-All-Orgs",auth,IsAdmin,GetAllorg)
+
 // DONE all the four are rpresetnt in the admin foldeer in the admin verification file
 
 // This is the one that will work to create the genre 
@@ -30,6 +31,7 @@ route.put("/Update-Genre",auth,IsAdmin,Updategenre)
 route.delete("/delete-Genre",auth,IsAdmin,deletegenre)
 route.delete("/remove-AllGenre",auth,IsAdmin,deleteAllgenre)
 route.get("/Get-AllGenre",auth,IsAdmin,getAllGenres)
+
 // DONE all present from 23 to 27 in the create genre file in the admin folder
 
 
@@ -78,6 +80,7 @@ route.get("/Single-Languages",auth,IsAdmin,GetSingleLanguage)
 // THis will be all the routes that are going to be used for the Admin dashboard
 route.get("/Orgaineser-Request",auth,IsAdmin,OrgainesersVerifylength)
 route.get("/Theatre-Request",auth,IsAdmin,Theatrelength)
+
 route.get("/Verified-Users",auth,IsAdmin,GetAllUsersDetailsVerified)
 route.get("/Unverified-Users",auth,IsAdmin,GetAllUsersDetailsVerifiedfalse)
 route.get("/Verified-Orgainesers",auth,IsAdmin,GetAllOrganizerDetailsVerified)
